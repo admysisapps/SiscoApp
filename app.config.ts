@@ -6,6 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: IS_PREVIEW ? "SiscoApp (Preview)" : "SiscoApp",
   slug: "SiscoApp",
+  owner: "admysis",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
@@ -77,7 +78,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     router: {},
     eas: {
-      projectId: "9979c14f-ba4a-450b-a7c3-0f1408dc91a2",
+      projectId: "84930e65-58b2-4fcc-8c42-4b1f9346598e",
     },
   },
 });
