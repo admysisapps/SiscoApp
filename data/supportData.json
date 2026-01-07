@@ -1,0 +1,249 @@
+{
+  "helpDesk": {
+    "title": "Ayuda y Soporte",
+    "subtitle": "Estamos aquí para ayudarte con todo lo relacionado a SiscoApp",
+    "description": "En SiscoApp esperamos que cada día sea mejor que el anterior. Te tenemos cubierto, comparte tu inquietud o revisa las preguntas frecuentes listadas abajo."
+  },
+  "faq": [
+    {
+      "id": "1",
+      "question": "¿Qué es Sisco?",
+      "answer": "SISCO (Sistema Integrado de Información para Copropiedades) Disponible en el mercado desde 1993, es una herramienta de software diseñada específicamente para el control de los recursos financieros del sector de la Propiedad Horizontal."
+    },
+    {
+      "id": "2",
+      "question": "¿Cómo cambiar mi contraseña?",
+      "answer": "Ve a Perfil > Cambiar Contraseña y sigue las instrucciones para actualizar tu contraseña."
+    },
+    {
+      "id": "3",
+      "question": "¿Qué son las zonas comunes?",
+      "answer": "Las zonas comunes son espacios compartidos de tu copropiedad como piscinas, salones sociales, gimnasios, canchas, BBQ, etc. Cada copropiedad tiene diferentes zonas según sus características y servicios disponibles."
+    },
+    {
+      "id": "3a",
+      "question": "¿Por qué no veo una zona común que antes estaba disponible?",
+      "answer": "Si no encuentras una zona común que antes podías reservar, es posible que el administrador la haya desactivado. Contacta a la administración para más información."
+    },
+    {
+      "id": "3b",
+      "question": "¿Qué significa cuando una zona está 'en mantenimiento'?",
+      "answer": "Cuando una zona está en mantenimiento significa que está temporalmente cerrada por reparaciones o mejoras. No se pueden hacer reservas hasta que el administrador la reactive. La fecha aproximada de finalización del mantenimiento se muestra en la app."
+    },
+    {
+      "id": "3c",
+      "question": "¿Cómo funcionan los precios de las zonas comunes?",
+      "answer": "Los precios varían según el tipo de zona: algunas son gratuitas, otras se cobran por minutos, por horas o por bloques fijos de tiempo. Además, cada día de la semana puede tener precios diferentes según lo configure la administración."
+    },
+    {
+      "id": "3d",
+      "question": "¿Qué son los horarios de disponibilidad?",
+      "answer": "Cada zona común tiene horarios específicos de funcionamiento que pueden variar por día de la semana. El administrador puede configurar horarios diferentes para cada día o incluso cerrar la zona ciertos días si es necesario."
+    },
+    {
+      "id": "3e",
+      "question": "¿Qué significa 'requiere aprobación del administrador'?",
+      "answer": "Algunas zonas requieren que el administrador apruebe tu reserva antes de confirmarla. Tu reserva quedará en estado 'Pendiente' hasta que sea aprobada. Otras zonas tienen aprobación automática y pasan directamente a 'Confirmada'."
+    },
+    {
+      "id": "3f",
+      "question": "¿Cómo hacer una reserva?",
+      "answer": "Accede a la sección de Reservas, selecciona la zona común deseada, elige fecha y hora, luego confirma tu reserva. Recuerda respetar los tiempos de antelación requeridos para cada zona."
+    },
+    {
+      "id": "4",
+      "question": "¿Qué es un PQR y para qué sirve?",
+      "answer": "PQR significa Peticiones, Quejas y Reclamos. Es el canal oficial para comunicarte con la administración sobre cualquier situación en tu copropiedad, desde solicitudes de mantenimiento hasta quejas por ruido o reclamos sobre servicios."
+    },
+    {
+      "id": "5",
+      "question": "¿Cómo crear un PQR?",
+      "answer": "Ve a la sección PQR > Crear Nuevo PQR. Selecciona el tipo (Petición, Queja o Reclamo), escribe un asunto claro, describe detalladamente tu solicitud y adjunta evidencias si es necesario."
+    },
+    {
+      "id": "6",
+      "question": "¿Cuáles son los estados de un PQR?",
+      "answer": "Los estados son: Pendiente (recién creado), En Proceso (administración a dado respuesta), Resuelto (solucionado) y Anulado (cancelado por el usuario antes de que el administrador responda)."
+    },
+    {
+      "id": "7",
+      "question": "¿Cómo hacer seguimiento a mi PQR?",
+      "answer": "En la sección PQR puedes ver todos tus PQR con su estado actual. Recibirás notificaciones cuando haya actualizaciones. Asegúrate de tener las notificaciones activas para recibir mensajes en tiempo real."
+    },
+    {
+      "id": "8",
+      "question": "¿Puedo cancelar un PQR?",
+      "answer": "Sí, puedes anular tu PQR mientras esté en estado 'Pendiente'. Una vez que la administración responda, el PQR pasa automáticamente a 'En Proceso' y ya no se puede anular."
+    },
+    {
+      "id": "9",
+      "question": "¿Cuánto tiempo tarda la respuesta a un PQR?",
+      "answer": "El tiempo de respuesta depende de cada administración y la complejidad del caso. Recibirás notificaciones automáticas cuando haya actualizaciones. Para casos urgentes, contacta directamente a la administración."
+    },
+    {
+      "id": "10",
+      "question": "¿Cuáles son los estados de una reserva?",
+      "answer": "Los estados son: Pendiente (esperando aprobación del administrador), Confirmada (aprobada y activa), Cancelada (cancelada por el usuario) y Rechazada (no aprobada por el administrador). El estado depende de si la zona requiere aprobación."
+    },
+    {
+      "id": "11",
+      "question": "¿Puedo cancelar mi reserva?",
+      "answer": "Sí, puedes cancelar tu reserva en cualquier momento desde 'Mis Reservas'. Deberás proporcionar el motivo de la cancelación. No hay restricciones de tiempo para cancelar."
+    },
+    {
+      "id": "12",
+      "question": "¿Qué pasa si el horario que quiero ya está ocupado?",
+      "answer": "Si el horario que elegiste ya está reservado, la app te avisará y te mostrará otras horas disponibles. Por ejemplo, si intentas reservar a las 6:00 PM y está ocupado, podrás elegir entre opciones como 7:30 PM o 10:30 PM."
+    },
+    {
+      "id": "13",
+      "question": "¿Por qué fue rechazada mi reserva?",
+      "answer": "Las reservas pueden ser rechazadas por diversas razones según las reglas de tu copropiedad: antecedentes de pagos, incumplimiento de normas anteriores, etc. El administrador debe especificar el motivo del rechazo en las observaciones de la reserva."
+    },
+    {
+      "id": "14",
+      "question": "¿Cómo funcionan las reservas por horas vs por minutos?",
+      "answer": "En reservas por horas verás casillas con cada hora del día y su disponibilidad. En reservas por minutos seleccionas la hora de inicio y la duración exacta que necesitas. Las zonas de 24 horas muestran horarios hasta la madrugada del día siguiente."
+    },
+    {
+      "id": "15",
+      "question": "¿Qué son los comunicados?",
+      "answer": "Los comunicados son mensajes oficiales que envía la administración de tu copropiedad para informar sobre eventos, mantenimientos, pagos, advertencias, recordatorios y situaciones de emergencia. Todos los residentes reciben los mismos comunicados."
+    },
+    {
+      "id": "16",
+      "question": "¿Qué tipos de comunicados existen?",
+      "answer": "Hay 6 tipos de comunicados: General (información general), Advertencia (situaciones importantes), Recordatorio (fechas o eventos), Pago (temas financieros), Mantenimiento (trabajos programados) y Emergencia (situaciones urgentes)."
+    },
+    {
+      "id": "17",
+      "question": "¿Qué significan las prioridades de los comunicados?",
+      "answer": "Los comunicados tienen 4 niveles de prioridad: Baja (información general), Media (importante pero no urgente), Alta (requiere atención pronto) y Urgente (acción inmediata requerida). La prioridad se muestra con colores diferentes."
+    },
+    {
+      "id": "18",
+      "question": "¿Cómo sé cuándo se publicó un comunicado?",
+      "answer": "Cada comunicado muestra cuánto tiempo hace que fue publicado (ej: 'hace 2 horas', 'hace 3 días'). Si el comunicado es sobre un evento futuro, también verás la fecha programada del evento."
+    },
+    {
+      "id": "19",
+      "question": "¿Puedo ver comunicados antiguos?",
+      "answer": "Sí, puedes ver comunicados anteriores haciendo scroll hacia abajo en la sección Comunicados. La app carga los últimos comunicados y puedes cargar más tocando 'Ver más comunicados'."
+    },
+    {
+      "id": "20",
+      "question": "¿Por qué no recibo notificaciones de comunicados?",
+      "answer": "Verifica que tengas las notificaciones activas en Perfil > Notificaciones y que los permisos de notificaciones estén habilitados en la configuración de tu dispositivo. Todos los comunicados envían notificaciones automáticamente."
+    },
+    {
+      "id": "21",
+      "question": "¿Cómo editar mi información personal?",
+      "answer": "Ve a Perfil > Información Personal y toca 'Editar' en la parte superior. Puedes modificar tu nombre, apellido, teléfono y correo electrónico. El documento no se puede cambiar."
+    },
+    {
+      "id": "22",
+      "question": "¿Por qué no puedo cambiar mi documento?",
+      "answer": "El documento de identidad es un campo único e inmutable que se usa para identificarte en el sistema. Por seguridad, este campo no se puede modificar una vez registrado."
+    },
+    {
+      "id": "23",
+      "question": "¿Qué pasa si cambio mi correo electrónico?",
+      "answer": "Al cambiar tu correo, recibirás un código de verificación en la nueva dirección para confirmar el cambio. El correo debe ser único en el sistema, no se pueden tener dos usuarios con el mismo email."
+    },
+    {
+      "id": "24",
+      "question": "¿Todos los campos son obligatorios?",
+      "answer": "Los campos obligatorios pueden variar según cada copropiedad. Sin embargo, el documento y el correo electrónico siempre son requeridos para el funcionamiento de la app."
+    },
+    {
+      "id": "25",
+      "question": "¿Cómo recuperar mi cuenta si olvidé mis datos?",
+      "answer": "Puedes recuperar tu cuenta usando tu correo electrónico o documento. Si ingresas tu documento, se enviará un email de recuperación al correo asociado, y viceversa."
+    },
+    {
+      "id": "26",
+      "question": "¿Cómo unirme a otra copropiedad?",
+      "answer": "Ve a Perfil > Unirse a Otro Proyecto e ingresa el código único de la copropiedad. Este código es público (POR VER )"
+    },
+    {
+      "id": "27",
+      "question": "¿Qué requisitos necesito para unirme a otra copropiedad?",
+      "answer": "Debes ser propietario en la nueva copropiedad. El sistema verificará y te dara acceso a todas las funciones."
+    },
+    {
+      "id": "28",
+      "question": "¿Qué pasa con mis datos al unirme a otra copropiedad?",
+      "answer": "Cada copropiedad es independiente, por lo que empezarás sin reservas, PQR o historial previo. Tus inmuebles en la nueva copropiedad aparecerán automáticamente una vez te unas."
+    },
+    {
+      "id": "29",
+      "question": "¿Cómo cambiar entre copropiedades?",
+      "answer": "Una vez unido a múltiples copropiedades, ve a Perfil > Cambiar de Proyecto para alternar entre ellas. La app te llevará al selector de proyectos cada vez que la abras."
+    },
+    {
+      "id": "30",
+      "question": "¿Qué pasa si el código de copropiedad es incorrecto?",
+      "answer": "Si el código es inválido  recibirás un mensaje de error, solo puedes acceder a copropiedades donde estés registrado como propietario."
+    },
+    {
+      "id": "31",
+      "question": "¿Dónde veo la información de pago de mi copropiedad?",
+      "answer": "Ve a la sección Información de Pago desde el menú principal. Ahí encontrarás todas las cuentas bancarias, métodos de pago y enlaces disponibles configurados por tu administración."
+    },
+    {
+      "id": "32",
+      "question": "¿Qué tipos de métodos de pago están disponibles?",
+      "answer": "Los métodos incluyen: Cuentas de Ahorros, Cuentas Corrientes, Pasarelas de Pago (PSE, tarjetas), Pagos Físicos (oficinas) y Billeteras Digitales. Cada copropiedad configura sus métodos disponibles."
+    },
+    {
+      "id": "33",
+      "question": "¿Cómo uso la información de pago?",
+      "answer": "Toca cualquier método de pago para ver los detalles completos: número de cuenta, titular, instrucciones específicas y enlaces. Puedes copiar la información, compartirla o abrir enlaces directamente."
+    },
+    {
+      "id": "34",
+      "question": "¿Puedo pagar directamente desde la app?",
+      "answer": "La app te proporciona toda la información necesaria y enlaces a pasarelas de pago cuando están disponibles. Para transferencias bancarias, tendrás los datos completos para realizar el pago desde tu banco."
+    },
+    {
+      "id": "35",
+      "question": "¿Qué hago si no aparecen métodos de pago?",
+      "answer": "Si no ves información de pago, significa que tu administración aún no ha configurado los métodos. Contacta directamente a la administración para obtener los datos de pago de tu copropiedad."
+    },
+    {
+      "id": "36",
+      "question": "¿Cómo crear una cuenta en SiscoApp?",
+      "answer": "Para registrarte necesitas el código único de tu copropiedad. Ingresa tus datos personales (documento, nombre, apellido, teléfono y correo) y el código de tu copropiedad. Deberás verificar tu correo electrónico para activar la cuenta."
+    },
+    {
+      "id": "37",
+      "question": "¿Por qué no puedo ingresar a la app después de registrarme?",
+      "answer": "Debes verificar tu correo electrónico antes de poder ingresar. Revisa tu bandeja de entrada y spam, y copea el codigo de verififcacion. Sin esta verificación no podrás acceder a la app."
+    },
+    {
+      "id": "38",
+      "question": "¿Cómo iniciar sesión en SiscoApp?",
+      "answer": "Puedes iniciar sesión usando tu número de documento o tu correo electrónico, junto con tu contraseña. Ambas opciones te darán acceso a tu cuenta."
+    },
+    {
+      "id": "39",
+      "question": "¿Puedo usar mi cuenta en varios dispositivos?",
+      "answer": "Sí, puedes usar la misma cuenta en múltiples dispositivos al mismo tiempo sin ningún problema. Tu información se sincronizará automáticamente entre todos tus dispositivos."
+    },
+    {
+      "id": "40",
+      "question": "¿Qué hago si no recibí el correo de verificación?",
+      "answer": "Revisa tu carpeta de spam o correo no deseado. Si no lo encuentras, puedes solicitar un nuevo correo de verificación desde la pantalla de login. Asegúrate de que el correo electrónico esté escrito correctamente."
+    }
+  ],
+  "contact": {
+    "email": "atencionalcliente@admysis.com",
+    "chatAvailable": false,
+    "emailSubject": "Soporte SiscoApp",
+    "emailBody": "Describe tu problema aquí..."
+  },
+  "actions": {
+    "stillStuck": "¿Aún necesitas ayuda? Estamos a un correo de distancia",
+    "sendMessage": "Enviar mensaje"
+  }
+}

@@ -1,0 +1,126 @@
+name: React Native CI/CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      buildType:
+        type: choice
+        description: 'Build type to run'
+        options:
+          - preview-apk
+          - production-apk
+          - production-aab
+          - all
+
+env:
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  NODE_OPTIONS: --openssl-legacy-provider
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npm run typecheck
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Prettier check
+        run: npm run format:check
+
+  build-and-deploy:
+    needs: test
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm ci --omit=dev
+          npm install -g eas-cli@latest
+
+      - name: Ensure package.json main entry
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+          cp package.json package.json.bak
+          jq '.main = "expo-router/entry"' package.json > package.json.tmp && mv package.json.tmp package.json
+
+      - name: Update metro.config.js for SVG
+        run: |
+          if [ -f ./metro.config.js ]; then
+            cp ./metro.config.js ./metro.config.js.bak
+            cat > ./metro.config.js << 'EOFMARKER'
+          /* eslint-disable @typescript-eslint/no-var-requires */
+          const { getDefaultConfig } = require('expo/metro-config');
+
+          const config = getDefaultConfig(__dirname);
+          const { transformer, resolver } = config;
+
+          config.transformer = {
+            ...transformer,
+            babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
+          };
+
+          config.resolver = {
+            ...resolver,
+            assetExts: resolver.assetExts.filter(ext => ext !== 'svg'),
+            sourceExts: [...resolver.sourceExts, 'svg'],
+          };
+
+          module.exports = config;
+          EOFMARKER
+          fi
+
+      # Build Preview APK - Package: com.Admysis.SiscoApp.preview
+      - name: Build Preview APK
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'preview-apk'
+        run: |
+          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+          eas build --platform android --profile preview --local --non-interactive --output=./app-preview.apk
+
+      # Build Production APK - Package: com.Admysis.SiscoApp
+      - name: Build Production APK
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'production-apk'
+        run: |
+          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+          eas build --platform android --profile production --local --non-interactive --output=./app-production.apk
+
+      # Build Production AAB - Package: com.Admysis.SiscoApp (for Google Play)
+      - name: Build Production AAB
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'production-aab'
+        run: |
+          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+          eas build --platform android --profile production --local --non-interactive --output=./app-production.aab
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-builds-${{ github.run_number }}
+          path: |
+            ./app-preview.apk
+            ./app-production.apk
+            ./app-production.aab
+          retention-days: 7
+          if-no-files-found: ignore
+          compression-level: 6

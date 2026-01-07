@@ -1,0 +1,97 @@
+# Dependencies (muy pesados)
+node_modules/
+amplify/node_modules/
+
+# Lambda functions (backend)
+lambda/
+
+# Build outputs locales
+.expo/
+android/
+ios/
+dist/
+web-build/
+.next/
+
+# Logs y debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.metro-health-check*
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.temp
+.cache/
+
+# Archivos de configuración local
+.env*.local
+expo-env.d.ts
+
+# Gradle (Android build cache)
+android/.gradle/
+android/app/build/
+android/build/
+
+# Amplify outputs (se regeneran)
+#amplify_outputs.json
+#amplifyconfiguration.json
+
+# Archivos grandes innecesarios
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Backups
+*.bak
+*.backup
+*~
+
+# Testing
+__tests__/
+__mocks__/
+coverage/
+.jest/
+*.test.ts
+*.test.tsx
+*.test.js
+*.test.jsx
+*.spec.ts
+*.spec.tsx
+*.spec.js
+*.spec.jsx
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+
+# Documentation
+*.md
+docs/
+
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# ESLint y Prettier
+.eslintcache
+.prettierignore
+
+

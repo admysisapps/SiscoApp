@@ -1,0 +1,80 @@
+{
+  "auth": {
+    "user_pool_id": "us-east-1_che8vacrW",
+    "aws_region": "us-east-1",
+    "user_pool_client_id": "28nb9hvni6930h178f81jsa8qu",
+    "identity_pool_id": "us-east-1:25b5dc19-a931-4e11-9017-1aae76da60db",
+    "mfa_methods": [],
+    "standard_required_attributes": [
+      "email"
+    ],
+    "username_attributes": [],
+    "user_verification_types": [
+      "email"
+    ],
+    "groups": [],
+    "mfa_configuration": "NONE",
+    "password_policy": {
+      "min_length": 8,
+      "require_lowercase": true,
+      "require_numbers": true,
+      "require_symbols": true,
+      "require_uppercase": true
+    },
+    "unauthenticated_identities_enabled": true
+  },
+  "storage": {
+    "aws_region": "us-east-1",
+    "bucket_name": "amplify-siscoapp-dev1a-sa-siscoappdocumentsbucket9-agocqatstgxr",
+    "buckets": [
+      {
+        "name": "siscoAppDocuments",
+        "bucket_name": "amplify-siscoapp-dev1a-sa-siscoappdocumentsbucket9-agocqatstgxr",
+        "aws_region": "us-east-1",
+        "paths": {
+          "public/{proyecto_nit}/asambleas/{asamblea_id}/documentos/*": {
+            "authenticated": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ]
+          },
+          "public/{proyecto_nit}/documentos/*": {
+            "authenticated": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ]
+          },
+          "public/{proyecto_nit}/pqrs/{pqr_id}/*": {
+            "authenticated": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ]
+          },
+          "public/{proyecto_nit}/pqrs/*": {
+            "authenticated": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ]
+          },
+          "public/{proyecto_nit}/espacios/*": {
+            "authenticated": [
+              "get",
+              "list",
+              "write",
+              "delete"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "version": "1.4"
+}

@@ -1,0 +1,58 @@
+name: Dependencies Debug
+
+on:
+  workflow_dispatch:
+
+env:
+  NODE_OPTIONS: --openssl-legacy-provider
+
+jobs:
+  deps-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate package-lock sync
+        run: |
+          echo "Analyzing package.json vs package-lock.json..."
+
+          npm ci --dry-run 2>&1 | tee npm_debug.log || true
+
+          grep "Missing:" npm_debug.log || true
+          grep "Invalid:" npm_debug.log || true
+          grep -i "peer dependency" npm_debug.log || true
+
+          if grep -qE "(Missing:|Invalid:)" npm_debug.log; then
+            echo "package-lock.json out of sync"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Dependency overview
+        run: |
+          echo "Installed core dependencies:"
+          npm list --depth=0 | grep -E "(expo|react|aws-amplify|firebase)" || true
+
+          echo "Peer dependency scan:"
+          npm ls 2>&1 | grep -E "(ERESOLVE|peer dep|unmet)" || echo "No peer conflicts"
+
+      - name: Expo validation (informative)
+        run: |
+          echo "Main entry:"
+          node -e "console.log(require('./package.json').main)"
+
+          echo "Validating Expo config..."
+          npx expo config --type public > /dev/null || echo " Config has issues"
+
+          echo "Running Expo Doctor..."
+          npx expo-doctor || echo " Doctor found warnings (non-blocking)"
+
+          echo " Dependency validation completed"
