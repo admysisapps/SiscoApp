@@ -146,7 +146,7 @@ const EspacioCardComponent: React.FC<EspacioCardProps> = ({
         ) : (
           <View style={styles.placeholderContainer}>
             <Image
-              source={require("@/assets/images/zonas_comunes.png")}
+              source={require("@/assets/images/zonas_comunes.webp")}
               style={styles.placeholderImage}
               resizeMode="cover"
             />

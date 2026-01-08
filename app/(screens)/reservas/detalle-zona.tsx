@@ -181,7 +181,7 @@ export default function DetalleZonaScreen() {
             source={
               finalImageUrl
                 ? { uri: finalImageUrl }
-                : require("@/assets/images/zonas_comunes.png")
+                : require("@/assets/images/zonas_comunes.webp")
             }
             style={styles.image}
             resizeMode="cover"
