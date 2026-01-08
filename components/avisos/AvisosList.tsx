@@ -11,17 +11,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { THEME } from "@/constants/theme";
 import { avisosService } from "@/services/avisoService";
 import { useFocusEffect } from "@react-navigation/native";
-import { AvisoFiles } from "./AvisoFiles";
+import AvisoItem from "./AvisoItem";
 import { Aviso } from "@/types/Avisos";
-import {
-  getAvisoIcon,
-  getAvisoColor,
-  formatEventDate,
-  formatRelativeTime,
-} from "@/utils/avisoUtils";
 
 interface AvisosListProps {
   showToast?: (message: string, type: "success" | "error" | "warning") => void;
@@ -111,124 +104,9 @@ export default function AvisosList({
   };
 
   const renderAvisoItem = useCallback(
-    ({ item: aviso }: { item: Aviso }) => {
-      const isVisible = visibleAvisos.has(aviso.id);
-
-      return (
-        <View style={styles.avisoPost}>
-          {/* Header del post estilo social media */}
-          <View style={styles.postHeader}>
-            <View
-              style={[
-                styles.avatarContainer,
-                { backgroundColor: `${getAvisoColor(aviso.prioridad)}15` },
-              ]}
-            >
-              <Ionicons
-                name={
-                  getAvisoIcon(aviso.tipo) as keyof typeof Ionicons.glyphMap
-                }
-                size={20}
-                color={getAvisoColor(aviso.prioridad)}
-              />
-            </View>
-            <View style={styles.userDetails}>
-              <Text style={styles.publisherName}>Administración</Text>
-              <Text style={styles.timestamp}>
-                {formatRelativeTime(aviso.fecha_creacion)}
-              </Text>
-            </View>
-          </View>
-
-          {/* Archivos e imágenes - aparecen primero si hay solo una imagen */}
-          {(() => {
-            let fileNames: string[] = [];
-            try {
-              fileNames = aviso.archivos_nombres
-                ? JSON.parse(aviso.archivos_nombres)
-                : [];
-              if (!Array.isArray(fileNames)) fileNames = [];
-            } catch {
-              fileNames = [];
-            }
-
-            const imageFiles = fileNames.filter(
-              (fileName: string) =>
-                typeof fileName === "string" &&
-                fileName.match(/\.(jpg|jpeg|png|gif)$/i)
-            );
-
-            // Si hay solo una imagen, mostrarla arriba del texto
-            if (imageFiles.length === 1 && fileNames.length === 1) {
-              return (
-                <AvisoFiles
-                  avisoId={aviso.id}
-                  archivos_nombres={aviso.archivos_nombres}
-                  isVisible={isVisible}
-                />
-              );
-            }
-
-            return null;
-          })()}
-
-          {/* Contenido del post */}
-          <View style={styles.postContent}>
-            <Text style={styles.postTitle}>{aviso.titulo}</Text>
-            <Text style={styles.postDescription}>{aviso.descripcion}</Text>
-          </View>
-
-          {/* Archivos e imágenes - aparecen abajo si hay múltiples archivos O 1 documento */}
-          {(() => {
-            let fileNames: string[] = [];
-            try {
-              fileNames = aviso.archivos_nombres
-                ? JSON.parse(aviso.archivos_nombres)
-                : [];
-              if (!Array.isArray(fileNames)) fileNames = [];
-            } catch {
-              fileNames = [];
-            }
-
-            const imageFiles = fileNames.filter(
-              (fileName: string) =>
-                typeof fileName === "string" &&
-                fileName.match(/\.(jpg|jpeg|png|gif)$/i)
-            );
-
-            // Mostrar si: hay múltiples archivos O hay 1 archivo que NO es imagen
-            if (
-              fileNames.length > 1 ||
-              (fileNames.length === 1 && imageFiles.length === 0)
-            ) {
-              return (
-                <AvisoFiles
-                  avisoId={aviso.id}
-                  archivos_nombres={aviso.archivos_nombres}
-                  isVisible={isVisible}
-                />
-              );
-            }
-
-            return null;
-          })()}
-
-          {/* Información de evento programado */}
-          {aviso.fecha_evento && (
-            <View style={styles.eventInfo}>
-              <Ionicons
-                name="calendar"
-                size={16}
-                color={THEME.colors.primary}
-              />
-              <Text style={styles.eventText}>
-                Programado para: {formatEventDate(aviso.fecha_evento)}
-              </Text>
-            </View>
-          )}
-        </View>
-      );
-    },
+    ({ item: aviso }: { item: Aviso }) => (
+      <AvisoItem aviso={aviso} isVisible={visibleAvisos.has(aviso.id)} />
+    ),
     [visibleAvisos]
   );
 
@@ -264,7 +142,12 @@ export default function AvisosList({
       <FlatList
         data={avisos}
         renderItem={renderAvisoItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => `${item.id}-${item.fecha_creacion}`}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={5}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={5}
+        windowSize={10}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         refreshControl={
@@ -319,75 +202,6 @@ const styles = StyleSheet.create({
   flatListContent: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-  },
-  avisoPost: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    marginVertical: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    overflow: "hidden",
-  },
-  postHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  avatarContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  userDetails: {
-    flex: 1,
-  },
-  publisherName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1E293B",
-    marginBottom: 2,
-  },
-  timestamp: {
-    fontSize: 12,
-    color: "#64748B",
-  },
-  postContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
-  postTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1E293B",
-    marginBottom: 8,
-    lineHeight: 24,
-  },
-  postDescription: {
-    fontSize: 15,
-    color: "#374151",
-    lineHeight: 22,
-  },
-  eventInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#EFF6FF",
-    padding: 12,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 8,
-    gap: 8,
-  },
-  eventText: {
-    fontSize: 13,
-    color: THEME.colors.primary,
-    fontWeight: "500",
   },
   loadMoreButton: {
     flexDirection: "row",
