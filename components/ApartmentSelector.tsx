@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,8 +7,6 @@ import {
   Modal,
   ScrollView,
   ActivityIndicator,
-  Animated,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,8 +15,6 @@ import { THEME } from "@/constants/theme";
 import { useProject } from "@/contexts/ProjectContext";
 import { useApartment } from "@/contexts/ApartmentContext";
 import { Apartamento } from "@/types/Apartamento";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function ApartmentSelector() {
   const { selectedProject } = useProject();
@@ -35,7 +25,6 @@ export default function ApartmentSelector() {
     isLoadingApartments,
   } = useApartment();
   const [modalVisible, setModalVisible] = useState(false);
-  const animatedValue = useRef(new Animated.Value(0)).current;
 
   const handleSelectApartment = useCallback(() => {
     if (apartamentos.length === 1) return;
@@ -102,22 +91,6 @@ export default function ApartmentSelector() {
     ));
   }, [apartamentos, selectedApartment, handleApartmentSelect]);
 
-  // Animación del borde superior
-  useEffect(() => {
-    if (modalVisible) {
-      Animated.loop(
-        Animated.timing(animatedValue, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        })
-      ).start();
-    } else {
-      animatedValue.stopAnimation();
-      animatedValue.setValue(0);
-    }
-  }, [modalVisible, animatedValue]);
-
   // Si es admin en el proyecto seleccionado, no mostrar selector
   if (selectedProject?.rol_usuario === "admin") {
     return null;
@@ -138,7 +111,7 @@ export default function ApartmentSelector() {
     );
   }
 
-  // Si no hay apartamentos, no mostrar
+  // Si no hay , no mostrar
   if (apartamentos.length === 0) {
     return (
       <View style={styles.card}>
@@ -214,22 +187,7 @@ export default function ApartmentSelector() {
         >
           <SafeAreaView style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              {/* Barra animada en el borde superior */}
-              <Animated.View
-                style={[
-                  styles.animatedTopBar,
-                  {
-                    transform: [
-                      {
-                        translateX: animatedValue.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [-SCREEN_WIDTH, SCREEN_WIDTH],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              />
+              <View style={styles.modalHandle} />
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Seleccionar Unidad</Text>
                 <TouchableOpacity
@@ -323,30 +281,22 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   modalContent: {
     backgroundColor: THEME.colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: "70%",
-    borderWidth: 2,
-    borderColor: THEME.colors.border,
-    borderBottomWidth: 0,
-    position: "relative",
   },
-  animatedTopBar: {
-    position: "absolute",
-    top: -2,
-    width: "50%",
-    height: 4,
-    backgroundColor: THEME.colors.primary,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: THEME.colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    elevation: 4,
+  modalHandle: {
+    width: 36,
+    height: 5,
+    backgroundColor: THEME.colors.border,
+    borderRadius: 3,
+    alignSelf: "center",
+    marginTop: 8,
+    marginBottom: 4,
   },
   modalHeader: {
     flexDirection: "row",

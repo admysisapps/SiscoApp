@@ -120,7 +120,7 @@ export default function PaymentHub({ cuentas }: Props) {
       <Modal
         visible={showModal}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={closeModal}
       >
         <SafeAreaProvider>

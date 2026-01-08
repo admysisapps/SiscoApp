@@ -10,7 +10,6 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { THEME } from "@/constants/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -326,11 +325,11 @@ export default function GenerarPoderModal({
   return (
     <Modal
       visible={visible}
-      animationType="fade"
+      animationType="slide"
       transparent={true}
       onRequestClose={handleClose}
     >
-      <SafeAreaView style={styles.modalBackground} edges={["top", "bottom"]}>
+      <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           {/* Botón de cierre en la esquina */}
           <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
@@ -569,7 +568,7 @@ export default function GenerarPoderModal({
           }}
           onCancel={() => setShowConfirmModal(false)}
         />
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }
@@ -585,7 +584,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 20,
-    height: "98%", // Más alto que antes
+    height: "92%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
