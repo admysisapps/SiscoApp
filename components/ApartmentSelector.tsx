@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -9,8 +10,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { THEME } from "@/constants/theme";
 import { useProject } from "@/contexts/ProjectContext";
 import { useApartment } from "@/contexts/ApartmentContext";

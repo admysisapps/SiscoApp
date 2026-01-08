@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -16,9 +17,6 @@ import Animated, {
   withTiming,
   runOnJS,
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
 import * as Clipboard from "expo-clipboard";
 import { THEME } from "@/constants/theme";
 import { CuentaPago } from "@/types/CuentaPago";

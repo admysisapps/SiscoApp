@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+
 import {
   View,
   Text,
@@ -10,7 +12,6 @@ import {
   Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
@@ -20,7 +21,6 @@ import ConexionStatus from "@/components/votaciones/base/ConexionStatus";
 import Toast from "@/components/Toast";
 import { asistenciaService } from "@/services/asistenciaService";
 import { votacionesService } from "@/services/votacionesService";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { ModalPreguntaActiva } from "@/components/votaciones/ModalPreguntaActiva";
 import { ResultadosVotacion } from "@/components/votaciones/base/ResultadosVotacion";
 

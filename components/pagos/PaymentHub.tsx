@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -10,12 +11,10 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 
 import PaymentCard from "./PaymentCard";
 import { CuentaPago } from "@/types/CuentaPago";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { apiService } from "@/services/apiService";
 import { getTipoNombre, truncateUrl } from "@/constants/pagos";
 import { openURL } from "@/utils/linkingHelper";

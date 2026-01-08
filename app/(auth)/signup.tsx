@@ -1,10 +1,9 @@
 import Toast from "@/components/Toast";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { COLORS, THEME } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { validationService } from "@/services/auth/validationService";
-import { Ionicons } from "@expo/vector-icons";
-import Entypo from "@expo/vector-icons/Entypo";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {

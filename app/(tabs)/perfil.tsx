@@ -19,8 +19,7 @@ import NotificationModal from "@/components/shared/NotificationModal";
 
 import Toast from "@/components/Toast";
 import { THEME } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
-import Entypo from "@expo/vector-icons/Entypo";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 
 // Tipo para los items del menú
 interface MenuItemType {

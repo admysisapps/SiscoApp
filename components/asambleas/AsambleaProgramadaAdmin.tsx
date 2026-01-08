@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
@@ -8,8 +8,6 @@ import { asambleaService } from "@/services/asambleaService";
 import { Asamblea } from "@/types/Asamblea";
 import ModalConexionAsambleaAdmin from "./ModalConexionAsambleaAdmin";
 import dayjs from "dayjs";
-import AntDesign from "@expo/vector-icons/AntDesign";
-
 interface Props {
   asamblea: Asamblea;
   onEstadoChanged?: () => void;

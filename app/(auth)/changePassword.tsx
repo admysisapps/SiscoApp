@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -13,12 +14,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { THEME, COLORS } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import Toast from "@/components/Toast";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
 export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");

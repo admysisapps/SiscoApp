@@ -1,10 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { THEME } from "@/constants/theme";
 
-interface UserActivity {
+interface Activity {
   id: string;
   type: "pqr" | "reservation" | "payment" | "document";
   title: string;
@@ -13,7 +12,7 @@ interface UserActivity {
   timestamp: string;
 }
 
-const mockActivities: UserActivity[] = [
+const mockActivities: Activity[] = [
   {
     id: "1",
     type: "pqr",
@@ -126,8 +125,6 @@ const formatTimeAgo = (timestamp: string) => {
 };
 
 export default function UserActivity() {
-  const router = useRouter();
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>

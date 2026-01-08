@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -13,11 +14,8 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { THEME, COLORS } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import Toast from "@/components/Toast";
-import Entypo from "@expo/vector-icons/Entypo";
-
 export default function ResetPassword() {
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");

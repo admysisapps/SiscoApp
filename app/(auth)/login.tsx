@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { Entypo, Fontisto, Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -16,12 +17,9 @@ import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
 import { THEME, COLORS } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import ConfirmationModal from "@/components/auth/ConfirmationModal";
 import Toast from "@/components/Toast";
-import Fontisto from "@expo/vector-icons/Fontisto";
-import Entypo from "@expo/vector-icons/Entypo";
 import { notificationService } from "@/services/notificacionesService";
 import { sessionService } from "@/services/cache/sessionService";
 import { asistenciaService } from "@/services/asistenciaService";

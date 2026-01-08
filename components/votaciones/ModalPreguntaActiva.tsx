@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Ionicons, Octicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -12,8 +13,6 @@ import {
   AppState,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import Octicons from "@expo/vector-icons/Octicons";
 import { THEME } from "@/constants/theme";
 import { votacionesService } from "@/services/votacionesService";
 

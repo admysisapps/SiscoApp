@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import {
   View,
   Text,
   StyleSheet,
@@ -10,7 +15,6 @@ import {
   Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
@@ -23,8 +27,6 @@ import ConexionStatus from "@/components/votaciones/base/ConexionStatus";
 import Toast from "@/components/Toast";
 import { QuorumChart } from "@/components/votaciones/base/admin/QuorumChart";
 import { quorumService } from "@/services/quorumService";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { ResultadosVotacion } from "@/components/votaciones/base/ResultadosVotacion";
 
 const AsambleaModeracioScreen: React.FC = () => {

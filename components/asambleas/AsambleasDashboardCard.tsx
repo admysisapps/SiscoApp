@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { THEME } from "@/constants/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-
 export function AsambleasDashboardCard() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);

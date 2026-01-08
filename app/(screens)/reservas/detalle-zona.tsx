@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -9,7 +10,6 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { reservaService } from "@/services/reservaService";
@@ -17,8 +17,6 @@ import { s3Service } from "@/services/s3Service";
 import { useProject } from "@/contexts/ProjectContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { THEME } from "@/constants/theme";
-import AntDesign from "@expo/vector-icons/AntDesign";
-
 const { width } = Dimensions.get("window");
 
 const DIAS_SEMANA = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];

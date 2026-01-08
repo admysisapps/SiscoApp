@@ -1,4 +1,5 @@
 import React from "react";
+import { MaterialIcons } from "@expo/vector-icons";
 import {
   Text,
   FlatList,
@@ -7,7 +8,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useProject } from "@/contexts/ProjectContext";
 import { THEME } from "@/constants/theme";

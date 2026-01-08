@@ -5,8 +5,7 @@ import { AvisosUserCards } from "@/components/avisos/AvisosUserCards";
 import { AsambleasDashboardCard } from "@/components/asambleas/AsambleasDashboardCard";
 
 import { useProjectApartment } from "@/hooks/useProjectApartment";
-import { Ionicons } from "@expo/vector-icons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useRef, useState, useCallback } from "react";
 
 import {

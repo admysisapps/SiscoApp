@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

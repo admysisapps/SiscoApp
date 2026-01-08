@@ -14,16 +14,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@/contexts/UserContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { apiService } from "@/services/apiService";
 import { userCacheService } from "@/services/cache/userCacheService";
 import { THEME } from "@/constants/theme";
 import EditPersonalInfoModal from "@/components/EditPersonalInfoModal";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-
 export default function PersonalInfo() {
   const { user, setUser } = useUser();
   const { selectedProject } = useProject();

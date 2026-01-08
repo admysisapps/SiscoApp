@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Fontisto, Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -6,8 +7,6 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import Fontisto from "@expo/vector-icons/Fontisto";
 import { PieChart } from "react-native-gifted-charts";
 import { useRouter } from "expo-router";
 import { quorumService } from "@/services/quorumService";

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -29,7 +29,7 @@ export default function StorageViewer() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const loadStorageData = async () => {
+  const loadStorageData = useCallback(async () => {
     try {
       setLoading(true);
       const keys = await AsyncStorage.getAllKeys();
@@ -64,7 +64,7 @@ export default function StorageViewer() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const clearStorage = () => {
     Alert.alert(
@@ -86,7 +86,7 @@ export default function StorageViewer() {
 
   useEffect(() => {
     loadStorageData();
-  }, []);
+  }, [loadStorageData]);
 
   return (
     <View style={styles.container}>

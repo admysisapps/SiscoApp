@@ -1,12 +1,13 @@
 import React from "react";
+import {
+  FontAwesome6,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useRole } from "@/hooks/useRole";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
 export const ReservaAdminCards: React.FC = () => {
   const { isAdmin } = useRole();
 

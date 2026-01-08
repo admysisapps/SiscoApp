@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import {
   Modal,
   View,
@@ -11,8 +12,6 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import Feather from "@expo/vector-icons/Feather";
 import { COLORS, THEME } from "@/constants/theme";
 import { projectService, ProjectInfo } from "@/services/proyectosService";
 import { router } from "expo-router";

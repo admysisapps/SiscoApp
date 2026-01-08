@@ -1,9 +1,7 @@
 import React from "react";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { router } from "expo-router";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
 export const AvisosUserCards: React.FC = () => {
   const handleViewAvisos = () => {
     router.push("/(screens)/avisos/AvisosScreen" as any);

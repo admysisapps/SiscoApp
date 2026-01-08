@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -8,14 +9,11 @@ import {
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, THEME } from "@/constants/theme";
 import { reservaService } from "@/services/reservaService";
 import { useLoading } from "@/contexts/LoadingContext";
-import AntDesign from "@expo/vector-icons/AntDesign";
-
 interface EspacioAdmin {
   id: number;
   nombre: string;
