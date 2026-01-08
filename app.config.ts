@@ -14,9 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   jsEngine: "hermes",
-  runtimeVersion: {
-    policy: "appVersion",
-  },
+  runtimeVersion: "1.0.0",
 
   updates: {
     url: "https://u.expo.dev/84930e65-58b2-4fcc-8c42-4b1f9346598e",
