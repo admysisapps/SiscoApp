@@ -99,7 +99,7 @@ export default function PaymentHub({ cuentas }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}> informacion de Pago</Text>
+        <Text style={styles.title}>Información de Pago</Text>
         <Text style={styles.subtitle}>Elige tu forma preferida de pagar</Text>
       </View>
 

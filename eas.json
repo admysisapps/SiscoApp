@@ -9,10 +9,12 @@
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "development"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
+      "channel": "preview",
       "env": {
         "APP_VARIANT": "preview"
       },
@@ -26,10 +28,12 @@
       },
       "env": {
         "APP_VARIANT": "preview"
-      }
+      },
+      "channel": "simulator"
     },
     "production": {
       "autoIncrement": true,
+      "channel": "production",
       "env": {
         "APP_VARIANT": "production"
       }
