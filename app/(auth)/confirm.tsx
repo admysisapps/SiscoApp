@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
@@ -16,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { THEME, COLORS } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import Toast from "@/components/Toast";
+import OTPInput from "@/components/auth/OTPInput";
 import { validationService } from "@/services/auth/validationService";
 import { authService } from "@/services/auth/authService";
 import ChangeEmailModal from "@/components/auth/ChangeEmailModal";
@@ -35,10 +35,8 @@ export default function Confirm() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [updatedEmail, setUpdatedEmail] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(false);
-  const [isCodeFocused, setIsCodeFocused] = useState(false);
   const [isChangingEmail, setIsChangingEmail] = useState(false);
 
-  const inputRef = useRef<TextInput | null>(null);
   const resendTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { confirmRegistration, resendConfirmationCode } = useAuth();
@@ -310,60 +308,15 @@ export default function Confirm() {
               </View>
             </View>
 
-            {/* Input del código con estilo consistente */}
-            <View>
-              <TouchableOpacity
-                style={[styles.inputContainer, fieldError && styles.inputError]}
-                onPress={() => inputRef.current?.focus()}
-                activeOpacity={0.7}
-              >
-                <View style={styles.codeInputWrapper}>
-                  <View style={styles.codeInputContainer}>
-                    {[0, 1, 2, 3, 4, 5].map((index) => (
-                      <View
-                        key={index}
-                        style={[
-                          styles.codeBox,
-                          otp[index] && styles.codeBoxFilled,
-                          fieldError && styles.codeBoxError,
-                          index === 0 && isCodeFocused && styles.codeBoxFocused,
-                        ]}
-                      >
-                        <Text style={styles.codeDigit} allowFontScaling={true}>
-                          {otp[index] || ""}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                  <TextInput
-                    ref={inputRef}
-                    style={styles.hiddenInput}
-                    value={otp.join("")}
-                    onChangeText={(text) => {
-                      const cleanText = text.replace(/[^0-9]/g, "").slice(0, 6);
-                      const newOtp = cleanText.split("");
-                      while (newOtp.length < 6) {
-                        newOtp.push("");
-                      }
-                      setOtp(newOtp);
-                      if (fieldError) setFieldError("");
-                    }}
-                    onFocus={() => setIsCodeFocused(true)}
-                    onBlur={() => setIsCodeFocused(false)}
-                    keyboardType="numeric"
-                    maxLength={6}
-                    autoFocus
-                    placeholder="Código de verificación"
-                    placeholderTextColor={COLORS.text.muted}
-                  />
-                </View>
-              </TouchableOpacity>
-              {fieldError && (
-                <Text style={styles.errorText} allowFontScaling={true}>
-                  {fieldError}
-                </Text>
-              )}
-            </View>
+            {/* Input del código con componente reutilizable */}
+            <OTPInput
+              value={otp}
+              onChange={setOtp}
+              error={fieldError}
+              onComplete={() => {
+                if (fieldError) setFieldError("");
+              }}
+            />
 
             {/* Botón principal con estilo consistente */}
             <TouchableOpacity
@@ -572,53 +525,6 @@ const styles = StyleSheet.create({
     marginTop: THEME.spacing.xs,
     marginLeft: THEME.spacing.sm,
   },
-
-  codeInputWrapper: {
-    flex: 1,
-    position: "relative",
-  },
-  codeInputContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingRight: THEME.spacing.sm,
-  },
-  codeBox: {
-    width: Math.min(width * 0.12, 50),
-    height: Math.min(width * 0.14, 60),
-    borderRadius: THEME.borderRadius.sm,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: "transparent",
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 1,
-  },
-  codeBoxFilled: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primary + "10",
-  },
-  codeBoxError: {
-    borderColor: COLORS.error,
-  },
-  codeBoxFocused: {
-    borderColor: COLORS.primary,
-    borderWidth: 2,
-    backgroundColor: COLORS.primary + "10",
-  },
-  codeDigit: {
-    fontSize: width < 360 ? 16 : 18,
-    fontWeight: "600",
-    color: COLORS.text.primary,
-  },
-  hiddenInput: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0,
-    fontSize: 16,
-  },
   confirmButton: {
     backgroundColor: COLORS.primary,
     borderRadius: THEME.borderRadius.lg,
@@ -684,11 +590,5 @@ const styles = StyleSheet.create({
     fontSize: width < 360 ? THEME.fontSize.sm : THEME.fontSize.md,
     marginLeft: THEME.spacing.xs,
     fontWeight: "500",
-  },
-  errorText: {
-    color: COLORS.error,
-    fontSize: THEME.fontSize.xs,
-    marginTop: THEME.spacing.xs,
-    marginLeft: THEME.spacing.sm,
   },
 });

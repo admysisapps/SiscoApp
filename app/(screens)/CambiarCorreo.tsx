@@ -12,7 +12,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import OTPInput from "@/components/auth/OTPInput";
 import { useUser } from "@/contexts/UserContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { userCacheService } from "@/services/cache/userCacheService";
@@ -25,7 +27,14 @@ export default function CambiarCorreoScreen() {
   const { selectedProject } = useProject();
   const [step, setStep] = useState<"input" | "verify">("input");
   const [newEmail, setNewEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationCode, setVerificationCode] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({
     visible: false,
@@ -92,14 +101,15 @@ export default function CambiarCorreoScreen() {
   };
 
   const handleConfirm = async () => {
-    if (!verificationCode.trim()) {
-      showToast("Ingresa el código de verificación", "error");
+    const code = verificationCode.join("").trim();
+    if (!code || code.length !== 6) {
+      showToast("Ingresa el código de verificación completo", "error");
       return;
     }
 
     setLoading(true);
     try {
-      await profileService.confirmEmailChange(verificationCode);
+      await profileService.confirmEmailChange(code);
       await profileService.syncEmailToDatabase(user?.documento || "", newEmail);
 
       if (user?.documento && selectedProject) {
@@ -166,15 +176,20 @@ export default function CambiarCorreoScreen() {
             {step === "input" ? (
               <>
                 <View style={styles.infoContainer}>
-                  <Ionicons
-                    name="mail-outline"
+                  <MaterialCommunityIcons
+                    name="email-arrow-right"
                     size={48}
                     color={COLORS.primary}
                     style={styles.icon}
                   />
                   <Text style={styles.infoText}>
-                    Para modificar este dato debemos validar tu identidad, te
-                    enviaremos un código al correo registrado.
+                    Por tu seguridad, necesitamos validar tu identidad. Te
+                    enviaremos un código de verificación a tu correo actual.
+                  </Text>
+                </View>
+                <View style={styles.currentEmailCard}>
+                  <Text style={styles.currentEmailLabel}>
+                    Correo actual: {user?.email || "No especificado"}
                   </Text>
                 </View>
 
@@ -197,29 +212,34 @@ export default function CambiarCorreoScreen() {
                   />
                 </View>
 
-                <View style={styles.currentEmailCard}>
-                  <Text style={styles.currentEmailLabel}>
-                    Correo actual: {user?.email || "No especificado"}
-                  </Text>
-                </View>
-
                 <TouchableOpacity
-                  style={[styles.button, loading && styles.buttonDisabled]}
+                  style={[
+                    styles.buttonWrapper,
+                    loading && styles.buttonDisabled,
+                  ]}
                   onPress={handleSendCode}
                   disabled={loading}
+                  activeOpacity={0.8}
                 >
-                  {loading ? (
-                    <ActivityIndicator color="white" />
-                  ) : (
-                    <Text style={styles.buttonText}>Enviar Código</Text>
-                  )}
+                  <LinearGradient
+                    colors={[COLORS.primary, COLORS.primaryDark || "#1e40af"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.gradientButton}
+                  >
+                    {loading ? (
+                      <ActivityIndicator color="white" />
+                    ) : (
+                      <Text style={styles.buttonText}>Enviar Código</Text>
+                    )}
+                  </LinearGradient>
                 </TouchableOpacity>
               </>
             ) : (
               <>
                 <View style={styles.infoContainer}>
-                  <Ionicons
-                    name="shield-checkmark"
+                  <MaterialCommunityIcons
+                    name="email-check"
                     size={48}
                     color={COLORS.primary}
                     style={styles.icon}
@@ -230,35 +250,33 @@ export default function CambiarCorreoScreen() {
                   <Text style={styles.emailHighlight}>{newEmail}</Text>
                 </View>
 
-                <View style={styles.inputContainer}>
-                  <Ionicons
-                    name="key"
-                    size={20}
-                    color={COLORS.text.secondary}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={verificationCode}
-                    onChangeText={setVerificationCode}
-                    placeholder="000000"
-                    placeholderTextColor={COLORS.text.muted}
-                    keyboardType="number-pad"
-                    maxLength={6}
-                    editable={!loading}
-                  />
-                </View>
+                <OTPInput
+                  value={verificationCode}
+                  onChange={setVerificationCode}
+                  disabled={loading}
+                />
 
                 <TouchableOpacity
-                  style={[styles.button, loading && styles.buttonDisabled]}
+                  style={[
+                    styles.buttonWrapper,
+                    loading && styles.buttonDisabled,
+                  ]}
                   onPress={handleConfirm}
                   disabled={loading}
+                  activeOpacity={0.8}
                 >
-                  {loading ? (
-                    <ActivityIndicator color="white" />
-                  ) : (
-                    <Text style={styles.buttonText}>Confirmar</Text>
-                  )}
+                  <LinearGradient
+                    colors={[COLORS.primary, COLORS.primaryDark || "#1e40af"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.gradientButton}
+                  >
+                    {loading ? (
+                      <ActivityIndicator color="white" />
+                    ) : (
+                      <Text style={styles.buttonText}>Confirmar</Text>
+                    )}
+                  </LinearGradient>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -418,6 +436,22 @@ const styles = StyleSheet.create({
     height: 50,
     color: COLORS.text.primary,
     fontSize: THEME.fontSize.md,
+  },
+  buttonWrapper: {
+    borderRadius: THEME.borderRadius.md,
+    marginBottom: THEME.spacing.lg,
+    overflow: "hidden",
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  gradientButton: {
+    paddingVertical: THEME.spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 50,
   },
   button: {
     backgroundColor: COLORS.primary,
