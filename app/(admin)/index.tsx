@@ -13,6 +13,7 @@ import { ReservaAdminCards } from "@/components/reservas/ReservaAdminCards";
 import { CambiarPropietarioCard } from "@/components/propietarios/CambiarPropietarioCard";
 import { useRouter } from "expo-router";
 import DashboardHome from "@/components/dashboard/DashboardHome";
+import AdminAnnouncement from "@/components/dashboard/AdminAnnouncement";
 import { AvisosAdminCards } from "@/components/avisos/AvisosAdminCards";
 import { AsambleasDashboardCard } from "@/components/asambleas/AsambleasDashboardCard";
 import { CrearAsambleaDashboardCard } from "@/components/asambleas/CrearAsambleaDashboardCard";
@@ -62,6 +63,7 @@ const AdminInicioSection = ({
   showToast?: (message: string, type: "success" | "error" | "warning") => void;
 }) => (
   <View style={styles.sectionContainer}>
+    <AdminAnnouncement />
     <DashboardHome />
   </View>
 );
