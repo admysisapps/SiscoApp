@@ -43,7 +43,9 @@ const ANNOUNCEMENT_CONFIG = {
  *
  * CÓMO USAR:
  * 1. Cambia ANNOUNCEMENT_CONFIG arriba
- * 2. Publica OTA update: eas update --branch preview (production)
+ * 2. Publica OTA update: 
+  eas update --branch preview --message "######" --platform android
+  eas update --branch preview --message "#######" Anuncio" --platform ios
  * 3. Los admins verán el anuncio automáticamente
  * 4. Se oculta automáticamente cuando expira o cuando cambias active: false
  */
