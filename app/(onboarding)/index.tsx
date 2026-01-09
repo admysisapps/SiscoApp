@@ -72,6 +72,7 @@ export default function OnboardingWelcome() {
               cacheComposition={true}
               hardwareAccelerationAndroid={true}
               resizeMode="contain"
+              enableMergePathsAndroidForKitKatAndAbove={true}
             />
             <Text style={styles.title}>Bienvenido a Sisco</Text>
             <Text style={styles.subtitle}>

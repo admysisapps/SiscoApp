@@ -15,41 +15,41 @@ import { THEME } from "@/constants/theme";
 
 const ANNOUNCEMENT_CONFIG = {
   // Activa/desactiva el anuncio
-  active: false,
+  active: true,
 
   // Título del anuncio
-  title: "Soporte Disponible",
+  title: "Mantenimiento Programado",
 
   // Mensaje del anuncio
-  message: "Hoy hay soporte técnico disponible hasta la 1:00 PM",
+  message: "El sistema estará en mantenimiento el sábado de 2:00 AM a 4:00 AM",
 
   // Fecha de expiración (se oculta automáticamente después de esta fecha)
   // Formato: "YYYY-MM-DDTHH:mm:ss"
   expiresAt: "2026-01-09T23:59:00",
 
   // Tipo de anuncio (afecta el color y el ícono)
-  type: "info" as "info" | "warning" | "success" | "error",
+  type: "warning" as "info" | "warning" | "success" | "error",
 
   // URL externa (opcional) - Si está presente, el anuncio será clickeable
   // Ejemplos: "https://soporte.siscoapp.com", "https://docs.google.com/..."
-  actionUrl: "", // Deja vacío "" si no quieres link
+  actionUrl: "https://admysis.com", // Deja vacío "" si no quieres link
 
   // Texto del botón (solo si hay actionUrl)
   actionText: "Más información",
 };
 
 /**
- * Componente de anuncio para administradores
+ * Componente de anuncio del sistema
  *
  * CÓMO USAR:
  * 1. Cambia ANNOUNCEMENT_CONFIG arriba
  * 2. Publica OTA update: 
-  eas update --branch preview --message "######" --platform android
-  eas update --branch preview --message "#######" Anuncio" --platform ios
- * 3. Los admins verán el anuncio automáticamente
+  eas update --branch preview --message "Anuncio: [descripción]" --platform android
+  eas update --branch preview --message "Anuncio: [descripción]" --platform ios
+ * 3. Todos los usuarios verán el anuncio automáticamente
  * 4. Se oculta automáticamente cuando expira o cuando cambias active: false
  */
-export default function AdminAnnouncement() {
+export default function SystemAnnouncement() {
   // Verificar si el anuncio está activo
   if (!ANNOUNCEMENT_CONFIG.active) {
     return null;

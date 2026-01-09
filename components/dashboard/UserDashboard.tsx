@@ -1,6 +1,7 @@
 import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import ApartmentSelector from "../ApartmentSelector";
+import SystemAnnouncement from "./SystemAnnouncement";
 import UserPaymentStatus from "./UserPaymentStatus";
 import UserQuickActions from "./UserQuickActions";
 // import UserNotifications from "./UserNotifications";
@@ -10,6 +11,7 @@ export default function UserDashboard() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <ApartmentSelector />
+      <SystemAnnouncement />
       <UserPaymentStatus />
       <UserQuickActions />
       {/* <UserNotifications /> */}
