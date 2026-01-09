@@ -47,11 +47,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       : "com.Admysis.SiscoApp",
   },
 
-  web: {
-    bundler: "metro",
-    output: "static",
-    favicon: "./assets/images/favicon.png",
-  },
+  // web: {
+  //   bundler: "metro",
+  //   output: "static",
+  //   favicon: "./assets/images/favicon.png",
+  // },
 
   plugins: [
     "expo-router",
