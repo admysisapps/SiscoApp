@@ -99,6 +99,22 @@ class NotificationService {
     }
   }
 
+  // Enviar notificación de despedida
+  async sendGoodbyeNotification(): Promise<void> {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "¡Gracias por usar Sisco!",
+          body: "Tu cuenta ha sido eliminada exitosamente. Esperamos verte pronto.",
+          data: { type: "goodbye" },
+        },
+        trigger: null,
+      });
+    } catch {
+      // Error silencioso
+    }
+  }
+
   // Registrar token FCM para nuevo proyecto
   async registerTokenForNewProject(
     username: string,

@@ -144,9 +144,20 @@ export default function GenerarPoderModal({
         setFormData(parsedData);
 
         if (parsedData.apartamentos) {
-          setSelectedApartamentos(
-            parsedData.apartamentos.split(",").map((apt: string) => apt.trim())
+          const apartamentosGuardados = parsedData.apartamentos
+            .split(",")
+            .map((apt: string) => apt.trim());
+          // Filtrar apartamentos que ahora están ocupados
+          const apartamentosValidos = apartamentosGuardados.filter(
+            (apartamento: string) => {
+              const codigoApt = apartamento.includes("-")
+                ? apartamento.split("-")[1] +
+                  apartamento.split("-")[0].padStart(3, "0")
+                : apartamento.padStart(3, "0");
+              return !apartamentosOcupados.includes(codigoApt);
+            }
           );
+          setSelectedApartamentos(apartamentosValidos);
         } else {
           setSelectedApartamentos([]);
         }
@@ -160,7 +171,7 @@ export default function GenerarPoderModal({
     }
     setErrors({});
     setHasChanges(false);
-  }, [getStorageKey]);
+  }, [getStorageKey, apartamentosOcupados]);
 
   // Inicializar modal cuando se abre
   useEffect(() => {
@@ -171,6 +182,24 @@ export default function GenerarPoderModal({
       setEmailError(null); // Limpiar error de correo al abrir
     }
   }, [visible, asambleaId, checkPoderes, loadApartamentos, loadSavedData]);
+
+  // Limpiar apartamentos ocupados cuando cambia la lista
+  useEffect(() => {
+    if (apartamentosOcupados.length > 0 && selectedApartamentos.length > 0) {
+      const apartamentosValidos = selectedApartamentos.filter(
+        (apartamento: string) => {
+          const codigoApt = apartamento.includes("-")
+            ? apartamento.split("-")[1] +
+              apartamento.split("-")[0].padStart(3, "0")
+            : apartamento.padStart(3, "0");
+          return !apartamentosOcupados.includes(codigoApt);
+        }
+      );
+      if (apartamentosValidos.length !== selectedApartamentos.length) {
+        setSelectedApartamentos(apartamentosValidos);
+      }
+    }
+  }, [apartamentosOcupados, selectedApartamentos]);
 
   // Actualizar error de correo desde prop externa
   useEffect(() => {

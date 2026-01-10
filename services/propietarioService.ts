@@ -143,4 +143,38 @@ export const propietarioService = {
       };
     }
   },
+
+  // Elimina la cuenta del usuario actual
+
+  async eliminarCuenta(): Promise<{
+    success: boolean;
+    message?: string;
+    error?: string;
+  }> {
+    try {
+      const response = await apiService.makeRequestWithContextType(
+        "/usuarios/eliminar-cuenta",
+        {},
+        "DELETE_ACCOUNT"
+      );
+
+      if (response.success) {
+        return {
+          success: true,
+          message: response.message || "Cuenta eliminada exitosamente",
+        };
+      } else {
+        return {
+          success: false,
+          error: response.error || "Error al eliminar cuenta",
+        };
+      }
+    } catch (error: any) {
+      console.error("Error eliminando cuenta:", error);
+      return {
+        success: false,
+        error: "Sin conexión. Verifica tu red e intenta nuevamente",
+      };
+    }
+  },
 };

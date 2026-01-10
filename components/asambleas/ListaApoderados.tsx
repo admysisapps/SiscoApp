@@ -91,6 +91,14 @@ const ListaApoderados: React.FC<ListaApoderadosProps> = ({
     return inmueblesCodigos;
   };
 
+  const maskDocumento = (documento: string) => {
+    if (!documento || documento.length < 6) return documento;
+    const firstFour = documento.substring(0, 4);
+    const lastTwo = documento.substring(documento.length - 2);
+    const middle = "*".repeat(documento.length - 6);
+    return `${firstFour}${middle}${lastTwo}`;
+  };
+
   const confirmarEliminacion = (apoderado: Apoderado) => {
     if (apoderado.codigo_usado === 1) {
       onShowToast(
@@ -136,7 +144,9 @@ const ListaApoderados: React.FC<ListaApoderadosProps> = ({
     <View key={item.id} style={styles.apoderadoCard}>
       <View style={styles.apoderadoInfo}>
         <Text style={styles.apoderadoNombre}>{item.nombre}</Text>
-        <Text style={styles.apoderadoDetalle}>Doc: {item.documento}</Text>
+        <Text style={styles.apoderadoDetalle}>
+          Doc: {maskDocumento(item.documento)}
+        </Text>
         <Text style={styles.apoderadoDetalle}>
           Inmuebles: {formatearInmuebles(item.apartamentos_detalle)}
         </Text>

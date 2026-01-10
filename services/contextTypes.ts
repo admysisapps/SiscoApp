@@ -155,4 +155,7 @@ export const CONTEXT_TYPES = {
 
   ACTIVE_QUESTION: ["documento", "copropiedad"],
   MANAGEMENT_QUESTIONS: ["proyecto_nit", "copropiedad", "rol"],
+
+  //eliminar cuenta
+  DELETE_ACCOUNT: ["documento", "proyecto_nit", "copropiedad"],
 };

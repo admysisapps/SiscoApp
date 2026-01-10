@@ -22,13 +22,16 @@ import { Ionicons, Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useUser } from "@/contexts/UserContext";
 import { useProject } from "@/contexts/ProjectContext";
+import { useRole } from "@/hooks/useRole";
 import { apiService } from "@/services/apiService";
 import { userCacheService } from "@/services/cache/userCacheService";
 import { THEME } from "@/constants/theme";
 import Toast from "@/components/Toast";
+import EliminarCuentaModal from "@/components/ConfiguracionSistema/EliminarCuentaModal";
 export default function PersonalInfo() {
   const { user, setUser } = useUser();
   const { selectedProject } = useProject();
+  const { isAdmin } = useRole();
 
   const [isLoadingFullData, setIsLoadingFullData] = useState(true);
   const loadedKeyRef = useRef<string | null>(null);
@@ -36,7 +39,7 @@ export default function PersonalInfo() {
   // Estados para secciones colapsables
   const [personalDataExpanded, setPersonalDataExpanded] = useState(true);
   const [contactInfoExpanded, setContactInfoExpanded] = useState(false);
-  const [privacyExpanded, setPrivacyExpanded] = useState(false);
+  const [deleteAccountExpanded, setDeleteAccountExpanded] = useState(false);
 
   // Estados para campos editables
   const [nombre, setNombre] = useState("");
@@ -53,6 +56,9 @@ export default function PersonalInfo() {
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
+
+  // Modal eliminar cuenta
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Memorizar si tenemos datos completos
   const hasCompleteData = useMemo(
@@ -180,20 +186,42 @@ export default function PersonalInfo() {
 
   const handleSaveContactInfo = async () => {
     if (!hasContactInfoChanges || !user?.documento) return;
+
+    const trimmedPhone = telefono.trim();
+
+    // Validar longitud mínima
+    if (trimmedPhone.length < 10) {
+      setToast({
+        visible: true,
+        message: "El teléfono debe tener mínimo 10 dígitos",
+        type: "error",
+      });
+      return;
+    }
+
+    // Si no empieza con 3 ni con +, pedir código de país
+    if (!trimmedPhone.startsWith("3") && !trimmedPhone.startsWith("+")) {
+      setToast({
+        visible: true,
+        message: "Por favor incluye el código del país (ej: +57)",
+        type: "warning",
+      });
+      return;
+    }
+
     Keyboard.dismiss();
     setIsSaving(true);
     try {
       const response = await apiService.updateUserInfo(user.documento, {
-        telefono: telefono.trim(),
+        telefono: trimmedPhone,
       });
       if (response.success) {
-        const trimmedTelefono = telefono.trim();
-        setTelefono(trimmedTelefono);
-        setUser({ ...user, telefono: trimmedTelefono });
+        setTelefono(trimmedPhone);
+        setUser({ ...user, telefono: trimmedPhone });
         await userCacheService.setCachedData(
           user.documento,
           selectedProject?.NIT || "",
-          { ...user, telefono: trimmedTelefono }
+          { ...user, telefono: trimmedPhone }
         );
         setToast({
           visible: true,
@@ -246,7 +274,12 @@ export default function PersonalInfo() {
           {/* Sección: Datos Personales */}
           <TouchableOpacity
             style={styles.sectionHeader}
-            onPress={() => setPersonalDataExpanded(!personalDataExpanded)}
+            onPress={() => {
+              setPersonalDataExpanded(!personalDataExpanded);
+              if (!personalDataExpanded) {
+                setContactInfoExpanded(false);
+              }
+            }}
             activeOpacity={0.7}
           >
             <View style={styles.sectionHeaderLeft}>
@@ -325,7 +358,12 @@ export default function PersonalInfo() {
           {/* Sección: Información de contacto */}
           <TouchableOpacity
             style={styles.sectionHeader}
-            onPress={() => setContactInfoExpanded(!contactInfoExpanded)}
+            onPress={() => {
+              setContactInfoExpanded(!contactInfoExpanded);
+              if (!contactInfoExpanded) {
+                setPersonalDataExpanded(false);
+              }
+            }}
             activeOpacity={0.7}
           >
             <View style={styles.sectionHeaderLeft}>
@@ -420,55 +458,53 @@ export default function PersonalInfo() {
             </View>
           )}
 
-          {/* Sección: Privacidad y Seguridad */}
-          <TouchableOpacity
-            style={styles.sectionHeader}
-            onPress={() => setPrivacyExpanded(!privacyExpanded)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.sectionHeaderLeft}>
-              <View style={styles.sectionBorder} />
-              <Text style={styles.sectionTitle}>Privacidad y Seguridad</Text>
-            </View>
-            <Ionicons
-              name={privacyExpanded ? "chevron-up" : "chevron-down"}
-              size={24}
-              color={THEME.colors.text.secondary}
-            />
-          </TouchableOpacity>
-
-          {privacyExpanded && (
-            <View style={styles.sectionContent}>
-              <TouchableOpacity style={styles.actionButton}>
+          {/* Sección: Eliminar cuenta - Oculto para admin */}
+          {!isAdmin && (
+            <>
+              <TouchableOpacity
+                style={[styles.sectionHeader, styles.dangerSectionHeader]}
+                onPress={() => {
+                  setDeleteAccountExpanded(!deleteAccountExpanded);
+                  if (!deleteAccountExpanded) {
+                    setPersonalDataExpanded(false);
+                    setContactInfoExpanded(false);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={styles.sectionHeaderLeft}>
+                  <View style={[styles.sectionBorder, styles.dangerBorder]} />
+                  <Text style={[styles.sectionTitle, styles.dangerTitle]}>
+                    Eliminar cuenta
+                  </Text>
+                </View>
                 <Ionicons
-                  name="download-outline"
-                  size={20}
-                  color={THEME.colors.primary}
-                />
-                <Text style={styles.actionButtonText}>Exportar mis datos</Text>
-                <Ionicons
-                  name="chevron-forward"
-                  size={20}
-                  color={THEME.colors.text.muted}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons
-                  name="trash-outline"
-                  size={20}
+                  name={deleteAccountExpanded ? "chevron-up" : "chevron-down"}
+                  size={24}
                   color={THEME.colors.error}
                 />
-                <Text style={[styles.actionButtonText, styles.dangerText]}>
-                  Eliminar mi cuenta
-                </Text>
-                <Ionicons
-                  name="chevron-forward"
-                  size={20}
-                  color={THEME.colors.text.muted}
-                />
               </TouchableOpacity>
-            </View>
+
+              {deleteAccountExpanded && (
+                <View style={styles.sectionContent}>
+                  <Text style={styles.deleteDescription}>
+                    ¿Estás seguro de que deseas eliminar tu cuenta?
+                  </Text>
+                  <Text style={styles.deleteDescriptionBold}>
+                    Perderás el acceso a todos los servicios y datos asociados a
+                    esta cuenta.
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => setShowDeleteModal(true)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -478,6 +514,12 @@ export default function PersonalInfo() {
         message={toast.message}
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
+      />
+
+      <EliminarCuentaModal
+        visible={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => setShowDeleteModal(false)}
       />
     </SafeAreaView>
   );
@@ -653,5 +695,47 @@ const styles = StyleSheet.create({
   },
   loadingIndicator: {
     alignSelf: "flex-start",
+  },
+  dangerSectionHeader: {
+    borderColor: THEME.colors.error + "20",
+    borderWidth: 1,
+  },
+  dangerBorder: {
+    backgroundColor: THEME.colors.error,
+  },
+  dangerTitle: {
+    color: THEME.colors.error,
+  },
+  emptyText: {
+    fontSize: THEME.fontSize.sm,
+    color: THEME.colors.text.secondary,
+    textAlign: "center",
+    paddingVertical: THEME.spacing.md,
+  },
+  deleteDescription: {
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.secondary,
+    marginBottom: THEME.spacing.sm,
+    lineHeight: 22,
+  },
+  deleteDescriptionBold: {
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
+    color: THEME.colors.text.primary,
+    marginBottom: THEME.spacing.lg,
+    lineHeight: 22,
+  },
+  deleteButton: {
+    backgroundColor: "#FFF",
+    borderRadius: THEME.borderRadius.md,
+    padding: THEME.spacing.md,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: THEME.colors.error,
+  },
+  deleteButtonText: {
+    color: THEME.colors.error,
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
   },
 });
