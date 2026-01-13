@@ -98,6 +98,7 @@ export default function CrearReservaScreen() {
     useState<Espacio | null>(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [inicializado, setInicializado] = useState(false);
   const { showLoading, hideLoading } = useLoading();
   const [diasDisponibles, setDiasDisponibles] = useState<number[]>([]);
   const [cargandoHorarios, setCargandoHorarios] = useState(false);
@@ -166,6 +167,7 @@ export default function CrearReservaScreen() {
         if (mostrarLoading) {
           hideLoadingRef.current();
         }
+        setInicializado(true);
       }
     },
     [showToast]
@@ -338,7 +340,7 @@ export default function CrearReservaScreen() {
         }
       >
         <View style={styles.filtrosContainer}>
-          {espacios.length === 0 ? (
+          {espacios.length === 0 && inicializado ? (
             <View style={styles.emptyContainer}>
               <MaterialIcons
                 name="park"
