@@ -27,7 +27,6 @@ export const AsambleaProvider: React.FC<{ children: React.ReactNode }> = ({
   const cargarAsambleas = useCallback(async () => {
     if (!selectedProject) {
       // amazonq-ignore-next-line
-      console.log("🏛️ ASAMBLEAS: No hay proyecto seleccionado");
       return;
     }
 

@@ -6,7 +6,6 @@ import React, {
   useCallback,
 } from "react";
 import { fcmService } from "@/services/fcmService";
-// import { router } from "expo-router";
 import { InAppNotification } from "@/components/InAppNotification";
 import {
   NotificationData,
@@ -65,28 +64,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   const hideNotification = useCallback(() => {
     setCurrentNotification(null);
   }, []);
-
-  // const navigateToSection = useCallback(
-  //   (type: NotificationType, id?: string) => {
-  //     switch (type) {
-  //       case "asamblea":
-  //         router.push(`/(tabs)/(asambleas)/${id}`);
-  //         break;
-  //       case "pqr":
-  //         router.push(`/(screens)/pqr/`);
-  //         break;
-  //       case "pago":
-  //         router.push(`/(screens)/pagos/`);
-  //         break;
-  //       case "aviso":
-  //         router.push("/(screens)/avisos/AvisosScreen");
-  //         break;
-  //       default:
-  //         console.log("Tipo de notificación no reconocido:", type);
-  //     }
-  //   },
-  //   []
-  // );
 
   const handleNotificationPress = useCallback(() => {
     // Solo ocultar la notificación, sin navegación

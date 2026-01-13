@@ -234,12 +234,8 @@ export const authService = {
       // Actualizar cache
       await authCacheService.setAuthStatus(true, userData.username);
 
-      console.log(" Sesión válida para:", userData.username);
-
       return authStatus;
-    } catch (error: any) {
-      console.log(" Sesión inválida:", error.message || "Token expirado");
-
+    } catch {
       // Limpiar cache si la verificación falla
       await authCacheService.clearAuthCache();
       return {

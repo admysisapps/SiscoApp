@@ -86,7 +86,6 @@ export const votacionesService = {
         "MANAGEMENT_QUESTIONS"
       );
     } catch (error) {
-      console.error("Error cancelando pregunta:", error);
       throw error;
     }
   },
@@ -112,7 +111,6 @@ export const votacionesService = {
         "ACTIVE_QUESTION"
       );
     } catch (error) {
-      console.error("Error registrando voto:", error);
       const crashlytics = getCrashlytics();
       recordError(crashlytics, error as Error);
       throw error;

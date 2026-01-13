@@ -27,19 +27,16 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 
   const showLoading = useCallback((msg = "Cargando...") => {
     const sanitizedMsg = sanitizeMessage(msg);
-    console.log("[LOADING CONTEXT] showLoading:", sanitizedMsg);
     setMessage(sanitizedMsg);
     setLoading(true);
   }, []);
 
   const hideLoading = useCallback(() => {
-    console.log("[LOADING CONTEXT] hideLoading");
     setLoading(false);
   }, []);
 
   useEffect(() => {
     if (loading) {
-      console.log("[LOADING OVERLAY] Visible con mensaje:", message);
     }
   }, [loading, message]);
 

@@ -83,12 +83,6 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
   const loadApartments = useCallback(
     async (selectedProject: Proyecto) => {
       if (!selectedProject || !user) {
-        console.log(
-          " loadApartments: No se puede cargar - selectedProject:",
-          !!selectedProject,
-          "user:",
-          !!user
-        );
         return;
       }
 

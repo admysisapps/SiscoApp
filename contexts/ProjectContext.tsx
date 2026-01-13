@@ -16,13 +16,6 @@ import { apiService } from "@/services/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 
-// Helper para sanitizar logs
-const sanitizeForLog = (input: string | number | null | undefined): string => {
-  if (typeof input !== "string") return String(input || "");
-  const cleaned = input.replace(/[\r\n\t]/g, " ");
-  return cleaned.length > 100 ? cleaned.slice(0, 100) : cleaned;
-};
-
 // Interfaz del Context
 interface ProjectContextType {
   selectedProject: Proyecto | null;
@@ -120,11 +113,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         await saveProjectContextSilent(project, user, apartment);
 
         // NO navegar automáticamente - dejar que index.tsx maneje la navegación
-        console.log(
-          "Usuario cambió a:",
-          project.rol_usuario,
-          sanitizeForLog(project.Nombre)
-        );
       } catch (error) {
         console.error("Error guardando contexto con navegación:", error);
       }
@@ -208,9 +196,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         proyectos.length === 0 &&
         !loadingRef.current
       ) {
-        console.log(
-          "[PROJECT CONTEXT] Conexión recuperada, reintentando cargar proyectos..."
-        );
         setHasTriedLoading(false);
       }
     });
@@ -277,8 +262,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
     const userDoc = user.documento || user.usuario;
     if (!userDoc) return;
-
-    console.log(" Recargando proyectos después de unirse...");
 
     // Limpiar proyecto actual y contexto
     setSelectedProject(null);

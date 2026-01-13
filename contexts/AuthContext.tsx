@@ -374,9 +374,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Si está autenticado, no necesitamos más validaciones aquí
           // Los otros contextos se encargarán de cargar sus datos
         }
-      } catch (error: any) {
-        console.log(" Sesión expirada o inválida:", error.message || error);
-
+      } catch {
         if (mounted) {
           setIsAuthenticated(false);
           setCurrentUsername(null);
