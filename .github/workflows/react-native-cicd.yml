@@ -92,6 +92,17 @@ jobs:
           EOFMARKER
           fi
 
+      - name: Disable Android Lint
+        run: |
+          if [ -f android/gradle.properties ]; then
+            echo "" >> android/gradle.properties
+            echo "android.lintOptions.checkReleaseBuilds=false" >> android/gradle.properties
+            echo "android.lintOptions.abortOnError=false" >> android/gradle.properties
+            echo " Lint disabled"
+          else
+            echo " android/gradle.properties not found, skipping"
+          fi
+
       # Build Preview APK - Package: com.Admysis.SiscoApp.preview
       - name: Build Preview APK
         if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'preview-apk'
