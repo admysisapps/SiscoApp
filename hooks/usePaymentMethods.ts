@@ -10,68 +10,101 @@ export const usePaymentMethods = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadCuentas = useCallback(async (forceRefresh = false) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadCuentas = useCallback(
+    async (forceRefresh = false, showLoading = true) => {
+      try {
+        if (showLoading) setLoading(true);
+        setError(null);
 
-      let versionResponse: any = null;
+        let serverVersion: string | null = null;
 
-      if (!forceRefresh) {
-        // Verificar versión del servidor
-        versionResponse = await cuentasPagoService.checkPaymentVersions();
+        if (!forceRefresh) {
+          // Verificar versión del servidor
+          const versionResponse =
+            await cuentasPagoService.checkPaymentVersions();
 
-        if (versionResponse.success && versionResponse.payments_version) {
-          const needsUpdate = await PaymentCache.needsUpdate(
-            versionResponse.payments_version
-          );
+          if (versionResponse.success && versionResponse.payments_version) {
+            serverVersion = versionResponse.payments_version;
+            const needsUpdate = await PaymentCache.needsUpdate(
+              versionResponse.payments_version
+            );
 
-          if (!needsUpdate) {
-            // Usar cache
-            const cachedData = await PaymentCache.get();
-            if (cachedData) {
-              setCuentas(cachedData);
-              setLoading(false);
-              return;
+            if (!needsUpdate) {
+              const cachedData = await PaymentCache.get();
+              if (cachedData) {
+                setCuentas(cachedData);
+                if (showLoading) setLoading(false);
+                return;
+              }
             }
+          } else if (
+            versionResponse.success &&
+            versionResponse.payments_version === null
+          ) {
+            // payments_version: null = NO hay cuentas configuradas
+            await PaymentCache.clear();
+            setCuentas([]);
+            if (showLoading) setLoading(false);
+            return;
           }
         }
-      }
 
-      // Cargar datos frescos
-      const response = await cuentasPagoService.obtenerCuentasPago();
+        // Cargar datos frescos del servidor
+        const response = await cuentasPagoService.obtenerCuentasPago();
 
-      if (response.success) {
-        setCuentas(response.cuentas || []);
+        if (response.success) {
+          setCuentas(response.cuentas || []);
 
-        // Guardar en cache con versión (reutilizar la respuesta anterior si existe)
-        if (!versionResponse) {
-          versionResponse = await cuentasPagoService.checkPaymentVersions();
-        }
-
-        if (versionResponse.success && versionResponse.payments_version) {
-          await PaymentCache.save(
-            response.cuentas,
-            versionResponse.payments_version
+          // Guardar en cache solo si tenemos versión
+          if (serverVersion) {
+            await PaymentCache.save(response.cuentas, serverVersion);
+          } else if (!forceRefresh) {
+            // Solo hacer request si no tenemos la versión y no es forceRefresh
+            const versionResponse =
+              await cuentasPagoService.checkPaymentVersions();
+            if (versionResponse.success && versionResponse.payments_version) {
+              await PaymentCache.save(
+                response.cuentas,
+                versionResponse.payments_version
+              );
+            } else if (
+              versionResponse.success &&
+              versionResponse.payments_version === null
+            ) {
+              await PaymentCache.clear();
+            }
+          }
+        } else {
+          setError(
+            response.error ||
+              "Error al cargar informacion de metodos pagos de pago"
           );
         }
-      } else {
-        setError(
-          response.error ||
-            "Error al cargar informacion de metodos pagos de pago"
-        );
+      } catch {
+        setError("Error de conexión al cargar informacion metodos de pago");
+      } finally {
+        if (showLoading) setLoading(false);
       }
-    } catch {
-      setError("Error de conexión al cargar informacion metodos de pago");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
-  const openPaymentMethods = useCallback(() => {
-    setShowModal(true);
-    if (cuentas.length === 0) loadCuentas();
-  }, [cuentas.length, loadCuentas]);
+  const openPaymentMethods = useCallback(async () => {
+    // Intentar cargar cache primero para mostrar datos inmediatamente
+    const cachedData = await PaymentCache.get();
+    if (cachedData && cachedData.length > 0) {
+      // Hay cache: abrir con datos SIN loading
+      setCuentas(cachedData);
+      setShowModal(true);
+      // Actualizar en background sin mostrar loading
+      loadCuentas(false, false).catch(() => {});
+    } else {
+      // No hay cache: mostrar loading del servidor
+      setLoading(true);
+      setShowModal(true);
+      await loadCuentas(false, true);
+    }
+  }, [loadCuentas]);
 
   const closePaymentMethods = useCallback(() => setShowModal(false), []);
 

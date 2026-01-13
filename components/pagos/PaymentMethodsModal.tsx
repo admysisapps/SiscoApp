@@ -10,6 +10,7 @@ import {
   Share,
   Dimensions,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -36,7 +37,6 @@ interface Props {
   loading?: boolean;
   error?: string | null;
   onRefresh?: () => void;
-  onDataLoaded?: (data: CuentaPago[], version: string) => void;
 }
 
 export default function PaymentMethodsModal({
@@ -46,7 +46,6 @@ export default function PaymentMethodsModal({
   loading = false,
   error = null,
   onRefresh,
-  onDataLoaded,
 }: Props) {
   const [selectedAccount, setSelectedAccount] = useState<CuentaPago | null>(
     null
@@ -72,6 +71,8 @@ export default function PaymentMethodsModal({
   };
 
   useEffect(() => {
+    if (!visible) return;
+
     const loadUserContext = async () => {
       try {
         const context = await apiService.getUserContext();
@@ -81,21 +82,14 @@ export default function PaymentMethodsModal({
       }
     };
     loadUserContext();
-  }, []);
-
-  // Cargar datos cuando el modal se hace visible
-  useEffect(() => {
-    if (visible && onRefresh) {
-      onRefresh();
-    }
-  }, [visible, onRefresh]);
+  }, [visible]);
 
   // Escuchar eventos de cambios en cuentas de pago
   useEffect(() => {
+    if (!visible || !onRefresh) return;
+
     const handleCuentaChange = () => {
-      if (visible && onRefresh) {
-        onRefresh();
-      }
+      onRefresh();
     };
 
     eventBus.on(EVENTS.CUENTA_PAGO_CREATED, handleCuentaChange);
@@ -204,7 +198,15 @@ export default function PaymentMethodsModal({
                   showsVerticalScrollIndicator={false}
                 >
                   {loading ? (
-                    <View style={styles.loadingContainer}>{/* carga */}</View>
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator
+                        size="large"
+                        color={THEME.colors.primary}
+                      />
+                      <Text style={styles.loadingText}>
+                        Cargando métodos de pago...
+                      </Text>
+                    </View>
                   ) : error ? (
                     <View style={styles.errorContainer}>
                       <Ionicons
@@ -309,13 +311,11 @@ export default function PaymentMethodsModal({
                       <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Link:</Text>
                         <TouchableOpacity
-                          onPress={() => {
-                            if (selectedAccount.enlace_pago) {
-                              openURL(selectedAccount.enlace_pago, (error) =>
-                                showToast(error, "error")
-                              );
-                            }
-                          }}
+                          onPress={() =>
+                            openURL(selectedAccount.enlace_pago!, (error) =>
+                              showToast(error, "error")
+                            )
+                          }
                         >
                           <Text style={styles.linkValue}>
                             {truncateUrl(selectedAccount.enlace_pago)}
@@ -361,13 +361,11 @@ export default function PaymentMethodsModal({
                     {selectedAccount.enlace_pago && (
                       <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={() => {
-                          if (selectedAccount.enlace_pago) {
-                            openURL(selectedAccount.enlace_pago, (error) =>
-                              showToast(error, "error")
-                            );
-                          }
-                        }}
+                        onPress={() =>
+                          openURL(selectedAccount.enlace_pago!, (error) =>
+                            showToast(error, "error")
+                          )
+                        }
                       >
                         <Ionicons
                           name="link"
@@ -381,13 +379,11 @@ export default function PaymentMethodsModal({
                     {selectedAccount.numero_cuenta && (
                       <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={async () => {
-                          if (selectedAccount.numero_cuenta) {
-                            await Clipboard.setStringAsync(
-                              selectedAccount.numero_cuenta
-                            );
-                          }
-                        }}
+                        onPress={() =>
+                          Clipboard.setStringAsync(
+                            selectedAccount.numero_cuenta!
+                          )
+                        }
                       >
                         <Ionicons
                           name="copy"
