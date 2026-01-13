@@ -279,6 +279,7 @@ export default function UnirseProyectoModal({
                 <Animated.View
                   style={[
                     styles.iconBackground,
+                    step === "confirm" && styles.iconBackgroundSuccess,
                     {
                       transform: [
                         { rotate: step === "input" ? spin : "0deg" },
@@ -387,7 +388,7 @@ export default function UnirseProyectoModal({
                       </Text>
                     )}
                     <Text style={styles.confirmSubtext}>
-                      Tendrás acceso a todas las funciones del conjunto
+                      Tendrás acceso a todas las funciones de la copropiedad @
                     </Text>
                   </View>
 
@@ -469,6 +470,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  iconBackgroundSuccess: {
+    borderTopColor: THEME.colors.success,
+    borderRightColor: THEME.colors.success,
+    shadowColor: THEME.colors.success,
   },
   iconInner: {
     alignItems: "center",

@@ -20,12 +20,14 @@ interface EliminarCuentaModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  onError: (message: string) => void;
 }
 
 export default function EliminarCuentaModal({
   visible,
   onClose,
   onConfirm,
+  onError,
 }: EliminarCuentaModalProps) {
   const { logout } = useAuth();
   const router = useRouter();
@@ -43,12 +45,15 @@ export default function EliminarCuentaModal({
           router.replace("/(auth)/login");
         }, 500);
       } else {
-        alert(response.error || "Error al eliminar cuenta");
+        const errorMessage = response.error || "Error al eliminar cuenta";
+        onError(errorMessage);
         setIsDeleting(false);
+        onClose();
       }
-    } catch {
-      alert("Error al eliminar cuenta");
+    } catch (error: any) {
+      onError(error?.message || "Error de conexión. Intenta nuevamente");
       setIsDeleting(false);
+      onClose();
     }
   };
 

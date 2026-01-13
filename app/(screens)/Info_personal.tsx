@@ -520,6 +520,9 @@ export default function PersonalInfo() {
         visible={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={() => setShowDeleteModal(false)}
+        onError={(message) =>
+          setToast({ visible: true, message, type: "error" })
+        }
       />
     </SafeAreaView>
   );

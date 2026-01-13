@@ -10,7 +10,7 @@ export default function LoadingScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSlowMessage(true);
-    }, 5000); // 5 segundos
+    }, 6000); // 6 segundos
 
     return () => clearTimeout(timer);
   }, []);
