@@ -92,16 +92,24 @@ jobs:
           EOFMARKER
           fi
 
-      - name: Disable Android Lint
+      - name: Configure Gradle memory settings
         run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << 'EOF'
+          org.gradle.jvmargs=-Xmx14g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.parallel=true
+          org.gradle.configureondemand=true
+          org.gradle.daemon=false
+          EOF
+
           if [ -f android/gradle.properties ]; then
-            echo "" >> android/gradle.properties
-            echo "android.lintOptions.checkReleaseBuilds=false" >> android/gradle.properties
-            echo "android.lintOptions.abortOnError=false" >> android/gradle.properties
-            echo " Lint disabled"
-          else
-            echo " android/gradle.properties not found, skipping"
+            sed -i '/org.gradle.jvmargs/d' android/gradle.properties
+            sed -i '/android.lintOptions/d' android/gradle.properties
           fi
+          cat >> android/gradle.properties << 'EOF'
+          android.lintOptions.checkReleaseBuilds=false
+          android.lintOptions.abortOnError=false
+          EOF
 
       # Build Preview APK - Package: com.Admysis.SiscoApp.preview
       - name: Build Preview APK
