@@ -120,9 +120,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
         !user &&
         !isLoading &&
         !loadingRef.current &&
-        !hasError && //  NO reintentar si hay error del servidor
-        !hasAccessError //  NO reintentar si hay error de acceso
+        !hasAccessError // NO reintentar si hay error de acceso (403, 404, etc.)
       ) {
+        // Limpiar error de red anterior y reintentar
+        setHasError(false);
+        setError(null);
         hasLoadedRef.current = false;
         loadUserInfo(currentUsername);
       }
@@ -134,7 +136,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     currentUsername,
     user,
     isLoading,
-    hasError,
     hasAccessError,
     loadUserInfo,
   ]);

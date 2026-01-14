@@ -100,17 +100,17 @@ export default function SignUp() {
       case "Documento, email y código de invitación son requeridos":
         return "Todos los campos son obligatorios. Verifica la información.";
 
-      // Errores de código de invitación
+      // Errores de código de copropiedad
       case "CODIGO_INVALIDO":
-        return "Código de invitación inválido. Verifica que sea correcto.";
+        return "Código de copropiedad inválido. Verifica que sea correcto.";
 
       // Errores de usuario
       case "USUARIO_NO_ENCONTRADO":
-        return "Los datos ingresados incorrectos.";
+        return "Los datos ingresados son incorrectos.";
       case "USUARIO_INACTIVO_PROYECTO":
         return "Tu cuenta está desactivada en este proyecto. Contacta al administrador.";
       case "USUARIO_SIN_APARTAMENTOS":
-        return "No tienes unidades registrados en este proyecto. Verifica con tu administrador.";
+        return "No tienes unidades registradas en este proyecto. Verifica con tu administrador.";
       case "USUARIO_DESHABILITADO":
         return "Tu acceso ha sido deshabilitado. Contacta al administrador.";
 

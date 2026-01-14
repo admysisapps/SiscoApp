@@ -31,7 +31,7 @@ export default function AccessDenied({
       case "projects_inactive":
         return "El proyecto asociado a tu cuenta no se encuentra activo actualmente.";
       default:
-        return "Tu acceso a la app presenta una restricción\nPor favor, contacta al soporte de la aplicación";
+        return "Tu acceso a la app presenta una restricción\nPor favor, contacta al soporte.";
     }
   };
 
