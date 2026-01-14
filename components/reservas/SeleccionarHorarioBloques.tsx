@@ -279,7 +279,8 @@ export default function SeleccionarHorarioBloques({
   };
 
   const formatearFecha = (fecha: string) => {
-    const date = new Date(fecha);
+    const [year, month, day] = fecha.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString("es-ES", {
       weekday: "long",
       year: "numeric",
@@ -337,7 +338,7 @@ export default function SeleccionarHorarioBloques({
       {horariosDiaSiguiente.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>
-            {formatearFecha(fechaSiguienteStr)}
+            Madrugada del {formatearFecha(fechaSiguienteStr)}
           </Text>
           <View style={styles.horariosGrid}>
             {horariosDiaSiguiente.map((hora) => (

@@ -25,7 +25,7 @@ const ANNOUNCEMENT_CONFIG = {
 
   // Fecha de expiración (se oculta automáticamente después de esta fecha)
   // Formato: "YYYY-MM-DDTHH:mm:ss"
-  expiresAt: "2026-01-09T23:59:00",
+  expiresAt: "2026-01-15T23:59:00",
 
   // Tipo de anuncio (afecta el color y el ícono)
   type: "warning" as "info" | "warning" | "success" | "error",
