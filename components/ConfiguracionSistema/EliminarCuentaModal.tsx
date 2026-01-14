@@ -71,8 +71,7 @@ export default function EliminarCuentaModal({
 
           {/* Descripción */}
           <Text style={styles.description}>
-            Al eliminar tu cuenta perderás el acceso a todos los servicios y
-            datos asociados.
+            Al eliminar tu cuenta perderás el acceso a todos los servicios.
           </Text>
           <Text style={styles.descriptionBold}>
             ¿Estás seguro de que deseas continuar?
