@@ -8,12 +8,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { publicacionesService } from "../../services/publicacionesService";
-import { Publicacion, EstadoPublicacion } from "../../types/publicaciones";
-import { s3Service } from "../../services/s3Service";
-import { useProject } from "../../contexts/ProjectContext";
-import Toast from "../Toast";
-import { THEME } from "../../constants/theme";
+import { publicacionesService } from "@/services/publicacionesService";
+import { Publicacion, EstadoPublicacion } from "@/types/publicaciones";
+import { s3Service } from "@/services/s3Service";
+import { useProject } from "@/contexts/ProjectContext";
+import Toast from "@/components/Toast";
+import { THEME } from "@/constants/theme";
+import { eventBus, EVENTS } from "@/utils/eventBus";
 
 const PublicacionImage = memo(function PublicacionImage({
   archivos,
@@ -92,6 +93,24 @@ export default function MisPublicaciones() {
 
   useEffect(() => {
     cargarMisPublicaciones();
+
+    const handlePublicacionCreated = (publicacion: Publicacion) => {
+      setPublicaciones((prev) => [publicacion, ...prev]);
+    };
+
+    const handlePublicacionUpdated = (publicacion: Publicacion) => {
+      setPublicaciones((prev) =>
+        prev.map((p) => (p.id === publicacion.id ? publicacion : p))
+      );
+    };
+
+    eventBus.on(EVENTS.PUBLICACION_CREATED, handlePublicacionCreated);
+    eventBus.on(EVENTS.PUBLICACION_UPDATED, handlePublicacionUpdated);
+
+    return () => {
+      eventBus.off(EVENTS.PUBLICACION_CREATED, handlePublicacionCreated);
+      eventBus.off(EVENTS.PUBLICACION_UPDATED, handlePublicacionUpdated);
+    };
   }, [cargarMisPublicaciones]);
 
   const handleRefresh = useCallback(async () => {
@@ -108,12 +127,16 @@ export default function MisPublicaciones() {
           nuevoEstado
         );
         if (response.success) {
+          setPublicaciones((prev) =>
+            prev.map((p) =>
+              p.id === publicacionId ? { ...p, estado: nuevoEstado } : p
+            )
+          );
           setToast({
             visible: true,
             message: "Estado actualizado correctamente",
             type: "success",
           });
-          cargarMisPublicaciones();
         }
       } catch {
         setToast({
@@ -123,7 +146,7 @@ export default function MisPublicaciones() {
         });
       }
     },
-    [cargarMisPublicaciones]
+    []
   );
 
   const getEstadoColor = (estado: string) => {
