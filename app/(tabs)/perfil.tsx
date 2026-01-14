@@ -20,6 +20,7 @@ import NotificationModal from "@/components/shared/NotificationModal";
 import Toast from "@/components/Toast";
 import { THEME } from "@/constants/theme";
 import { Ionicons, Entypo } from "@expo/vector-icons";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 // Tipo para los items del menú
 interface MenuItemType {
@@ -146,10 +147,6 @@ export default function Perfil() {
     router.push("/(auth)/changePassword");
   }, []);
 
-  const handleBack = useCallback(() => {
-    router.back();
-  }, []);
-
   const handleJoinProject = useCallback(() => {
     setShowJoinModal(true);
   }, []);
@@ -249,18 +246,7 @@ export default function Perfil() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.text.primary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Perfil</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Perfil" />
 
       <ScrollView
         style={styles.scrollView}
@@ -345,34 +331,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.text.primary,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   scrollView: {
     flex: 1,

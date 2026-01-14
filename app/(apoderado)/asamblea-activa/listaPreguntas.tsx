@@ -1,21 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import LottieView from "lottie-react-native";
 import { votacionesService } from "@/services/votacionesService";
 import { Votacion, PreguntaVotacion } from "@/types/Votaciones";
 import { THEME } from "@/constants/theme";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function ListaPreguntasApoderado() {
-  const router = useRouter();
   const params = useLocalSearchParams();
   const asambleaId = params.asambleaId
     ? parseInt(params.asambleaId as string)
@@ -130,19 +124,7 @@ export default function ListaPreguntasApoderado() {
         style={styles.container}
         edges={["top", "left", "right", "bottom"]}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.text.primary}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Preguntas de Votación</Text>
-        </View>
+        <ScreenHeader title="Preguntas de Votación" />
         <View style={styles.loadingContainer}>
           <LottieView
             source={require("@/assets/lottie/LoadingVotaciones.json")}
@@ -162,19 +144,7 @@ export default function ListaPreguntasApoderado() {
         style={styles.container}
         edges={["top", "left", "right", "bottom"]}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.text.primary}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Preguntas de Votación</Text>
-        </View>
+        <ScreenHeader title="Preguntas de Votación" />
         <View style={styles.emptyContainer}>
           <LottieView
             source={require("@/assets/lottie/LoadingVotaciones.json")}
@@ -196,19 +166,7 @@ export default function ListaPreguntasApoderado() {
       style={styles.container}
       edges={["top", "left", "right", "bottom"]}
     >
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.text.primary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Preguntas de Votación</Text>
-      </View>
+      <ScreenHeader title="Preguntas de Votación" />
       <FlatList
         data={votaciones}
         renderItem={renderVotacion}
@@ -254,24 +212,6 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.secondary,
     marginTop: THEME.spacing.xs,
     textAlign: "center",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.md,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    padding: THEME.spacing.xs,
-    marginRight: THEME.spacing.sm,
-  },
-  headerTitle: {
-    fontSize: THEME.fontSize.lg,
-    fontWeight: "600",
-    color: THEME.colors.text.primary,
   },
   listContent: {
     padding: 16,

@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import NotificationModal from "@/components/shared/NotificationModal";
 import Toast from "@/components/Toast";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function AdminPerfil() {
   const { selectedProject, switchProject, proyectos } = useProject();
@@ -51,10 +52,6 @@ export default function AdminPerfil() {
       console.error("Error cerrando sesión:", error);
     }
   }, [logout, currentUsername]);
-
-  const handleBackPress = useCallback(() => {
-    router.back();
-  }, []);
 
   const handleChangePassword = useCallback(() => {
     router.push("/(auth)/changePassword");
@@ -122,18 +119,7 @@ export default function AdminPerfil() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Panel de Administración</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Panel de Administración" />
 
       <ScrollView
         style={styles.scrollView}
@@ -239,32 +225,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-  },
-  headerSpacer: {
-    width: 40,
   },
   scrollView: {
     flex: 1,

@@ -3,13 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   RefreshControl,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
-
-import { Ionicons } from "@expo/vector-icons";
 import { THEME } from "@/constants/theme";
 import { asambleaService } from "@/services/asambleaService";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -17,6 +14,7 @@ import AsambleaDetalleHeader from "@/components/asambleas/AsambleaDetalleHeader"
 import AsambleaProgramada from "@/components/asambleas/AsambleaProgramada";
 import AsambleaProgramadaAdmin from "@/components/asambleas/AsambleaProgramadaAdmin";
 import Toast from "@/components/Toast";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 import AsambleaFinalizadaAdmin from "@/components/asambleas/AsambleaFinalizadaAdmin";
 import AsambleaCancelada from "@/components/asambleas/AsambleaCancelada";
@@ -131,20 +129,7 @@ export default function AdminDetalleAsambleaScreen() {
   if (error || !asamblea) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.header.title}
-            />
-          </TouchableOpacity>
-          <Text style={styles.title}>Detalle de Asamblea</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader title="Detalle de Asamblea" />
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
             {error || "No se pudo cargar la asamblea"}
@@ -156,20 +141,7 @@ export default function AdminDetalleAsambleaScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Detalle de Asamblea</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Detalle de Asamblea" />
 
       <ScrollView
         refreshControl={
@@ -211,32 +183,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.text.heading,
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,

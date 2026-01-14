@@ -17,6 +17,7 @@ import { Votacion, PreguntaVotacion } from "@/types/Votaciones";
 import Toast from "@/components/Toast";
 import { THEME } from "@/constants/theme";
 import { ModalPreguntaActiva } from "@/components/votaciones/ModalPreguntaActiva";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function ControlPreguntas() {
   const { asambleaId, registroData: registroDataParam } =
@@ -578,17 +579,7 @@ export default function ControlPreguntas() {
         style={styles.container}
         edges={["left", "right", "bottom"]}
       >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.header.title}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Control de Preguntas</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader title="Control de Preguntas" onBackPress={handleBack} />
         <View style={styles.loadingContainer}>
           <LottieView
             source={require("@/assets/lottie/LoadingVotaciones.json")}
@@ -608,17 +599,7 @@ export default function ControlPreguntas() {
         style={styles.container}
         edges={["left", "right", "bottom"]}
       >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.header.title}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Control de Preguntas</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader title="Control de Preguntas" onBackPress={handleBack} />
         <View style={styles.emptyContainer}>
           <LottieView
             source={require("@/assets/lottie/LoadingVotaciones.json")}
@@ -637,17 +618,7 @@ export default function ControlPreguntas() {
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Control de Preguntas</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Control de Preguntas" onBackPress={handleBack} />
       {menuVisible && (
         <TouchableOpacity
           activeOpacity={1}
@@ -810,38 +781,6 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.secondary,
     marginTop: THEME.spacing.xs,
     textAlign: "center",
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: THEME.colors.text.secondary,
-    fontWeight: "500",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.text.heading,
-  },
-  headerSpacer: {
-    width: 40,
   },
   listContent: {
     padding: 16,

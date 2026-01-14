@@ -3,12 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   RefreshControl,
 } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import { THEME } from "@/constants/theme";
 import { asambleaService } from "@/services/asambleaService";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -19,6 +17,7 @@ import AsambleaFinalizada from "@/components/asambleas/AsambleaFinalizada";
 import AsambleaCancelada from "@/components/asambleas/AsambleaCancelada";
 import Toast from "@/components/Toast";
 import { Asamblea } from "@/types/Asamblea";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function DetalleAsambleaScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -70,10 +69,6 @@ export default function DetalleAsambleaScreen() {
     setRefreshing(false);
   }, [cargarAsamblea]);
 
-  const handleBackPress = useCallback(() => {
-    router.back();
-  }, []);
-
   const showToast = useCallback(
     (message: string, type: "error" | "success" | "warning") => {
       setToast({ visible: true, message, type });
@@ -109,17 +104,7 @@ export default function DetalleAsambleaScreen() {
   if (error || !asamblea) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.text.primary}
-            />
-          </TouchableOpacity>
-          <Text style={styles.title}>Detalle de Asamblea</Text>
-          <View style={styles.backButton} />
-        </View>
+        <ScreenHeader title="Detalle de Asamblea" />
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
             {error || "No se pudo cargar la asamblea"}
@@ -131,17 +116,7 @@ export default function DetalleAsambleaScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Detalle de Asamblea</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Detalle de Asamblea" />
 
       <ScrollView
         refreshControl={
@@ -183,33 +158,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,

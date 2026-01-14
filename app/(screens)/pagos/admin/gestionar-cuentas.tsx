@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, THEME } from "@/constants/theme";
 import { CuentaPago } from "@/types/CuentaPago";
@@ -18,6 +17,7 @@ import CreateAccountModal from "@/components/pagos/CreateAccountModal";
 import { cuentasPagoService } from "@/services/cuentasPagoService";
 import Toast from "@/components/Toast";
 import { eventBus, EVENTS } from "@/utils/eventBus";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 const getTipoNombre = (tipo: string): string => {
   const tipos = {
@@ -159,8 +159,6 @@ export default function GestionarCuentasScreen() {
     );
   }, []);
 
-  const handleBack = useCallback(() => router.back(), []);
-
   const handleCloseModal = useCallback(() => {
     setShowCreateModal(false);
     setIsEditMode(false);
@@ -217,18 +215,7 @@ export default function GestionarCuentasScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.text.primary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Gestionar Métodos de Pago</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Gestionar Métodos de Pago" />
 
       {/* Botón Crear Visible */}
       <View style={styles.createSection}>
@@ -373,34 +360,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.text.primary,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   createSection: {
     paddingHorizontal: THEME.spacing.md,

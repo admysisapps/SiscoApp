@@ -15,7 +15,7 @@ import { eventBus, EVENTS } from "@/utils/eventBus";
 import { PqrCard } from "@/components/pqr/PQRCard";
 import { pqrService } from "@/services/pqrService";
 import { useRole } from "@/hooks/useRole";
-
+import ScreenHeader from "@/components/shared/ScreenHeader";
 import { THEME } from "@/constants/theme";
 
 type FilterType =
@@ -146,16 +146,10 @@ export default function PQRListScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <Ionicons name="arrow-back" size={24} color="#1E293B" />
-        </TouchableOpacity>
-        <Text style={styles.title}>
-          {isAdmin ? "Gestión de PQRs" : "Mis PQRs"}
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader
+        title={isAdmin ? "Gestión de PQRs" : "Mis PQRs"}
+        onBackPress={handleBackPress}
+      />
 
       {/* Filtros */}
       <View style={styles.filtersContainer}>
@@ -268,33 +262,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   filtersContainer: {
     paddingHorizontal: 16,

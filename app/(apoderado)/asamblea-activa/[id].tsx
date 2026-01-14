@@ -23,6 +23,7 @@ import { asistenciaService } from "@/services/asistenciaService";
 import { votacionesService } from "@/services/votacionesService";
 import { ModalPreguntaActiva } from "@/components/votaciones/ModalPreguntaActiva";
 import { ResultadosVotacion } from "@/components/votaciones/base/ResultadosVotacion";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 const AsambleaActivaApoderadoScreen: React.FC = () => {
   const router = useRouter();
@@ -124,10 +125,13 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
       style={styles.container}
       edges={["top", "left", "right", "bottom"]}
     >
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Asamblea en Curso</Text>
-        <ConexionStatus onConnectionChange={handleConnectionChange} />
-      </View>
+      <ScreenHeader
+        title="Asamblea en Curso"
+        showBackButton={false}
+        rightButton={
+          <ConexionStatus onConnectionChange={handleConnectionChange} />
+        }
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Resumen de representación */}
@@ -344,27 +348,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: THEME.spacing.lg,
-    paddingTop: THEME.spacing.lg,
-    paddingBottom: THEME.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    padding: THEME.spacing.sm,
-  },
-  headerTitle: {
-    fontSize: THEME.fontSize.lg,
-    fontWeight: "600",
-    color: THEME.colors.text.primary,
-  },
-  placeholder: {
-    width: 40,
   },
   content: {
     flex: 1,

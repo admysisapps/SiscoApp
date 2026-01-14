@@ -13,15 +13,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { THEME } from "@/constants/theme";
 import { quorumService } from "@/services/quorumService";
 import { Participante } from "@/services/cache/quorumCacheService";
 import { AsistenciaChart } from "@/components/votaciones/AsistenciaChart";
 import { PoderVotoChart } from "@/components/votaciones/PoderVotoChart";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 const ParticipantesListaScreen: React.FC = () => {
-  const router = useRouter();
   const params = useLocalSearchParams();
   const asambleaId = parseInt(params.asambleaId as string);
 
@@ -200,23 +200,7 @@ const ParticipantesListaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.header.title}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Participantes</Text>
-          <View style={styles.headerSpacer} />
-        </View>
-      </View>
+      <ScreenHeader title="Participantes" />
 
       {/* Search Bar Fijo */}
       <View style={styles.searchContainer}>
@@ -288,34 +272,6 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
-  },
-  headerContainer: {
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.text.heading,
-  },
-  headerSpacer: {
-    width: 40,
   },
   searchContainer: {
     flexDirection: "row",

@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { THEME } from "@/constants/theme";
 import supportData from "@/data/supportData.json";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function SupportScreen() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -61,18 +62,10 @@ export default function SupportScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{supportData.helpDesk.title}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader
+        title={supportData.helpDesk.title}
+        onBackPress={handleBack}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -157,34 +150,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   scrollView: {
     flex: 1,

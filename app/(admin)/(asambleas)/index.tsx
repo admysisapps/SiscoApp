@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   RefreshControl,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
@@ -14,6 +13,7 @@ import LottieView from "lottie-react-native";
 import { useAsambleas } from "@/contexts/AsambleaContext";
 import { THEME } from "@/constants/theme";
 import AsambleaCard from "@/components/asambleas/AsambleaCard";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function AsambleasScreen() {
   const { asambleas, cargarAsambleas, cargando } = useAsambleas();
@@ -64,18 +64,7 @@ export default function AsambleasScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Asambleas</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Asambleas" onBackPress={handleBackPress} />
 
       {/* Contenido */}
       <ScrollView
@@ -134,32 +123,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.text.heading,
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,

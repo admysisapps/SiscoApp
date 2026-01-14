@@ -17,6 +17,7 @@ import { ConfirmarCreacionModal } from "@/components/propietarios/ConfirmarCreac
 import { useLoading } from "@/contexts/LoadingContext";
 import { useUser } from "@/contexts/UserContext";
 import Toast from "@/components/Toast";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function CambiarPropietarioScreen() {
   const router = useRouter();
@@ -153,21 +154,10 @@ export default function CambiarPropietarioScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Transferir la propiedad</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader
+        title="Transferir la propiedad"
+        onBackPress={() => router.back()}
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Input de búsqueda */}
@@ -335,32 +325,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,

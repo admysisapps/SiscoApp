@@ -20,6 +20,7 @@ import { Publicacion, TipoPublicacion } from "../../types/publicaciones";
 import { s3Service } from "../../services/s3Service";
 import { useProject } from "../../contexts/ProjectContext";
 import { THEME } from "../../constants/theme";
+import ScreenHeader from "../shared/ScreenHeader";
 
 function PublicacionImage({
   archivos,
@@ -290,21 +291,7 @@ export default function TableroPublicaciones() {
     <>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.header.title}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Comunidad</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader title="Comunidad" onBackPress={() => router.back()} />
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
@@ -448,33 +435,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   searchButton: {
     padding: 8,

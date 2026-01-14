@@ -23,6 +23,7 @@ import Toast from "@/components/Toast";
 import { useProject } from "@/contexts/ProjectContext";
 import { ImageGallery } from "@/components/shared/ImageGallery";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function CreatePQRScreen() {
   const { selectedProject } = useProject();
@@ -228,14 +229,7 @@ export default function CreatePQRScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <Ionicons name="arrow-back" size={24} color="#1E293B" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Nueva PQR</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Nueva PQR" onBackPress={handleBackPress} />
 
       <KeyboardAvoidingView style={styles.keyboardView} behavior={behavior}>
         <ScrollView
@@ -492,33 +486,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   keyboardView: {
     flex: 1,

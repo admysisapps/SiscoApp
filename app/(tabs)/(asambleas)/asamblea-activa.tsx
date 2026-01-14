@@ -24,6 +24,7 @@ import { asistenciaService } from "@/services/asistenciaService";
 import { votacionesService } from "@/services/votacionesService";
 import { ModalPreguntaActiva } from "@/components/votaciones/ModalPreguntaActiva";
 import { ResultadosVotacion } from "@/components/votaciones/base/ResultadosVotacion";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 import {
   RegistroAsambleaData,
   PreguntaActiva,
@@ -145,12 +146,13 @@ const AsambleaActivaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
-      <View style={styles.header}>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Asamblea en Curso</Text>
-        </View>
-        <ConexionStatus onConnectionChange={handleConnectionChange} />
-      </View>
+      <ScreenHeader
+        title="Asamblea en Curso"
+        showBackButton={false}
+        rightButton={
+          <ConexionStatus onConnectionChange={handleConnectionChange} />
+        }
+      />
 
       <ScrollView
         style={styles.content}
@@ -448,42 +450,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: THEME.spacing.lg,
-    paddingVertical: THEME.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    padding: THEME.spacing.sm,
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: THEME.fontSize.lg,
-    fontWeight: "600",
-    color: THEME.colors.text.primary,
-  },
-  observerBadge: {
-    backgroundColor: THEME.colors.warning,
-    paddingHorizontal: THEME.spacing.sm,
-    paddingVertical: 2,
-    borderRadius: THEME.borderRadius.sm,
-    marginTop: 2,
-  },
-  observerBadgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "600",
-  },
-  placeholder: {
-    width: 40,
   },
   content: {
     flex: 1,

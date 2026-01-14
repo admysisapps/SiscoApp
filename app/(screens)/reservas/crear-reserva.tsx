@@ -24,6 +24,7 @@ import Toast from "@/components/Toast";
 import { useLoading } from "@/contexts/LoadingContext";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 dayjs.locale("es");
 
@@ -550,17 +551,7 @@ export default function CrearReservaScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Nueva Reserva</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Nueva Reserva" onBackPress={handleBackPress} />
 
       <View style={styles.stepsIndicator}>
         {[1, 2, 3].map((stepNum) => (
@@ -601,33 +592,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   stepsIndicator: {
     flexDirection: "row",

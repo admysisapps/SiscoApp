@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   RefreshControl,
 } from "react-native";
 import { router } from "expo-router";
@@ -13,6 +12,7 @@ import LottieView from "lottie-react-native";
 import { useAsambleas } from "@/contexts/AsambleaContext";
 import { THEME } from "@/constants/theme";
 import AsambleaCard from "@/components/asambleas/AsambleaCard";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function AsambleasScreen() {
   const { asambleas, cargarAsambleas, cargando } = useAsambleas();
@@ -24,10 +24,6 @@ export default function AsambleasScreen() {
     await cargarAsambleas();
     setRefreshing(false);
   }, [cargarAsambleas]);
-
-  const handleBackPress = useCallback(() => {
-    router.back();
-  }, []);
 
   const handleAsambleaPress = useCallback((asambleaId: number) => {
     router.push(`/(tabs)/(asambleas)/${asambleaId}`);
@@ -42,17 +38,7 @@ export default function AsambleasScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Asambleas</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Asambleas" />
       {/* Contenido */}
       <ScrollView
         refreshControl={
@@ -111,33 +97,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THEME.colors.background,
     borderWidth: 0,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,

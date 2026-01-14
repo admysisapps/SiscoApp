@@ -8,7 +8,6 @@ import React, {
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
@@ -16,6 +15,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -28,6 +28,7 @@ import { userCacheService } from "@/services/cache/userCacheService";
 import { THEME } from "@/constants/theme";
 import Toast from "@/components/Toast";
 import EliminarCuentaModal from "@/components/ConfiguracionSistema/EliminarCuentaModal";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 export default function PersonalInfo() {
   const { user, setUser } = useUser();
   const { selectedProject } = useProject();
@@ -244,22 +245,7 @@ export default function PersonalInfo() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]} mode="padding">
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-
-        <Text style={styles.title}>Información Personal</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Información Personal" />
 
       <KeyboardAvoidingView
         style={styles.keyboardView}
@@ -532,33 +518,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   keyboardView: {
     flex: 1,

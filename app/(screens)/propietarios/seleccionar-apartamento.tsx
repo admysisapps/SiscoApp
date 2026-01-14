@@ -22,6 +22,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { propietarioService } from "@/services/propietarioService";
 import { useLoading } from "@/contexts/LoadingContext";
 import Toast from "@/components/Toast";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(
   FlatList<Apartamento>
@@ -236,21 +237,10 @@ export default function SeleccionarApartamentoScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Seleccionar Inmueble</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader
+        title="Seleccionar Inmueble"
+        onBackPress={() => router.back()}
+      />
 
       {/* Usuario destino */}
       <View style={styles.userCard}>
@@ -397,32 +387,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-  },
-  headerSpacer: {
-    width: 40,
   },
   userCard: {
     flexDirection: "row",

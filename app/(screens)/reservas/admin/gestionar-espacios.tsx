@@ -14,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, THEME } from "@/constants/theme";
 import { reservaService } from "@/services/reservaService";
 import { useLoading } from "@/contexts/LoadingContext";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 interface EspacioAdmin {
   id: number;
   nombre: string;
@@ -126,18 +127,10 @@ export default function GestionarEspaciosScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Gestionar Zonas Comunes</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader
+        title="Gestionar Zonas Comunes"
+        onBackPress={handleBackPress}
+      />
 
       <ScrollView
         style={styles.content}
@@ -250,33 +243,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,

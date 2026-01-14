@@ -26,6 +26,7 @@ import { getAvisoIcon, getAvisoColor } from "@/utils/avisoUtils";
 import { router } from "expo-router";
 import { avisosService } from "@/services/avisoService";
 import Toast from "@/components/Toast";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 interface SelectedFile {
   uri: string;
@@ -292,20 +293,7 @@ export default function CrearAvisoScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Crear Comunicado</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Crear Comunicado" />
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -560,32 +548,6 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.surfaceLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.text.heading,
-  },
-  headerSpacer: {
-    width: 40,
   },
   buttonContainer: {
     paddingHorizontal: 16,

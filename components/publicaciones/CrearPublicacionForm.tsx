@@ -23,6 +23,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useProject } from "../../contexts/ProjectContext";
 import { THEME, COLORS } from "../../constants/theme";
 import Toast from "../Toast";
+import ScreenHeader from "../shared/ScreenHeader";
 
 const { width } = Dimensions.get("window");
 
@@ -212,18 +213,7 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onClose} style={styles.headerButton}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Crear Anuncio</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Crear Anuncio" onBackPress={onClose} />
 
       <KeyboardAvoidingView
         style={styles.keyboardView}
@@ -425,33 +415,6 @@ const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  headerButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    flex: 1,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,
