@@ -3,16 +3,14 @@ import React from "react";
 import { Redirect } from "expo-router";
 
 
-const PANTALLA_DEV = "(screens)/ConnectionErrorScreen";
+const PANTALLA_DEV = "/(screens)/NoConnection";
 
 export default function Index() {
   //Ir directo a la pantalla de desarrollo
   return <Redirect href={PANTALLA_DEV} />;
   }
   
-  
-  
-*/
+  */
 
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";

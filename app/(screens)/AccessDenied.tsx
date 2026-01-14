@@ -1,12 +1,19 @@
 import React, { useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { THEME, COLORS } from "@/constants/theme";
 import LottieView from "lottie-react-native";
 import { getCrashlytics, log } from "@react-native-firebase/crashlytics";
+
+const { height } = Dimensions.get("window");
 
 interface AccessDeniedProps {
   reason?: "no_projects" | "projects_inactive";
@@ -22,9 +29,9 @@ export default function AccessDenied({
   const getMessage = () => {
     switch (reason) {
       case "projects_inactive":
-        return "El proyecto al que tenías acceso ha sido desactivado.\nContacta al administrador para más información.";
+        return "El proyecto asociado a tu cuenta no se encuentra activo actualmente.";
       default:
-        return "Tu acceso a la aplicación está restringido.\nPor favor, contacta al administrador para solicitar acceso.";
+        return "Tu acceso a la app presenta una restricción\nPor favor, contacta al soporte de la aplicación";
     }
   };
 
@@ -51,6 +58,13 @@ export default function AccessDenied({
 
   return (
     <View style={styles.container}>
+      {/* Background decorativo */}
+      <View style={styles.backgroundDecoration}>
+        <View style={[styles.circle, styles.circle1]} />
+        <View style={[styles.circle, styles.circle2]} />
+        <View style={[styles.circle, styles.circle3]} />
+      </View>
+
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <LottieView
@@ -85,6 +99,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  backgroundDecoration: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  circle: {
+    position: "absolute",
+    borderRadius: 1000,
+    opacity: 0.08,
+  },
+  circle1: {
+    width: 180,
+    height: 180,
+    backgroundColor: COLORS.primaryLight,
+    top: -90,
+    left: -90,
+  },
+  circle2: {
+    width: 250,
+    height: 250,
+    backgroundColor: COLORS.primary,
+    bottom: -125,
+    right: -125,
+  },
+  circle3: {
+    width: 120,
+    height: 120,
+    backgroundColor: COLORS.primary,
+    top: height * 0.3,
+    left: -60,
   },
   content: {
     flex: 1,

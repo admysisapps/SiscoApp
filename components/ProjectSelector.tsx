@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   View,
+  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useProject } from "@/contexts/ProjectContext";
-import { THEME } from "@/constants/theme";
+import { THEME, COLORS } from "@/constants/theme";
 import { Proyecto } from "@/types/Proyecto";
+
+const { height } = Dimensions.get("window");
 
 interface ProjectSelectorProps {
   onProjectSelected: (proyecto: Proyecto) => void;
@@ -113,10 +116,14 @@ export default function ProjectSelector({
 
   return (
     <View style={[styles.container, { backgroundColor: "#F8FAFC" }]}>
-      <LinearGradient
-        colors={["#F8FAFC", "#E2E8F0", "#F8FAFC"]}
-        style={StyleSheet.absoluteFillObject}
-      />
+      {/* Background decorativo */}
+      <View style={styles.backgroundDecoration}>
+        <View style={[styles.circle, styles.circle1]} />
+        <View style={[styles.circle, styles.circle2]} />
+        <View style={[styles.circle, styles.circle3]} />
+        <View style={[styles.circle, styles.circle5]} />
+      </View>
+
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <Text style={styles.title}>tus Copropiedades</Text>
@@ -142,6 +149,47 @@ export default function ProjectSelector({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  backgroundDecoration: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  circle: {
+    position: "absolute",
+    borderRadius: 1000,
+    opacity: 0.15,
+  },
+  circle1: {
+    width: 280,
+    height: 280,
+    backgroundColor: COLORS.primary,
+    top: -140,
+    right: -100,
+  },
+  circle2: {
+    width: 200,
+    height: 200,
+    backgroundColor: COLORS.primary,
+    bottom: -80,
+    left: -60,
+  },
+  circle3: {
+    width: 150,
+    height: 150,
+    backgroundColor: COLORS.primary,
+    top: height * 0.35,
+    left: -50,
+  },
+
+  circle5: {
+    width: 160,
+    height: 160,
+    backgroundColor: COLORS.primary,
+    bottom: height * 0.25,
+    right: -40,
   },
   safeArea: {
     flex: 1,

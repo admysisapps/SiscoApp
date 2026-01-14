@@ -11,8 +11,9 @@ import { Ionicons } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
+import { COLORS } from "@/constants/theme";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export default function NoConnection() {
   const [isChecking, setIsChecking] = useState(false);
@@ -45,6 +46,14 @@ export default function NoConnection() {
 
   return (
     <View style={styles.container}>
+      {/* Background decorativo */}
+      <View style={styles.backgroundDecoration}>
+        <View style={[styles.circle, styles.circle1]} />
+        <View style={[styles.circle, styles.circle2]} />
+        <View style={[styles.circle, styles.circle3]} />
+        <View style={[styles.circle, styles.circle4]} />
+      </View>
+
       <LottieView
         source={require("@/assets/lottie/NotFound.json")}
         autoPlay
@@ -86,6 +95,46 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     backgroundColor: "#f8f9fa",
+  },
+  backgroundDecoration: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  circle: {
+    position: "absolute",
+    borderRadius: 1000,
+    opacity: 0.12,
+  },
+  circle1: {
+    width: 280,
+    height: 280,
+    backgroundColor: COLORS.primary,
+    top: -140,
+    right: -140,
+  },
+  circle2: {
+    width: 200,
+    height: 200,
+    backgroundColor: COLORS.primaryLight,
+    bottom: -100,
+    left: -100,
+  },
+  circle3: {
+    width: 140,
+    height: 140,
+    backgroundColor: COLORS.primary,
+    top: height * 0.5,
+    left: -70,
+  },
+  circle4: {
+    width: 160,
+    height: 160,
+    backgroundColor: COLORS.primaryLight,
+    top: height * 0.25,
+    right: -80,
   },
   lottieAnimation: {
     width: width * 0.8,
