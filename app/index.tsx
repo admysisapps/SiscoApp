@@ -24,7 +24,12 @@ import LoadingScreen from "@/components/LoadingScreen";
 
 export default function Index() {
   const { selectedProject, proyectos, isLoadingProjects } = useProject();
-  const { user, isLoading: userLoading, hasError: userHasError } = useUser();
+  const {
+    user,
+    isLoading: userLoading,
+    hasError: userHasError,
+    hasAccessError: userHasAccessError,
+  } = useUser();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   const [onboardingSeen, setOnboardingSeen] = useState<boolean | null>(null);
@@ -122,6 +127,10 @@ export default function Index() {
     // Verificar errores de carga
     if (userHasError) {
       return <Redirect href="/(screens)/ConnectionErrorScreen" />;
+    }
+
+    if (userHasAccessError) {
+      return <Redirect href="/(screens)/AccessDenied" />;
     }
 
     // Si tenemos proyecto seleccionado, ir directo

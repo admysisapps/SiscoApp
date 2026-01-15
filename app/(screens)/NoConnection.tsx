@@ -12,12 +12,16 @@ import NetInfo from "@react-native-community/netinfo";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import { COLORS } from "@/constants/theme";
+import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const { width, height } = Dimensions.get("window");
 
 export default function NoConnection() {
   const [isChecking, setIsChecking] = useState(false);
   const router = useRouter();
+  const { retry } = useUser();
+  const { isAuthenticated } = useAuth();
 
   const checkConnection = async () => {
     setIsChecking(true);
@@ -37,12 +41,15 @@ export default function NoConnection() {
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       if (state.isConnected) {
+        if (isAuthenticated) {
+          retry();
+        }
         router.replace("/");
       }
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [router, isAuthenticated, retry]);
 
   return (
     <View style={styles.container}>

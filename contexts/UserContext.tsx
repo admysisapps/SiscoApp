@@ -10,7 +10,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import NetInfo from "@react-native-community/netinfo";
 import { useAuth } from "./AuthContext";
 
 interface UserContextType {
@@ -22,6 +21,7 @@ interface UserContextType {
   // Estados de error
   error: string | null;
   hasError: boolean;
+  hasAccessError: boolean;
   retry: () => void;
 
   // Funciones de usuario
@@ -105,40 +105,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setError(null);
       setHasError(false);
+      setHasAccessError(false);
       hasLoadedRef.current = false;
       loadingRef.current = false;
     }
   }, [isAuthenticated, currentUsername, loadUserInfo]);
-
-  // Reintentar cargar cuando se recupera la conexión
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      if (
-        state.isConnected &&
-        isAuthenticated &&
-        currentUsername &&
-        !user &&
-        !isLoading &&
-        !loadingRef.current &&
-        !hasAccessError // NO reintentar si hay error de acceso (403, 404, etc.)
-      ) {
-        // Limpiar error de red anterior y reintentar
-        setHasError(false);
-        setError(null);
-        hasLoadedRef.current = false;
-        loadUserInfo(currentUsername);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [
-    isAuthenticated,
-    currentUsername,
-    user,
-    isLoading,
-    hasAccessError,
-    loadUserInfo,
-  ]);
 
   // Función para actualizar información del usuario
   const updateUserInfo = useCallback(
@@ -198,6 +169,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       isLoading,
       error,
       hasError,
+      hasAccessError,
       retry,
       loadUserInfo,
       updateUserInfo,
@@ -208,6 +180,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       isLoading,
       error,
       hasError,
+      hasAccessError,
       retry,
       loadUserInfo,
       updateUserInfo,
