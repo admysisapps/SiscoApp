@@ -13,7 +13,7 @@ export default function LoadingOverlay({
 }: LoadingOverlayProps) {
   const scaleValue = useRef(new Animated.Value(1)).current;
   const opacityValue = useRef(new Animated.Value(0.6)).current;
-  const fadeValue = useRef(new Animated.Value(0)).current;
+  const textOpacity = useRef(new Animated.Value(0.8)).current;
 
   useEffect(() => {
     let animation: Animated.CompositeAnimation | null = null;
@@ -22,14 +22,7 @@ export default function LoadingOverlay({
       // Resetear valores al mostrar
       scaleValue.setValue(1);
       opacityValue.setValue(0.6);
-      fadeValue.setValue(0);
-
-      // Animación de entrada suave
-      Animated.timing(fadeValue, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      textOpacity.setValue(0.8);
 
       animation = Animated.loop(
         Animated.sequence([
@@ -40,6 +33,11 @@ export default function LoadingOverlay({
               useNativeDriver: true,
             }),
             Animated.timing(opacityValue, {
+              toValue: 1,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(textOpacity, {
               toValue: 1,
               duration: 1500,
               useNativeDriver: true,
@@ -56,6 +54,11 @@ export default function LoadingOverlay({
               duration: 1500,
               useNativeDriver: true,
             }),
+            Animated.timing(textOpacity, {
+              toValue: 0.8,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
           ]),
         ])
       );
@@ -64,7 +67,7 @@ export default function LoadingOverlay({
       // Resetear inmediatamente al ocultar
       scaleValue.setValue(1);
       opacityValue.setValue(0.6);
-      fadeValue.setValue(0);
+      textOpacity.setValue(0.8);
     }
 
     return () => {
@@ -72,7 +75,7 @@ export default function LoadingOverlay({
         animation.stop();
       }
     };
-  }, [visible, message, scaleValue, opacityValue, fadeValue]);
+  }, [visible, message, scaleValue, opacityValue, textOpacity]);
 
   return (
     <Modal
@@ -82,7 +85,11 @@ export default function LoadingOverlay({
       statusBarTranslucent
     >
       <LinearGradient
-        colors={["#0F0F0F", "#1A1A2E", "#0F0F0F"]}
+        colors={[
+          "rgba(232, 244, 255, 0.95)",
+          "rgba(255, 255, 255, 0.98)",
+          "rgba(232, 244, 255, 0.95)",
+        ]}
         style={styles.overlay}
       >
         <View style={styles.content}>
@@ -90,21 +97,22 @@ export default function LoadingOverlay({
             style={[
               styles.logoContainer,
               {
-                transform: [{ scale: scaleValue }],
+                transform: [{ scale: scaleValue }, { translateX: 20 }],
                 opacity: opacityValue,
               },
             ]}
           >
             <View style={styles.logoShadow}>
               <Image
-                source={require("../assets/images/sw.png")}
+                source={require("../assets/images/logoAzul.png")}
                 style={styles.logo}
                 resizeMode="contain"
+                onError={(error) => console.log("Error loading image:", error)}
               />
             </View>
           </Animated.View>
 
-          <Animated.Text style={[styles.messageText, { opacity: fadeValue }]}>
+          <Animated.Text style={[styles.messageText, { opacity: textOpacity }]}>
             {message}
           </Animated.Text>
         </View>
@@ -126,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 30,
+    marginBottom: 60,
   },
   logoShadow: {
     shadowColor: "#000",
@@ -136,13 +144,13 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   logo: {
-    width: 160,
-    height: 160,
+    width: 400,
+    height: 400,
   },
   messageText: {
-    marginTop: 20,
+    marginTop: 40,
     fontSize: 16,
-    color: "rgba(255, 255, 255, 0.8)",
+    color: "#0d6cf7",
     fontWeight: "500",
     letterSpacing: 0.5,
   },

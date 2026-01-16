@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Amplify } from "aws-amplify";
+import * as SplashScreen from "expo-splash-screen";
 
 import { LoadingProvider } from "../contexts/LoadingContext";
 import { ProjectProvider, useProject } from "../contexts/ProjectContext";
@@ -14,6 +15,11 @@ import outputs from "../amplify_outputs.json";
 
 Amplify.configure(outputs);
 fcmService.initialize();
+
+SplashScreen.setOptions({
+  duration: 500,
+  fade: true,
+});
 
 function RootNavigator() {
   const { selectedProject } = useProject();

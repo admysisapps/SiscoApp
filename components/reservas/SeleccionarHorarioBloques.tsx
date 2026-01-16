@@ -338,7 +338,7 @@ export default function SeleccionarHorarioBloques({
       {horariosDiaSiguiente.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>
-            Madrugada del {formatearFecha(fechaSiguienteStr)}
+            {formatearFecha(fechaSiguienteStr)}
           </Text>
           <View style={styles.horariosGrid}>
             {horariosDiaSiguiente.map((hora) => (

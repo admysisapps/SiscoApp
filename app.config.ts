@@ -9,7 +9,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   owner: "admysis",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/images/icon.png",
+  icon: IS_PREVIEW
+    ? "./assets/images/iconAzul.png"
+    : "./assets/images/iconBlanco.png",
   scheme: "siscoapp",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
@@ -35,8 +37,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   android: {
     adaptiveIcon: {
-      foregroundImage: "./assets/images/adaptive-icon.png",
-      backgroundColor: "#ffffff",
+      foregroundImage: IS_PREVIEW
+        ? "./assets/images/adaptive-iconAzul.png"
+        : "./assets/images/adaptive-iconBlanco.png",
+      backgroundColor: IS_PREVIEW ? "#ffffff" : "#0d6cf7",
     },
     edgeToEdgeEnabled: true,
     googleServicesFile: IS_PREVIEW
@@ -59,7 +63,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-notifications",
       {
-        icon: "./assets/images/sw.png",
+        icon: "./assets/images/notification.png",
       },
     ],
     "@react-native-firebase/app",
@@ -68,8 +72,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "expo-splash-screen",
       {
         image: "./assets/images/splash-icon.png",
-        imageWidth: 200,
         resizeMode: "contain",
+        imageWidth: 190,
         backgroundColor: "#ffffff",
       },
     ],

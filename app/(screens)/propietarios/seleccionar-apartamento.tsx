@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useCallback,
   useRef,
+  memo,
 } from "react";
 import {
   View,
@@ -25,7 +26,7 @@ import Toast from "@/components/Toast";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(
-  FlatList<Apartamento>
+  FlatList<ApartamentoProcesado>
 );
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -39,6 +40,15 @@ interface Apartamento {
   coeficiente: number;
   propietario_nombre?: string | null;
   propietario_documento?: string | null;
+}
+
+interface ApartamentoProcesado extends Apartamento {
+  ui: {
+    statusText: string;
+    statusColor: string;
+    statusIcon: string;
+    actionLabel: string;
+  };
 }
 
 export default function SeleccionarApartamentoScreen() {
@@ -128,7 +138,18 @@ export default function SeleccionarApartamentoScreen() {
       }
     });
 
-    return filtrados;
+    // "Cocinar" los datos para la UI
+    return filtrados.map((apt) => ({
+      ...apt,
+      ui: {
+        statusText: apt.propietario_nombre || "Disponible",
+        statusColor: apt.propietario_nombre
+          ? COLORS.text.secondary
+          : COLORS.success,
+        statusIcon: apt.propietario_nombre ? "person" : "checkmark-circle",
+        actionLabel: apt.propietario_nombre ? "Transferir" : "Asignar",
+      },
+    }));
   }, [filtro, apartamentos, ordenPor]);
 
   const seleccionarApartamento = useCallback(
@@ -145,71 +166,57 @@ export default function SeleccionarApartamentoScreen() {
     [router, usuario, esUsuarioNuevo]
   );
 
-  const getApartamentoStatus = useCallback((apartamento: Apartamento) => {
-    if (!apartamento.propietario_nombre) {
-      return {
-        text: "Disponible",
-        color: COLORS.success,
-        icon: "checkmark-circle",
-      };
-    } else {
-      return {
-        text: apartamento.propietario_nombre,
-        color: COLORS.text.secondary,
-        icon: "person",
-      };
-    }
-  }, []);
-
   // Componente de item optimizado
-  const ApartmentItem = useCallback(
-    ({ item }: { item: Apartamento }) => {
-      const status = getApartamentoStatus(item);
-
-      return (
-        <TouchableOpacity
-          style={styles.apartmentCard}
-          onPress={() => seleccionarApartamento(item)}
-        >
-          <View style={styles.apartmentHeader}>
-            <View style={styles.apartmentInfo}>
-              <Text style={styles.apartmentCode}>{item.codigo_apt}</Text>
-              <Text style={styles.apartmentDetails}>
-                Bloque {item.bloque} • Coef: {item.coeficiente}
-              </Text>
-            </View>
-
-            <View
-              style={[
-                styles.statusBadge,
-                { backgroundColor: status.color + "20" },
-              ]}
-            >
-              <Ionicons
-                name={status.icon as any}
-                size={16}
-                color={status.color}
-              />
-              <Text style={[styles.statusText, { color: status.color }]}>
-                {status.text}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.transferAction}>
-            <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
-            <Text style={styles.transferText}>
-              {item.propietario_nombre ? "Transferir" : "Asignar"}
+  const ApartmentItem = memo(function ApartmentItem({
+    item,
+  }: {
+    item: ApartamentoProcesado;
+  }) {
+    return (
+      <TouchableOpacity
+        style={styles.apartmentCard}
+        onPress={() => seleccionarApartamento(item)}
+      >
+        <View style={styles.apartmentHeader}>
+          <View style={styles.apartmentInfo}>
+            <Text style={styles.apartmentCode}>{item.codigo_apt}</Text>
+            <Text style={styles.apartmentDetails}>
+              Bloque {item.bloque} • Coef: {item.coeficiente}
             </Text>
           </View>
-        </TouchableOpacity>
-      );
-    },
-    [getApartamentoStatus, seleccionarApartamento]
+
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: item.ui.statusColor + "20" },
+            ]}
+          >
+            <Ionicons
+              name={item.ui.statusIcon as any}
+              size={16}
+              color={item.ui.statusColor}
+            />
+            <Text style={[styles.statusText, { color: item.ui.statusColor }]}>
+              {item.ui.statusText}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.transferAction}>
+          <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
+          <Text style={styles.transferText}>{item.ui.actionLabel}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  });
+
+  const renderItem = useCallback(
+    ({ item }: { item: ApartamentoProcesado }) => <ApartmentItem item={item} />,
+    [ApartmentItem]
   );
 
   const keyExtractor = useCallback(
-    (item: Apartamento) => item.id.toString(),
+    (item: ApartamentoProcesado) => item.id.toString(),
     []
   );
 
@@ -311,6 +318,8 @@ export default function SeleccionarApartamentoScreen() {
                   styles.sortButtonText,
                   ordenPor === "codigo" && styles.sortButtonTextActive,
                 ]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
               >
                 Código
               </Text>
@@ -327,6 +336,8 @@ export default function SeleccionarApartamentoScreen() {
                   styles.sortButtonText,
                   ordenPor === "bloque" && styles.sortButtonTextActive,
                 ]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
               >
                 Bloque
               </Text>
@@ -343,6 +354,8 @@ export default function SeleccionarApartamentoScreen() {
                   styles.sortButtonText,
                   ordenPor === "propietario" && styles.sortButtonTextActive,
                 ]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
               >
                 Propietario
               </Text>
@@ -356,7 +369,7 @@ export default function SeleccionarApartamentoScreen() {
         style={styles.content}
         contentContainerStyle={{ paddingBottom: 190 }}
         data={apartamentosFiltrados}
-        renderItem={ApartmentItem}
+        renderItem={renderItem}
         keyExtractor={keyExtractor}
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={ListEmptyComponent}
@@ -487,6 +500,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.text.secondary,
     fontWeight: "500",
+    textAlign: "center",
   },
   sortButtonTextActive: {
     color: "#fff",
