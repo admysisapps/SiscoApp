@@ -1,0 +1,39 @@
+name: iOS Simulator Build
+
+on:
+  workflow_dispatch:
+
+env:
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+jobs:
+  build-ios-simulator:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g eas-cli@latest
+
+      - name: Build iOS Simulator
+        run: |
+          eas build --platform ios --profile simulator --non-interactive
+
+      - name: Download build artifact
+        run: |
+          eas build:download --platform ios --profile simulator --output=./ios-simulator.tar.gz
+
+      - name: Upload simulator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-${{ github.run_number }}
+          path: ./ios-simulator.tar.gz
+          retention-days: 7
