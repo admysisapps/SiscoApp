@@ -18,6 +18,7 @@ import { reservaService } from "@/services/reservaService";
 import { EstadoReserva, EstadoReservaIcon } from "@/types/Reserva";
 import Toast from "@/components/Toast";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
+import ReservaDetailSkeleton from "@/components/reservas/ReservaDetailSkeleton";
 
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -49,6 +50,7 @@ export default function DetalleReservaAdminScreen() {
   const [reserva, setReserva] = useState<ReservaDetalleAdmin | null>(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
+  const [guardandoObservaciones, setGuardandoObservaciones] = useState(false);
   const [observaciones, setObservaciones] = useState("");
 
   const [toast, setToast] = useState({
@@ -148,7 +150,7 @@ export default function DetalleReservaAdminScreen() {
     if (!reserva) return;
 
     try {
-      setProcesando(true);
+      setGuardandoObservaciones(true);
       const response = await reservaService.actualizarObservaciones(
         reserva.id,
         observaciones
@@ -164,7 +166,7 @@ export default function DetalleReservaAdminScreen() {
       console.error("Error saving observations:", error);
       showToast("Error de conexión", "error");
     } finally {
-      setProcesando(false);
+      setGuardandoObservaciones(false);
     }
   };
 
@@ -318,10 +320,18 @@ export default function DetalleReservaAdminScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={THEME.colors.success} />
-          <Text style={styles.loadingText}>Cargando reserva...</Text>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color={THEME.colors.header.title}
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Detalle de Reserva</Text>
+          <View style={styles.headerSpacer} />
         </View>
+        <ReservaDetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -457,9 +467,9 @@ export default function DetalleReservaAdminScreen() {
               <TouchableOpacity
                 style={styles.guardarButton}
                 onPress={handleGuardarObservaciones}
-                disabled={procesando}
+                disabled={guardandoObservaciones}
               >
-                {procesando ? (
+                {guardandoObservaciones ? (
                   <ActivityIndicator size="small" color="white" />
                 ) : (
                   <Text style={styles.guardarButtonText}>Guardar</Text>
@@ -810,11 +820,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cancelationCard: {
-    backgroundColor: THEME.colors.error,
+    backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     padding: 20,
-    borderWidth: 1,
-    borderColor: THEME.colors.error,
+    borderLeftWidth: 4,
+    borderLeftColor: THEME.colors.error,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cancelationHeader: {
     flexDirection: "row",
@@ -834,7 +849,7 @@ const styles = StyleSheet.create({
   },
   cancelationReason: {
     fontSize: 14,
-    color: THEME.colors.error,
+    color: THEME.colors.text.heading,
     lineHeight: 20,
   },
   contactSection: {

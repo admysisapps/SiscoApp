@@ -9,7 +9,7 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { THEME } from "@/constants/theme";
 import { asambleaService } from "@/services/asambleaService";
-import LoadingOverlay from "@/components/LoadingOverlay";
+import AsambleaDetailSkeleton from "@/components/asambleas/AsambleaDetailSkeleton";
 import AsambleaDetalleHeader from "@/components/asambleas/AsambleaDetalleHeader";
 import AsambleaProgramada from "@/components/asambleas/AsambleaProgramada";
 import AsambleaEnCurso from "@/components/asambleas/AsambleaEnCurso";
@@ -96,9 +96,14 @@ export default function DetalleAsambleaScreen() {
     }
   };
 
-  // Solo mostrar LoadingOverlay en la primera carga
+  // Solo mostrar skeleton en la primera carga
   if (cargando && isFirstLoad) {
-    return <LoadingOverlay visible={true} />;
+    return (
+      <View style={styles.container}>
+        <ScreenHeader title="Detalle de Asamblea" />
+        <AsambleaDetailSkeleton />
+      </View>
+    );
   }
 
   if (error || !asamblea) {

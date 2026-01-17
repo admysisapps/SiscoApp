@@ -27,15 +27,6 @@ const AsambleaEnCurso: React.FC<AsambleaEnCursoProps> = ({ asamblea }) => {
 
   const handleModalSuccess = useCallback(
     (registroData: any) => {
-      console.log(
-        "[NAVIGATION] Asistencia registrada exitosamente:",
-        registroData
-      );
-      console.log(
-        "[NAVIGATION] Navegando a asamblea-activa desde AsambleaEnCurso"
-      );
-
-      // Navegar a la pantalla de asamblea activa (reemplazar para evitar stack issues)
       router.replace({
         pathname: "/(tabs)/(asambleas)/asamblea-activa",
         params: {

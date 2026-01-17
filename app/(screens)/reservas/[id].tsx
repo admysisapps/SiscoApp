@@ -9,7 +9,6 @@ import {
   Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { eventBus, EVENTS } from "@/utils/eventBus";
@@ -18,6 +17,7 @@ import { reservaService } from "@/services/reservaService";
 import { EstadoReserva, EstadoReservaIcon } from "@/types/Reserva";
 import Toast from "@/components/Toast";
 import CancelReservationModal from "@/components/reservas/CancelReservationModal";
+import ReservaDetailSkeleton from "@/components/reservas/ReservaDetailSkeleton";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
@@ -256,10 +256,18 @@ export default function DetalleReservaScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={THEME.colors.success} />
-          <Text style={styles.loadingText}>Cargando reserva...</Text>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color={THEME.colors.header.title}
+            />
+          </TouchableOpacity>
+          <Text style={styles.title}>Detalle de Reserva</Text>
+          <View style={styles.headerSpacer} />
         </View>
+        <ReservaDetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -695,11 +703,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cancelationCard: {
-    backgroundColor: THEME.colors.warningLight,
+    backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     padding: 20,
-    borderWidth: 1,
-    borderColor: THEME.colors.error,
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cancelationHeader: {
     flexDirection: "row",
@@ -719,7 +731,7 @@ const styles = StyleSheet.create({
   },
   cancelationReason: {
     fontSize: 14,
-    color: THEME.colors.error,
+    color: THEME.colors.text.heading,
     lineHeight: 20,
   },
   contactSection: {

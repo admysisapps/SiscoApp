@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS, THEME } from "@/constants/theme";
 import { InAppNotificationProps } from "@/types/Notification";
 
@@ -83,6 +84,7 @@ const InAppNotificationComponent: React.FC<InAppNotificationProps> = ({
   onDismiss,
   duration = 4000,
 }) => {
+  const insets = useSafeAreaInsets();
   const { slideAnim, dismiss } = useNotificationAnimation(
     visible,
     duration,
@@ -108,7 +110,10 @@ const InAppNotificationComponent: React.FC<InAppNotificationProps> = ({
 
   return (
     <Animated.View
-      style={[styles.container, { transform: [{ translateX: slideAnim }] }]}
+      style={[
+        styles.container,
+        { top: insets.top + 10, transform: [{ translateX: slideAnim }] },
+      ]}
     >
       <TouchableOpacity
         style={styles.notification}
@@ -143,7 +148,6 @@ export const InAppNotification = memo(InAppNotificationComponent);
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    top: 60,
     left: THEME.spacing.lg,
     right: THEME.spacing.lg,
     zIndex: 9999,

@@ -4,6 +4,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useRole } from "@/hooks/useRole";
 import { fcmService } from "@/services/fcmService";
 import { pqrService } from "@/services/pqrService";
+import PqrDetailSkeleton from "@/components/pqr/PqrDetailSkeleton";
 import { s3Service } from "@/services/s3Service";
 import { EstadoPQR, PQR } from "@/types/Pqr";
 import { Ionicons } from "@expo/vector-icons";
@@ -361,10 +362,7 @@ export default function PQRDetailScreen() {
             <Text style={styles.headerTitle}>Detalle PQR</Text>
           </View>
         </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={THEME.colors.primary} />
-          <Text style={styles.loadingText}>Cargando detalle...</Text>
-        </View>
+        <PqrDetailSkeleton />
       </SafeAreaView>
     );
   }

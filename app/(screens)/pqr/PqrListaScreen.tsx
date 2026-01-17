@@ -180,18 +180,20 @@ export default function PQRListScreen() {
       </View>
 
       {/* Contador */}
-      <View style={styles.countContainer}>
-        <Text style={styles.countText}>
-          {activeFilter === "Todos"
-            ? `${pqrs.length} de ${pagination.total_registros} ${pagination.total_registros === 1 ? "resultado" : "resultados"}`
-            : `${filteredPQRs.length} ${filteredPQRs.length === 1 ? "resultado" : "resultados"} (filtrado de ${pqrs.length})`}
-        </Text>
-        {pagination.total_paginas > 1 && activeFilter === "Todos" && (
-          <Text style={styles.paginationText}>
-            Página {pagination.pagina_actual} de {pagination.total_paginas}
+      {!loading && (
+        <View style={styles.countContainer}>
+          <Text style={styles.countText}>
+            {activeFilter === "Todos"
+              ? `${pqrs.length} de ${pagination.total_registros} ${pagination.total_registros === 1 ? "resultado" : "resultados"}`
+              : `${filteredPQRs.length} ${filteredPQRs.length === 1 ? "resultado" : "resultados"} (filtrado de ${pqrs.length})`}
           </Text>
-        )}
-      </View>
+          {pagination.total_paginas > 1 && activeFilter === "Todos" && (
+            <Text style={styles.paginationText}>
+              Página {pagination.pagina_actual} de {pagination.total_paginas}
+            </Text>
+          )}
+        </View>
+      )}
 
       {/* Lista */}
       <ScrollView

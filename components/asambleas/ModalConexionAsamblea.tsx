@@ -50,23 +50,29 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
       let response;
 
       if (apoderadoSession) {
-        // Usar servicio de apoderado
         response = await apoderadoService.validarAsistenciaApoderado(
           asambleaId,
           apoderadoSession
         );
       } else {
-        // Usar servicio normal
         response = await asistenciaService.validarAsistencia(asambleaId);
       }
-
-      console.log("Asistencia registrada exitosamente:", response);
 
       if (response.success) {
         setRegistroData(response);
         setStep("success");
+      } else if (response.error === "No tienes inmuebles disponibles") {
+        const observerData = {
+          success: true,
+          observer_mode: true,
+          documento_participante: apoderadoSession?.documento || "usuario",
+          coeficiente_total: 0,
+          apartamentos_count: 0,
+          apartamentos_numeros: [],
+        };
+        setRegistroData(observerData);
+        setStep("success");
       } else {
-        // Detectar error de duplicado
         if (
           response.error &&
           response.error.includes("Duplicate entry") &&
@@ -78,17 +84,18 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
           onError(response.error || "Error al registrar asistencia");
           onClose();
         } else {
+          setErrorMessage(response.error || "Error al registrar asistencia");
           setStep("error");
         }
       }
-    } catch (error) {
-      console.error("Error registrando asistencia:", error);
-
-      // Si es apoderado y falla, usar Toast en lugar de modal de error
+    } catch {
       if (apoderadoSession && onError) {
         onError("Error de conexión");
         onClose();
       } else {
+        setErrorMessage(
+          "No se pudo conectar con el servidor. Verifica tu conexión a internet."
+        );
         setStep("error");
       }
     }
@@ -120,20 +127,15 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
           let response;
 
           if (apoderadoSession) {
-            // Usar servicio de apoderado
             response = await apoderadoService.validarAsistenciaApoderado(
               asambleaId,
               apoderadoSession
             );
           } else {
-            // Usar servicio normal
             response = await asistenciaService.validarAsistencia(asambleaId);
           }
 
-          console.log("Asistencia registrada exitosamente:", response);
-
           if (response.success) {
-            // Guardar user_context para apoderados
             if (apoderadoSession) {
               await AsyncStorage.setItem(
                 "user_context",
@@ -146,8 +148,7 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
             }
             setRegistroData(response);
             setStep("success");
-          } else if (response.error === "No tienes apartamentos disponibles") {
-            // Caso especial: Sin apartamentos = Modo observador
+          } else if (response.error === "No tienes inmuebles disponibles") {
             const observerData = {
               success: true,
               observer_mode: true,
@@ -159,7 +160,6 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
             setRegistroData(observerData);
             setStep("success");
           } else {
-            // Detectar error de duplicado
             if (
               response.error &&
               response.error.includes("Duplicate entry") &&
@@ -173,17 +173,20 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
               onError(response.error || "Error al registrar asistencia");
               onClose();
             } else {
+              setErrorMessage(
+                response.error || "Error al registrar asistencia"
+              );
               setStep("error");
             }
           }
-        } catch (error) {
-          console.error("Error registrando asistencia:", error);
-
-          // Si es apoderado y falla, usar Toast en lugar de modal de error
+        } catch {
           if (apoderadoSession && onError) {
             onError("Error de conexión");
             onClose();
           } else {
+            setErrorMessage(
+              "No se pudo conectar con el servidor. Verifica tu conexión a internet."
+            );
             setStep("error");
           }
         }
@@ -395,8 +398,8 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
               </View>
               <Text style={styles.title}>Error de conexión</Text>
               <Text style={styles.subtitle}>
-                No se pudo registrar tu asistencia. Verifica tu conexión a
-                internet.
+                {errorMessage ||
+                  "No se pudo registrar tu asistencia. Verifica tu conexión a internet."}
               </Text>
               <TouchableOpacity
                 onPress={registrarAsistencia}
