@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -21,7 +22,6 @@ import { Calendar, LocaleConfig } from "react-native-calendars";
 import { THEME } from "@/constants/theme";
 import { reservaService } from "@/services/reservaService";
 import Toast from "@/components/Toast";
-import { useLoading } from "@/contexts/LoadingContext";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import ScreenHeader from "@/components/shared/ScreenHeader";
@@ -100,7 +100,7 @@ export default function CrearReservaScreen() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [inicializado, setInicializado] = useState(false);
-  const { showLoading, hideLoading } = useLoading();
+  const [cargandoEspacios, setCargandoEspacios] = useState(true);
   const [diasDisponibles, setDiasDisponibles] = useState<number[]>([]);
   const [cargandoHorarios, setCargandoHorarios] = useState(false);
   const [horariosEspacio, setHorariosEspacio] = useState<any[]>([]);
@@ -108,14 +108,29 @@ export default function CrearReservaScreen() {
   const scrollViewRef = React.useRef<ScrollView>(null);
   const lastSelectedEspacioId = useRef<number | null>(null);
 
-  // Solo refs para funciones del contexto que cambian
-  const showLoadingRef = useRef(showLoading);
-  const hideLoadingRef = useRef(hideLoading);
+  const skeletonAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    showLoadingRef.current = showLoading;
-    hideLoadingRef.current = hideLoading;
-  }, [showLoading, hideLoading]);
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(skeletonAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(skeletonAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [skeletonAnim]);
+
+  const skeletonOpacity = skeletonAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
 
   const [toast, setToast] = useState({
     visible: false,
@@ -140,39 +155,32 @@ export default function CrearReservaScreen() {
 
   const todayDate = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-  const cargarEspacios = React.useCallback(
-    async (mostrarLoading = true) => {
-      try {
-        if (mostrarLoading) {
-          showLoadingRef.current("Cargando espacios...");
-        }
-        const response = await reservaService.listarEspaciosFresh({
-          solo_activos: true,
-        });
+  const cargarEspacios = React.useCallback(async () => {
+    try {
+      setCargandoEspacios(true);
+      const response = await reservaService.listarEspaciosFresh({
+        solo_activos: true,
+      });
 
-        if (response?.success) {
-          setEspacios(response.espacios || []);
-        } else {
-          showToast(
-            "No pudimos cargar las zonas comunes. Inténtalo nuevamente.",
-            "error"
-          );
-        }
-      } catch (error) {
-        console.error("Error cargando espacios:", error);
+      if (response?.success) {
+        setEspacios(response.espacios || []);
+      } else {
         showToast(
-          "Problema de conexión. Verifica tu internet e inténtalo nuevamente.",
+          "No pudimos cargar las zonas comunes. Inténtalo nuevamente.",
           "error"
         );
-      } finally {
-        if (mostrarLoading) {
-          hideLoadingRef.current();
-        }
-        setInicializado(true);
       }
-    },
-    [showToast]
-  );
+    } catch (error) {
+      console.error("Error cargando espacios:", error);
+      showToast(
+        "Problema de conexión. Verifica tu internet e inténtalo nuevamente.",
+        "error"
+      );
+    } finally {
+      setCargandoEspacios(false);
+      setInicializado(true);
+    }
+  }, [showToast]);
 
   const handleSeleccionarEspacio = React.useCallback(
     async (espacio: Espacio) => {
@@ -267,7 +275,7 @@ export default function CrearReservaScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await cargarEspacios(false);
+    await cargarEspacios();
     setRefreshing(false);
   };
 
@@ -276,10 +284,8 @@ export default function CrearReservaScreen() {
     const fechaLocal = day.dateString; // Ya viene en formato YYYY-MM-DD
     setFechaSeleccionada(fechaLocal);
 
-    // Scroll suave hacia abajo para mostrar el botón
-    setTimeout(() => {
-      scrollViewRef.current?.scrollTo({ x: 0, y: 400, animated: true });
-    }, 600);
+    // Scroll inmediato hacia abajo para mostrar el botón
+    scrollViewRef.current?.scrollTo({ x: 0, y: 400, animated: true });
   };
 
   const getMarkedDates = useMemo(() => {
@@ -320,19 +326,6 @@ export default function CrearReservaScreen() {
 
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
-      <View style={styles.headerSection}>
-        <Text style={styles.mainTitle}>
-          {espacioSeleccionado
-            ? "¿Cuándo quieres reservar?"
-            : "¿Qué zona quieres reservar?"}
-        </Text>
-        <Text style={styles.subtitle}>
-          {espacioSeleccionado
-            ? `Selecciona la fecha para ${espacioSeleccionado.nombre}`
-            : "Selecciona la zona común a reservar."}
-        </Text>
-      </View>
-
       <ScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
@@ -340,8 +333,51 @@ export default function CrearReservaScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
+        <View style={styles.stepsIndicator}>
+          {[1, 2, 3].map((stepNum) => (
+            <View key={stepNum} style={styles.stepIndicatorContainer}>
+              <View
+                style={[
+                  styles.stepCircle,
+                  step >= stepNum && styles.stepCircleActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.stepNumber,
+                    step >= stepNum && styles.stepNumberActive,
+                  ]}
+                >
+                  {stepNum}
+                </Text>
+              </View>
+              {stepNum < 3 && <View style={styles.stepLine} />}
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.headerSection}>
+          <Text style={styles.mainTitle}>
+            {espacioSeleccionado
+              ? "¿Cuándo quieres reservar?"
+              : "¿Qué zona quieres reservar?"}
+          </Text>
+          <Text style={styles.subtitle}>
+            {espacioSeleccionado
+              ? `Selecciona la fecha para ${espacioSeleccionado.nombre}`
+              : "Selecciona la zona común a reservar."}
+          </Text>
+        </View>
         <View style={styles.filtrosContainer}>
-          {espacios.length === 0 && inicializado ? (
+          {cargandoEspacios ? (
+            // Skeleton loading
+            [1, 2, 3].map((i) => (
+              <Animated.View
+                key={i}
+                style={[styles.skeletonChip, { opacity: skeletonOpacity }]}
+              />
+            ))
+          ) : espacios.length === 0 && inicializado ? (
             <View style={styles.emptyContainer}>
               <MaterialIcons
                 name="park"
@@ -553,29 +589,6 @@ export default function CrearReservaScreen() {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Nueva Reserva" onBackPress={handleBackPress} />
 
-      <View style={styles.stepsIndicator}>
-        {[1, 2, 3].map((stepNum) => (
-          <View key={stepNum} style={styles.stepIndicatorContainer}>
-            <View
-              style={[
-                styles.stepCircle,
-                step >= stepNum && styles.stepCircleActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.stepNumber,
-                  step >= stepNum && styles.stepNumberActive,
-                ]}
-              >
-                {stepNum}
-              </Text>
-            </View>
-            {stepNum < 3 && <View style={styles.stepLine} />}
-          </View>
-        ))}
-      </View>
-
       <View style={styles.content}>{renderStep1()}</View>
 
       <Toast
@@ -598,7 +611,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.background,
   },
   stepIndicatorContainer: {
     flexDirection: "row",
@@ -711,6 +724,14 @@ const styles = StyleSheet.create({
   },
   filtroTextSelected: {
     color: THEME.colors.text.inverse,
+  },
+  skeletonChip: {
+    backgroundColor: THEME.colors.surfaceLight,
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    height: 40,
+    width: 120,
   },
   selectedEspacioContainer: {
     backgroundColor: THEME.colors.surface,

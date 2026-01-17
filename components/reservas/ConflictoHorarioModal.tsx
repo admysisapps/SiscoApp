@@ -378,8 +378,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: "#EF4444",
   },
   reservasDelDiaSection: {
     marginBottom: 16,

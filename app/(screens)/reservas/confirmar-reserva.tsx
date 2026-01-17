@@ -182,21 +182,22 @@ export default function ConfirmarReservaScreen() {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Confirmar Reserva" onBackPress={handleBackPress} />
 
-      <View style={styles.stepsIndicator}>
-        {[1, 2, 3].map((stepNum) => (
-          <View key={stepNum} style={styles.stepIndicatorContainer}>
-            <View style={[styles.stepCircle, styles.stepCircleActive]}>
-              <Text style={[styles.stepNumber, styles.stepNumberActive]}>
-                {stepNum}
-              </Text>
-            </View>
-            {stepNum < 3 && <View style={styles.stepLine} />}
-          </View>
-        ))}
-      </View>
-
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={behavior}>
         <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
+          {/* Indicador de pasos */}
+          <View style={styles.stepsIndicator}>
+            {[1, 2, 3].map((stepNum) => (
+              <View key={stepNum} style={styles.stepIndicatorContainer}>
+                <View style={[styles.stepCircle, styles.stepCircleActive]}>
+                  <Text style={[styles.stepNumber, styles.stepNumberActive]}>
+                    {stepNum}
+                  </Text>
+                </View>
+                {stepNum < 3 && <View style={styles.stepLine} />}
+              </View>
+            ))}
+          </View>
+
           {/* Resumen de la reserva */}
           <View style={styles.resumenContainer}>
             <Text style={styles.sectionTitle}>Resumen de tu reserva</Text>
@@ -341,7 +342,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
   stepIndicatorContainer: {
     flexDirection: "row",
@@ -375,6 +377,7 @@ const styles = StyleSheet.create({
   },
   motivoContainer: {
     marginBottom: 24,
+    paddingHorizontal: 16,
   },
   motivoInput: {
     backgroundColor: THEME.colors.surface,
@@ -399,6 +402,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
+    marginHorizontal: 16,
   },
   infoContainerSuccess: {
     backgroundColor: THEME.colors.success + "10",
@@ -442,10 +446,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
   },
   resumenContainer: {
     marginBottom: 24,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 18,

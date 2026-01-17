@@ -26,7 +26,6 @@ export const AsambleaProvider: React.FC<{ children: React.ReactNode }> = ({
   // Usar useCallback para memorizar la función
   const cargarAsambleas = useCallback(async () => {
     if (!selectedProject) {
-      // amazonq-ignore-next-line
       return;
     }
 

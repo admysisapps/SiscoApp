@@ -119,34 +119,33 @@ export default function SeleccionarHorarioScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <View style={styles.stepsIndicator}>
-        {[1, 2, 3].map((stepNum) => (
-          <View key={stepNum} style={styles.stepIndicatorContainer}>
-            <View
-              style={[
-                styles.stepCircle,
-                stepNum <= 2 && styles.stepCircleActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.stepNumber,
-                  stepNum <= 2 && styles.stepNumberActive,
-                ]}
-              >
-                {stepNum}
-              </Text>
-            </View>
-            {stepNum < 3 && <View style={styles.stepLine} />}
-          </View>
-        ))}
-      </View>
-
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <View style={styles.stepsIndicator}>
+          {[1, 2, 3].map((stepNum) => (
+            <View key={stepNum} style={styles.stepIndicatorContainer}>
+              <View
+                style={[
+                  styles.stepCircle,
+                  stepNum <= 2 && styles.stepCircleActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.stepNumber,
+                    stepNum <= 2 && styles.stepNumberActive,
+                  ]}
+                >
+                  {stepNum}
+                </Text>
+              </View>
+              {stepNum < 3 && <View style={styles.stepLine} />}
+            </View>
+          ))}
+        </View>
         <View style={styles.infoContainer}>
           <Text style={styles.espacioNombre}>{espacioNombre}</Text>
           <Text style={styles.fechaSeleccionada}>
@@ -318,7 +317,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: THEME.colors.background,
   },
   stepIndicatorContainer: {
     flexDirection: "row",
