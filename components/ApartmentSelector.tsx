@@ -15,7 +15,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useApartment } from "@/contexts/ApartmentContext";
 import { Apartamento } from "@/types/Apartamento";
 
-export default function ApartmentSelector() {
+const ApartmentSelector = React.memo(function ApartmentSelector() {
   const { selectedProject } = useProject();
   const {
     selectedApartment,
@@ -210,7 +210,9 @@ export default function ApartmentSelector() {
       )}
     </>
   );
-}
+});
+
+export default ApartmentSelector;
 
 const styles = StyleSheet.create({
   card: {

@@ -13,7 +13,7 @@ interface QuickAction {
   onPress: () => void;
 }
 
-export default function UserQuickActions() {
+const UserQuickActions = React.memo(function UserQuickActions() {
   const router = useRouter();
 
   const quickActions: QuickAction[] = [
@@ -81,7 +81,9 @@ export default function UserQuickActions() {
       </View>
     </View>
   );
-}
+});
+
+export default UserQuickActions;
 
 const styles = StyleSheet.create({
   container: {

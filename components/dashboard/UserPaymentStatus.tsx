@@ -13,7 +13,7 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-export default function UserPaymentStatus() {
+const UserPaymentStatus = React.memo(function UserPaymentStatus() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -83,7 +83,9 @@ export default function UserPaymentStatus() {
       </View>
     </View>
   );
-}
+});
+
+export default UserPaymentStatus;
 
 const styles = StyleSheet.create({
   container: {
