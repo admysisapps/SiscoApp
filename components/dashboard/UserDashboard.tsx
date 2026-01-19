@@ -7,7 +7,7 @@ import UserQuickActions from "./UserQuickActions";
 // import UserNotifications from "./UserNotifications";
 import UserActivity from "./UserActivity";
 
-export default function UserDashboard() {
+const UserDashboard = React.memo(function UserDashboard() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <ApartmentSelector />
@@ -18,7 +18,9 @@ export default function UserDashboard() {
       <UserActivity />
     </ScrollView>
   );
-}
+});
+
+export default UserDashboard;
 
 const styles = StyleSheet.create({
   container: {

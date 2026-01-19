@@ -20,7 +20,10 @@ export function useProjectApartment() {
       lastProjectRef.current = currentProjectId;
 
       if (selectedProject && selectedProject.rol_usuario !== "admin") {
-        loadApartments(selectedProject);
+        // Ejecutar de forma asíncrona para no bloquear el renderizado
+        setTimeout(() => {
+          loadApartments(selectedProject);
+        }, 0);
       } else {
         clearApartments();
       }

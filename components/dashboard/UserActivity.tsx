@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { THEME } from "@/constants/theme";
@@ -107,8 +107,7 @@ const getStatusText = (status: string) => {
   }
 };
 
-const formatTimeAgo = (timestamp: string) => {
-  const now = new Date();
+const formatTimeAgo = (timestamp: string, now: Date) => {
   const activityTime = new Date(timestamp);
   const diffInHours = Math.floor(
     (now.getTime() - activityTime.getTime()) / (1000 * 60 * 60)
@@ -124,7 +123,16 @@ const formatTimeAgo = (timestamp: string) => {
   return activityTime.toLocaleDateString("es-CO");
 };
 
-export default function UserActivity() {
+const UserActivity = React.memo(function UserActivity() {
+  // Memoizar actividades formateadas para evitar recalcular en cada render
+  const formattedActivities = useMemo(() => {
+    const now = new Date();
+    return mockActivities.map((activity) => ({
+      ...activity,
+      timeAgo: formatTimeAgo(activity.timestamp, now),
+    }));
+  }, []); // Solo calcular una vez al montar
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -145,7 +153,7 @@ export default function UserActivity() {
       </View>
 
       <View style={styles.activitiesList}>
-        {mockActivities.map((activity, index) => (
+        {formattedActivities.map((activity, index) => (
           <TouchableOpacity
             key={activity.id}
             style={styles.activityItem}
@@ -192,12 +200,10 @@ export default function UserActivity() {
                 {activity.description}
               </Text>
 
-              <Text style={styles.activityTime}>
-                {formatTimeAgo(activity.timestamp)}
-              </Text>
+              <Text style={styles.activityTime}>{activity.timeAgo}</Text>
             </View>
 
-            {index < mockActivities.length - 1 && (
+            {index < formattedActivities.length - 1 && (
               <View style={styles.separator} />
             )}
           </TouchableOpacity>
@@ -205,7 +211,9 @@ export default function UserActivity() {
       </View>
     </View>
   );
-}
+});
+
+export default UserActivity;
 
 const styles = StyleSheet.create({
   container: {

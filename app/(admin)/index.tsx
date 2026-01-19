@@ -34,98 +34,136 @@ interface InternalTabProps {
   isActive: boolean;
 }
 
-const InternalTab: React.FC<InternalTabProps> = ({
-  icon,
-  onPress,
-  color,
-  isActive,
-}) => (
-  <TouchableOpacity
-    style={styles.internalTab}
-    onPress={onPress}
-    activeOpacity={0.8}
-  >
-    <View
-      style={[
-        styles.tabIconContainer,
-        { backgroundColor: isActive ? color : "transparent" },
-      ]}
+const InternalTab: React.FC<InternalTabProps> = React.memo(
+  ({ icon, onPress, color, isActive }) => (
+    <TouchableOpacity
+      style={styles.internalTab}
+      onPress={onPress}
+      activeOpacity={0.8}
     >
-      <Ionicons name={icon} size={18} color={isActive ? "white" : "#94A3B8"} />
-    </View>
-  </TouchableOpacity>
+      <View
+        style={[
+          styles.tabIconContainer,
+          { backgroundColor: isActive ? color : "transparent" },
+        ]}
+      >
+        <Ionicons
+          name={icon}
+          size={18}
+          color={isActive ? "white" : "#94A3B8"}
+        />
+      </View>
+    </TouchableOpacity>
+  )
 );
+InternalTab.displayName = "InternalTab";
 
 // Componentes Admin (nombres únicos)
-const AdminInicioSection = ({
-  showToast,
-}: {
-  showToast?: (message: string, type: "success" | "error" | "warning") => void;
-}) => (
-  <View style={styles.sectionContainer}>
-    <SystemAnnouncement />
-    <DashboardHome />
-  </View>
-);
-
-const AdminPQRSection = ({
-  showToast,
-}: {
-  showToast?: (message: string, type: "success" | "error" | "warning") => void;
-}) => (
-  <View style={styles.sectionContainer}>
-    <PqrMainCards />
-  </View>
-);
-
-const AdminAreasSection = ({
-  showToast,
-}: {
-  showToast?: (message: string, type: "success" | "error" | "warning") => void;
-}) => (
-  <View style={styles.sectionContainer}>
-    <ReservaAdminCards />
-  </View>
-);
-
-const AdminAvisosSection = ({
-  showToast,
-}: {
-  showToast?: (message: string, type: "success" | "error" | "warning") => void;
-}) => (
-  <View style={styles.sectionContainer}>
-    <AvisosAdminCards />
-  </View>
-);
-
-const AdminAsambleasSection = ({
-  showToast,
-}: {
-  showToast?: (message: string, type: "success" | "error" | "warning") => void;
-}) => (
-  <View style={styles.sectionContainer}>
-    <AsambleasDashboardCard />
-    <CrearAsambleaDashboardCard />
-  </View>
-);
-
-const AdminPropietariosSection = ({
-  showToast,
-}: {
-  showToast?: (message: string, type: "success" | "error" | "warning") => void;
-}) => {
-  const router = useRouter();
-
-  return (
+const AdminInicioSection = React.memo(
+  ({
+    showToast,
+  }: {
+    showToast?: (
+      message: string,
+      type: "success" | "error" | "warning"
+    ) => void;
+  }) => (
     <View style={styles.sectionContainer}>
-      <CambiarPropietarioCard
-        onPress={() =>
-          router.push("/(screens)/propietarios/cambiar-propietario")
-        }
-      />
+      <SystemAnnouncement />
+      <DashboardHome />
     </View>
-  );
-};
+  )
+);
+AdminInicioSection.displayName = "AdminInicioSection";
+
+const AdminPQRSection = React.memo(
+  ({
+    showToast,
+  }: {
+    showToast?: (
+      message: string,
+      type: "success" | "error" | "warning"
+    ) => void;
+  }) => (
+    <View style={styles.sectionContainer}>
+      <PqrMainCards />
+    </View>
+  )
+);
+AdminPQRSection.displayName = "AdminPQRSection";
+
+const AdminAreasSection = React.memo(
+  ({
+    showToast,
+  }: {
+    showToast?: (
+      message: string,
+      type: "success" | "error" | "warning"
+    ) => void;
+  }) => (
+    <View style={styles.sectionContainer}>
+      <ReservaAdminCards />
+    </View>
+  )
+);
+AdminAreasSection.displayName = "AdminAreasSection";
+
+const AdminAvisosSection = React.memo(
+  ({
+    showToast,
+  }: {
+    showToast?: (
+      message: string,
+      type: "success" | "error" | "warning"
+    ) => void;
+  }) => (
+    <View style={styles.sectionContainer}>
+      <AvisosAdminCards />
+    </View>
+  )
+);
+AdminAvisosSection.displayName = "AdminAvisosSection";
+
+const AdminAsambleasSection = React.memo(
+  ({
+    showToast,
+  }: {
+    showToast?: (
+      message: string,
+      type: "success" | "error" | "warning"
+    ) => void;
+  }) => (
+    <View style={styles.sectionContainer}>
+      <AsambleasDashboardCard />
+      <CrearAsambleaDashboardCard />
+    </View>
+  )
+);
+AdminAsambleasSection.displayName = "AdminAsambleasSection";
+
+const AdminPropietariosSection = React.memo(
+  ({
+    showToast,
+  }: {
+    showToast?: (
+      message: string,
+      type: "success" | "error" | "warning"
+    ) => void;
+  }) => {
+    const router = useRouter();
+
+    return (
+      <View style={styles.sectionContainer}>
+        <CambiarPropietarioCard
+          onPress={() =>
+            router.push("/(screens)/propietarios/cambiar-propietario")
+          }
+        />
+      </View>
+    );
+  }
+);
+AdminPropietariosSection.displayName = "AdminPropietariosSection";
 
 const ADMIN_SECTIONS = [
   {
@@ -222,7 +260,9 @@ const InternalTabBar: React.FC<InternalTabBarProps> = ({
 
 export default function AdminIndex() {
   const [activeSection, setActiveSection] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [renderedSections, setRenderedSections] = useState<Set<number>>(
+    new Set([0, 1])
+  );
   const scrollViewRef = useRef<ScrollView>(null);
   const [toast, setToast] = useState<{
     visible: boolean;
@@ -241,16 +281,16 @@ export default function AdminIndex() {
     setToast({ visible: false, message: "", type: "success" });
   };
 
-  // Simular carga inicial para transición suave
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleTabPress = useCallback((index: number) => {
     setActiveSection(index);
+    setRenderedSections(
+      (prev) =>
+        new Set(
+          [...prev, index, index - 1, index + 1].filter(
+            (i) => i >= 0 && i < ADMIN_SECTIONS.length
+          )
+        )
+    );
     scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
   }, []);
 
@@ -260,20 +300,18 @@ export default function AdminIndex() {
       const index = Math.round(scrollX / width);
       if (index !== activeSection) {
         setActiveSection(index);
+        setRenderedSections(
+          (prev) =>
+            new Set(
+              [...prev, index, index - 1, index + 1].filter(
+                (i) => i >= 0 && i < ADMIN_SECTIONS.length
+              )
+            )
+        );
       }
     },
     [activeSection]
   );
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.loadingContainer}>
-          {/* Placeholder para transición suave */}
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -294,11 +332,21 @@ export default function AdminIndex() {
       >
         {ADMIN_SECTIONS.map((section, index) => {
           const SectionComponent = section.component;
+          const shouldRender =
+            renderedSections.has(index) || Math.abs(index - activeSection) <= 1;
+
           return (
             <View key={section.key} style={styles.page}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <SectionComponent showToast={showToast} />
-              </ScrollView>
+              {shouldRender ? (
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  removeClippedSubviews={true}
+                >
+                  <SectionComponent showToast={showToast} />
+                </ScrollView>
+              ) : (
+                <View style={styles.placeholder} />
+              )}
             </View>
           );
         })}
@@ -375,8 +423,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     overflow: "visible",
   },
-  loadingContainer: {
+  placeholder: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
 });

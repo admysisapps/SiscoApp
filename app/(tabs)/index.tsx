@@ -195,10 +195,22 @@ export default function Index() {
   useProjectApartment();
 
   const [activeSection, setActiveSection] = useState(0);
+  const [renderedSections, setRenderedSections] = useState<Set<number>>(
+    new Set([0, 1])
+  );
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleTabPress = useCallback((index: number) => {
     setActiveSection(index);
+    // Pre-renderizar la sección destino antes de hacer scroll
+    setRenderedSections(
+      (prev) =>
+        new Set(
+          [...prev, index, index - 1, index + 1].filter(
+            (i) => i >= 0 && i < SECTIONS.length
+          )
+        )
+    );
     scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
   }, []);
 
@@ -207,6 +219,15 @@ export default function Index() {
     const index = Math.round(scrollX / width);
     if (index !== activeSection) {
       setActiveSection(index);
+      // Pre-renderizar secciones adyacentes
+      setRenderedSections(
+        (prev) =>
+          new Set(
+            [...prev, index, index - 1, index + 1].filter(
+              (i) => i >= 0 && i < SECTIONS.length
+            )
+          )
+      );
     }
   };
 
@@ -229,14 +250,23 @@ export default function Index() {
       >
         {SECTIONS.map((section, index) => {
           const SectionComponent = section.component;
+          // Renderizar si ya fue visitada o está cerca de la activa
+          const shouldRender =
+            renderedSections.has(index) || Math.abs(index - activeSection) <= 1;
+
           return (
             <View key={section.key} style={styles.page}>
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.pageContent}
-              >
-                <SectionComponent />
-              </ScrollView>
+              {shouldRender ? (
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.pageContent}
+                  removeClippedSubviews={true}
+                >
+                  <SectionComponent />
+                </ScrollView>
+              ) : (
+                <View style={styles.placeholder} />
+              )}
             </View>
           );
         })}
@@ -307,5 +337,8 @@ const styles = StyleSheet.create({
   },
   pageContent: {
     paddingBottom: 100,
+  },
+  placeholder: {
+    flex: 1,
   },
 });
