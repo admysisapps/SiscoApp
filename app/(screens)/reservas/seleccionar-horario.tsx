@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import Toast from "@/components/Toast";
 import { ConflictoHorarioModal } from "@/components/reservas/ConflictoHorarioModal";
 import SeleccionarHorarioMinutos from "@/components/reservas/SeleccionarHorarioMinutos";
@@ -89,21 +89,22 @@ export default function SeleccionarHorarioScreen() {
     }
   }, [espacioId, showToast]);
 
-  useEffect(() => {
-    if (espacioCompleto) {
-      try {
-        const espacioParsed = JSON.parse(espacioCompleto as string);
-        setEspacio(espacioParsed);
-        setCargandoEspacio(false);
-      } catch (error) {
-        console.error("Error parsing espacioCompleto:", error);
-        // Fallback a petición API
+  useFocusEffect(
+    useCallback(() => {
+      if (espacioCompleto) {
+        try {
+          const espacioParsed = JSON.parse(espacioCompleto as string);
+          setEspacio(espacioParsed);
+          setCargandoEspacio(false);
+        } catch (error) {
+          console.error("Error parsing espacioCompleto:", error);
+          obtenerEspacioAPI();
+        }
+      } else {
         obtenerEspacioAPI();
       }
-    } else {
-      obtenerEspacioAPI();
-    }
-  }, [espacioCompleto, espacioId, showToast, obtenerEspacioAPI]);
+    }, [espacioCompleto, obtenerEspacioAPI])
+  );
 
   return (
     <SafeAreaView style={styles.container}>

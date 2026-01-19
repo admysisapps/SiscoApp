@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import LottieView from "lottie-react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const { width, height } = Dimensions.get("window");
 
@@ -10,18 +11,23 @@ export default function LoadingScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSlowMessage(true);
-    }, 6000); // 6 segundos
+    }, 7000); // 7 segundos
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <View style={styles.container}>
+    <Animated.View
+      entering={FadeIn.duration(300)}
+      exiting={FadeOut.duration(400)}
+      style={styles.container}
+    >
       <View style={styles.lottieContainer}>
         <LottieView
-          source={require("@/assets/lottie/Loading.json")}
+          source={require("@/assets/lottie/siscoAnimacion2.json")}
           autoPlay
-          loop
+          loop={false}
+          speed={0.7}
           style={styles.lottie}
           renderMode="HARDWARE"
           cacheComposition={true}
@@ -36,7 +42,7 @@ export default function LoadingScreen() {
           Esto está tardando más de lo normal...
         </Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

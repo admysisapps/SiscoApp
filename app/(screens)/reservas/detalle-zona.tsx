@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import {
   View,
@@ -10,13 +10,13 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { reservaService } from "@/services/reservaService";
 import { s3Service } from "@/services/s3Service";
 import { useProject } from "@/contexts/ProjectContext";
-import { useLoading } from "@/contexts/LoadingContext";
 import { THEME } from "@/constants/theme";
+import ZonaDetailSkeleton from "@/components/reservas/ZonaDetailSkeleton";
 const { width } = Dimensions.get("window");
 
 const DIAS_SEMANA = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
@@ -25,24 +25,15 @@ export default function DetalleZonaScreen() {
   const { id, imagen_nombre } = useLocalSearchParams();
   const [zona, setZona] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const { showLoading, hideLoading } = useLoading();
+  const [loading, setLoading] = useState(true);
   const [finalImageUrl, setFinalImageUrl] = useState<string | null>(null);
   const { selectedProject } = useProject();
-
-  // Usar refs para estabilizar las referencias
-  const showLoadingRef = useRef(showLoading);
-  const hideLoadingRef = useRef(hideLoading);
-
-  useEffect(() => {
-    showLoadingRef.current = showLoading;
-    hideLoadingRef.current = hideLoading;
-  }, [showLoading, hideLoading]);
 
   const cargarDetalle = useCallback(async () => {
     if (!id) return;
 
     try {
-      showLoadingRef.current("Cargando detalle...");
+      setLoading(true);
       setError(null);
 
       const response = await reservaService.obtenerEspacio(Number(id));
@@ -72,13 +63,15 @@ export default function DetalleZonaScreen() {
       console.error("Error cargando detalle:", error);
       setError("Error de conexión. Verifica tu internet e intenta nuevamente");
     } finally {
-      hideLoadingRef.current();
+      setLoading(false);
     }
   }, [id, imagen_nombre, selectedProject?.NIT]);
 
-  useEffect(() => {
-    cargarDetalle();
-  }, [cargarDetalle]);
+  useFocusEffect(
+    useCallback(() => {
+      cargarDetalle();
+    }, [cargarDetalle])
+  );
 
   const handleBackPress = useCallback(() => {
     router.back();
@@ -117,6 +110,20 @@ export default function DetalleZonaScreen() {
     if (!horario.activo) return "Cerrado";
     return `${horario.hora_inicio} - ${horario.hora_fin}`;
   };
+
+  // Mostrar skeleton mientras carga
+  if (loading && !zona) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+        <ZonaDetailSkeleton />
+      </SafeAreaView>
+    );
+  }
 
   // Mostrar error si existe
   if (error) {

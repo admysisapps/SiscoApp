@@ -8,15 +8,12 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useProject } from "@/contexts/ProjectContext";
-
 import { useAuth } from "@/contexts/AuthContext";
 import { notificationService } from "@/services/notificacionesService";
-
 import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 import PaymentMethodsModal from "@/components/pagos/PaymentMethodsModal";
 import UnirseProyectoModal from "@/components/proyectos/UnirseProyectoModal";
 import NotificationModal from "@/components/shared/NotificationModal";
-
 import Toast from "@/components/Toast";
 import { THEME } from "@/constants/theme";
 import { Ionicons, Entypo } from "@expo/vector-icons";

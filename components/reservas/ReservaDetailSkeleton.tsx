@@ -20,7 +20,7 @@ export default function ReservaDetailSkeleton() {
         }),
       ])
     ).start();
-  }, []);
+  }, [pulseAnim]);
 
   const opacity = pulseAnim.interpolate({
     inputRange: [0, 1],
