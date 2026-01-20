@@ -46,3 +46,19 @@ export interface ApoderadoSession {
     quorum_alcanzado: number;
   };
 }
+
+export interface ApoderadoFormData {
+  nombre: string;
+  cedula: string;
+  correo: string;
+  telefono?: string;
+  apartamentos?: string;
+}
+
+export interface ApoderadoFormErrors {
+  nombre?: string;
+  cedula?: string;
+  correo?: string;
+  telefono?: string;
+  apartamentos?: string;
+}

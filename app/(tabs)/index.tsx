@@ -337,6 +337,7 @@ const styles = StyleSheet.create({
   },
   pageContent: {
     paddingBottom: 100,
+    flexGrow: 1,
   },
   placeholder: {
     flex: 1,

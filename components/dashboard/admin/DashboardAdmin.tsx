@@ -4,12 +4,10 @@ import GraficoPagos from "./GraficoPagos";
 import EstadoFinanciero from "./EstadoFinanciero";
 import ProximosPagos from "./ProximosPagos";
 import ActividadReciente from "./ActividadReciente";
-import ApartmentSelector from "../../ApartmentSelector";
 
 export default function DashboardAdmin() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <ApartmentSelector />
       <GraficoPagos />
       <EstadoFinanciero />
       <ProximosPagos />

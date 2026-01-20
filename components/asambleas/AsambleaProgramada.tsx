@@ -140,7 +140,9 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
           {puedeCrearApoderados() ? (
             <TouchableOpacity
               style={styles.apoderadoButton}
-              onPress={() => setModalVisible(true)}
+              onPress={() => {
+                setModalVisible(true);
+              }}
             >
               <Ionicons
                 name="person-add-outline"
@@ -188,7 +190,7 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
               if (result.success) {
                 onShowToast("Poder generado exitosamente.", "success");
                 setModalVisible(false);
-                setRefreshApoderados((prev) => prev + 1); // Trigger refresh
+                setRefreshApoderados((prev) => prev + 1);
               } else {
                 const errorMessage =
                   result.error || "No se pudo generar el poder";
@@ -200,7 +202,6 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
                 if (isEmailError) {
                   setEmailErrorMessage(errorMessage);
                 } else {
-                  // Determinar tipo de error
                   let errorType: "validation" | "connection" | "general" =
                     "general";
                   if (

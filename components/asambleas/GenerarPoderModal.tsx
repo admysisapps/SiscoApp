@@ -15,11 +15,12 @@ import { THEME } from "@/constants/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { apiService } from "@/services/apiService";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
+import type { ApoderadoFormData, ApoderadoFormErrors } from "@/types/Apoderado";
 
 interface GenerarPoderModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (data: ApoderadoData) => void;
+  onSave: (data: ApoderadoFormData) => void;
   asambleaId: number;
   onShowToast?: (
     message: string,
@@ -27,22 +28,6 @@ interface GenerarPoderModalProps {
   ) => void;
   emailError?: string | null;
   apartamentosOcupados?: string[];
-}
-
-interface ApoderadoData {
-  nombre: string;
-  cedula: string;
-  correo: string;
-  telefono?: string;
-  apartamentos?: string;
-}
-
-interface FormErrors {
-  nombre?: string;
-  cedula?: string;
-  correo?: string;
-  telefono?: string;
-  apartamentos?: string;
 }
 
 export default function GenerarPoderModal({
@@ -55,7 +40,7 @@ export default function GenerarPoderModal({
   apartamentosOcupados = [],
 }: GenerarPoderModalProps) {
   // Estados del formulario
-  const [formData, setFormData] = useState<ApoderadoData>({
+  const [formData, setFormData] = useState<ApoderadoFormData>({
     nombre: "",
     cedula: "",
     correo: "",
@@ -64,7 +49,7 @@ export default function GenerarPoderModal({
     []
   );
   const [hasChanges, setHasChanges] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<ApoderadoFormErrors>({});
 
   // Estados de apartamentos
   const [apartamentos, setApartamentos] = useState<string[]>([]);
@@ -114,7 +99,7 @@ export default function GenerarPoderModal({
       const context = await AsyncStorage.getItem("user_context");
       if (context) {
         const parsedContext = JSON.parse(context);
-        setPoderesHabilitados(parsedContext.poderesHabilitados);
+        setPoderesHabilitados(parsedContext.poderes_habilitados);
         setUserCedula(parsedContext.documento?.trim() || null);
       }
     } catch {
@@ -179,7 +164,7 @@ export default function GenerarPoderModal({
       checkPoderes();
       loadApartamentos();
       loadSavedData();
-      setEmailError(null); // Limpiar error de correo al abrir
+      setEmailError(null);
     }
   }, [visible, asambleaId, checkPoderes, loadApartamentos, loadSavedData]);
 
@@ -253,7 +238,7 @@ export default function GenerarPoderModal({
 
   // Validar formulario
   const validateForm = () => {
-    const newErrors: FormErrors = {};
+    const newErrors: ApoderadoFormErrors = {};
 
     // Limpiar espacios en blanco
     const cleanNombre = formData.nombre.trim();

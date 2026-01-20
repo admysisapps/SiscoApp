@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { usePaymentMethods } from "@/hooks/usePaymentMethods";
-import PaymentMethodsModal from "@/components/pagos/PaymentMethodsModal";
+import ModalMetodosPago from "@/components/pagos/ModalMetodosPago";
 
 export const ReservaMainCards: React.FC = () => {
   const {
@@ -80,7 +80,7 @@ export const ReservaMainCards: React.FC = () => {
         </View>
       </TouchableOpacity>
 
-      <PaymentMethodsModal
+      <ModalMetodosPago
         visible={showModal}
         onClose={closePaymentMethods}
         cuentas={cuentas}

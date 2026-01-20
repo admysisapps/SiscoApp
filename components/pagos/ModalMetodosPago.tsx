@@ -17,7 +17,7 @@ import {
 import * as Clipboard from "expo-clipboard";
 import { THEME } from "@/constants/theme";
 import { CuentaPago } from "@/types/CuentaPago";
-import PaymentCard from "./PaymentCard";
+import TarjetaPago from "./TarjetaPago";
 import { apiService } from "@/services/apiService";
 import { getTipoNombre, truncateUrl } from "@/constants/pagos";
 import { openURL } from "@/utils/linkingHelper";
@@ -292,11 +292,11 @@ export default function PaymentMethodsModal({
                     </View>
                   ) : (
                     cuentasActivas.map((cuenta) => (
-                      <PaymentCard
+                      <TarjetaPago
                         key={cuenta.id}
                         cuenta={cuenta}
                         onPress={handleCardPress}
-                        onError={(error) => showToast(error, "error")}
+                        onError={(error: string) => showToast(error, "error")}
                       />
                     ))
                   )}

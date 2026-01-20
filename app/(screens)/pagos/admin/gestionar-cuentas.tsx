@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, THEME } from "@/constants/theme";
 import { CuentaPago } from "@/types/CuentaPago";
-import CreateAccountModal from "@/components/pagos/CreateAccountModal";
+import ModalCrearCuenta from "@/components/pagos/ModalCrearCuenta";
 import { cuentasPagoService } from "@/services/cuentasPagoService";
 import Toast from "@/components/Toast";
 import { eventBus, EVENTS } from "@/utils/eventBus";
@@ -337,7 +337,7 @@ export default function GestionarCuentasScreen() {
         )}
       </ScrollView>
 
-      <CreateAccountModal
+      <ModalCrearCuenta
         visible={showCreateModal}
         onClose={handleCloseModal}
         onSave={handleSaveAccount}

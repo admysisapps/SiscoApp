@@ -11,7 +11,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { notificationService } from "@/services/notificacionesService";
 import { usePaymentMethods } from "@/hooks/usePaymentMethods";
-import PaymentMethodsModal from "@/components/pagos/PaymentMethodsModal";
+import ModalMetodosPago from "@/components/pagos/ModalMetodosPago";
 import UnirseProyectoModal from "@/components/proyectos/UnirseProyectoModal";
 import NotificationModal from "@/components/shared/NotificationModal";
 import Toast from "@/components/Toast";
@@ -289,7 +289,7 @@ export default function Perfil() {
         </View>
       </ScrollView>
 
-      <PaymentMethodsModal
+      <ModalMetodosPago
         visible={showModal}
         onClose={closePaymentMethods}
         cuentas={cuentas}

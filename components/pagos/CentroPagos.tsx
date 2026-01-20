@@ -15,7 +15,7 @@ import {
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import * as Clipboard from "expo-clipboard";
 
-import PaymentCard from "./PaymentCard";
+import TarjetaPago from "./TarjetaPago";
 import { CuentaPago } from "@/types/CuentaPago";
 import { apiService } from "@/services/apiService";
 import { getTipoNombre, truncateUrl } from "@/constants/pagos";
@@ -29,7 +29,7 @@ interface Props {
   cuentas: CuentaPago[];
 }
 
-export default function PaymentHub({ cuentas }: Props) {
+export default function CentroPagos({ cuentas }: Props) {
   const [selectedAccount, setSelectedAccount] = useState<CuentaPago | null>(
     null
   );
@@ -170,7 +170,7 @@ export default function PaymentHub({ cuentas }: Props) {
         showsVerticalScrollIndicator={false}
       >
         {cuentas.map((cuenta) => (
-          <PaymentCard
+          <TarjetaPago
             key={cuenta.id}
             cuenta={cuenta}
             onPress={handleCardPress}
