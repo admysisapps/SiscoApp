@@ -605,7 +605,7 @@ export default function GenerarPoderModal({
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: THEME.colors.modalOverlay,
     justifyContent: "flex-end",
   },
   modalContainer: {

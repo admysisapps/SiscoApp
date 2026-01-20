@@ -47,7 +47,7 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-export default function FinancialStatus() {
+export default function EstadoFinanciero() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Estado Financiero del Conjunto</Text>

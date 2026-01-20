@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
@@ -11,13 +11,9 @@ import {
   Dimensions,
   Platform,
   ActivityIndicator,
+  Animated,
+  PanResponder,
 } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  runOnJS,
-} from "react-native-reanimated";
 import * as Clipboard from "expo-clipboard";
 import { THEME } from "@/constants/theme";
 import { CuentaPago } from "@/types/CuentaPago";
@@ -52,7 +48,8 @@ export default function PaymentMethodsModal({
   );
   const [showDetail, setShowDetail] = useState(false);
   const [userContext, setUserContext] = useState<any>(null);
-  const translateX = useSharedValue(0);
+  const translateY = useRef(new Animated.Value(height)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -69,6 +66,26 @@ export default function PaymentMethodsModal({
   const hideToast = () => {
     setToast({ visible: false, message: "", type: "success" });
   };
+
+  useEffect(() => {
+    if (visible) {
+      translateY.setValue(height);
+      backdropOpacity.setValue(0);
+      Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 25,
+          stiffness: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible, translateY, backdropOpacity]);
 
   useEffect(() => {
     if (!visible) return;
@@ -103,37 +120,59 @@ export default function PaymentMethodsModal({
     };
   }, [visible, onRefresh]);
 
-  const handleCardPress = useCallback(
-    (cuenta: CuentaPago) => {
-      setSelectedAccount(cuenta);
-      translateX.value = withTiming(-100, { duration: 300 }, () => {
-        runOnJS(setShowDetail)(true);
-        translateX.value = withTiming(0, { duration: 300 });
-      });
-    },
-    [translateX]
-  );
+  const handleCardPress = useCallback((cuenta: CuentaPago) => {
+    setSelectedAccount(cuenta);
+    setShowDetail(true);
+  }, []);
 
   const handleBackToList = useCallback(() => {
-    translateX.value = withTiming(100, { duration: 300 }, () => {
-      runOnJS(setShowDetail)(false);
-      runOnJS(setSelectedAccount)(null);
-      translateX.value = withTiming(0, { duration: 300 });
-    });
-  }, [translateX]);
-
-  const handleClose = useCallback(() => {
-    translateX.value = 0;
     setShowDetail(false);
     setSelectedAccount(null);
-    onClose();
-  }, [onClose, translateX]);
+  }, []);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: `${translateX.value}%` }],
-    };
-  });
+  const handleClose = useCallback(() => {
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: height,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowDetail(false);
+      setSelectedAccount(null);
+      onClose();
+    });
+  }, [onClose, translateY, backdropOpacity]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return gestureState.dy > 5;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          translateY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 50 || gestureState.vy > 0.5) {
+          handleClose();
+        } else {
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   const handleShareInfo = useCallback(
     async (cuenta: CuentaPago) => {
@@ -167,15 +206,26 @@ export default function PaymentMethodsModal({
     <Modal
       visible={visible}
       transparent={true}
-      animationType="slide"
+      animationType="none"
       onRequestClose={handleClose}
       statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.handle} />
+        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+          <TouchableOpacity
+            style={styles.backdropTouch}
+            activeOpacity={1}
+            onPress={handleClose}
+          />
+        </Animated.View>
+        <Animated.View
+          style={[styles.modalContainer, { transform: [{ translateY }] }]}
+        >
+          <View {...panResponder.panHandlers}>
+            <View style={styles.handle} />
+          </View>
 
-          <Animated.View style={[styles.contentContainer, animatedStyle]}>
+          <View style={styles.contentContainer}>
             {!showDetail ? (
               // Lista de Informacion  de pago
               <>
@@ -397,8 +447,8 @@ export default function PaymentMethodsModal({
                 </>
               )
             )}
-          </Animated.View>
-        </View>
+          </View>
+        </Animated.View>
       </View>
 
       <Toast
@@ -414,9 +464,15 @@ export default function PaymentMethodsModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
     justifyContent: "flex-end",
     paddingBottom: 0,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: THEME.colors.modalOverlay,
+  },
+  backdropTouch: {
+    flex: 1,
   },
   modalContainer: {
     backgroundColor: THEME.colors.surface,

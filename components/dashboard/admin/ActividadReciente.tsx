@@ -110,7 +110,7 @@ const formatTimeAgo = (timestamp: string) => {
   return activityTime.toLocaleDateString("es-CO");
 };
 
-export default function RecentActivity() {
+export default function ActividadReciente() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>

@@ -49,7 +49,7 @@ const ANNOUNCEMENT_CONFIG = {
  * 3. Todos los usuarios verán el anuncio automáticamente
  * 4. Se oculta automáticamente cuando expira o cuando cambias active: false
  */
-const SystemAnnouncement = React.memo(function SystemAnnouncement() {
+const AnuncioSistema = React.memo(function AnuncioSistema() {
   // Verificar si el anuncio está activo
   if (!ANNOUNCEMENT_CONFIG.active) {
     return null;
@@ -141,7 +141,7 @@ const SystemAnnouncement = React.memo(function SystemAnnouncement() {
   );
 });
 
-export default SystemAnnouncement;
+export default AnuncioSistema;
 
 const styles = StyleSheet.create({
   container: {

@@ -13,7 +13,7 @@ interface QuickAction {
   onPress: () => void;
 }
 
-const UserQuickActions = React.memo(function UserQuickActions() {
+const AccionesRapidas = React.memo(function AccionesRapidas() {
   const router = useRouter();
 
   const quickActions: QuickAction[] = [
@@ -83,7 +83,7 @@ const UserQuickActions = React.memo(function UserQuickActions() {
   );
 });
 
-export default UserQuickActions;
+export default AccionesRapidas;
 
 const styles = StyleSheet.create({
   container: {

@@ -19,7 +19,7 @@ const mockData: PaymentData[] = [
   { month: "Dic", amount: 45000000, collected: 43500000 },
 ];
 
-export default function PaymentChart() {
+export default function GraficoPagos() {
   const maxAmount = Math.max(...mockData.map((d) => d.amount));
   const chartWidth = width - 80;
   const barWidth = (chartWidth - 60) / mockData.length / 2;

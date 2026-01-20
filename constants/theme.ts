@@ -34,7 +34,7 @@ export const COLORS = {
   header: {
     title: "#1E293B", // Color de títulos en headers
   },
-  modalOverlay: "rgba(0, 0, 0, 0.7)", // Fondo oscuro para modales
+  modalOverlay: "rgba(15, 23, 42, 0.45)",
 
   // Colores para botones de contacto
   whatsapp: "#25D366", // Verde de WhatsApp

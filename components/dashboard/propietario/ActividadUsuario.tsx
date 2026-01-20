@@ -123,7 +123,7 @@ const formatTimeAgo = (timestamp: string, now: Date) => {
   return activityTime.toLocaleDateString("es-CO");
 };
 
-const UserActivity = React.memo(function UserActivity() {
+const ActividadUsuario = React.memo(function ActividadUsuario() {
   // Memoizar actividades formateadas para evitar recalcular en cada render
   const formattedActivities = useMemo(() => {
     const now = new Date();
@@ -213,7 +213,7 @@ const UserActivity = React.memo(function UserActivity() {
   );
 });
 
-export default UserActivity;
+export default ActividadUsuario;
 
 const styles = StyleSheet.create({
   container: {

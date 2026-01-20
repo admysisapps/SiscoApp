@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   votacionCard: {
     backgroundColor: "#fff",
@@ -929,13 +929,13 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: THEME.colors.modalOverlay,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     padding: 24,
     alignItems: "center",
@@ -945,13 +945,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#0F172A",
+    color: THEME.colors.text.heading,
     marginTop: 16,
     marginBottom: 8,
   },
   modalMessage: {
     fontSize: 15,
-    color: "#64748B",
+    color: THEME.colors.text.secondary,
     textAlign: "center",
     marginBottom: 24,
     lineHeight: 22,
@@ -977,10 +977,10 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   modalButtonSecondary: {
-    backgroundColor: "#E2E8F0",
+    backgroundColor: THEME.colors.surfaceLight,
   },
   modalButtonText: {
-    color: "#fff",
+    color: THEME.colors.text.inverse,
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",

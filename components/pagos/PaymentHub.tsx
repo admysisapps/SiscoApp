@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   View,
@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Share,
   Dimensions,
+  Animated,
+  PanResponder,
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import * as Clipboard from "expo-clipboard";
@@ -39,6 +41,9 @@ export default function PaymentHub({ cuentas }: Props) {
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
 
+  const translateY = useRef(new Animated.Value(height)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+
   const showToast = (
     message: string,
     type: "success" | "error" | "warning" = "success"
@@ -49,6 +54,26 @@ export default function PaymentHub({ cuentas }: Props) {
   const hideToast = () => {
     setToast({ visible: false, message: "", type: "success" });
   };
+
+  useEffect(() => {
+    if (showModal) {
+      translateY.setValue(height);
+      backdropOpacity.setValue(0);
+      Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 25,
+          stiffness: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [showModal, translateY, backdropOpacity]);
 
   useEffect(() => {
     const loadUserContext = async () => {
@@ -68,9 +93,47 @@ export default function PaymentHub({ cuentas }: Props) {
   };
 
   const closeModal = () => {
-    setShowModal(false);
-    setSelectedAccount(null);
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: height,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowModal(false);
+      setSelectedAccount(null);
+    });
   };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return gestureState.dy > 5;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          translateY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 50 || gestureState.vy > 0.5) {
+          closeModal();
+        } else {
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   const handleShareInfo = async (cuenta: CuentaPago) => {
     const info = [
@@ -119,21 +182,26 @@ export default function PaymentHub({ cuentas }: Props) {
       <Modal
         visible={showModal}
         transparent
-        animationType="slide"
+        animationType="none"
         onRequestClose={closeModal}
       >
         <SafeAreaProvider>
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={closeModal}
-          >
-            <TouchableOpacity
-              style={styles.modalContent}
-              activeOpacity={1}
-              onPress={(e) => e.stopPropagation()}
+          <SafeAreaView style={styles.modalOverlay}>
+            <Animated.View
+              style={[styles.backdrop, { opacity: backdropOpacity }]}
             >
-              <View style={styles.modalHandle} />
+              <TouchableOpacity
+                style={styles.backdropTouch}
+                activeOpacity={1}
+                onPress={closeModal}
+              />
+            </Animated.View>
+            <Animated.View
+              style={[styles.modalContent, { transform: [{ translateY }] }]}
+            >
+              <View {...panResponder.panHandlers}>
+                <View style={styles.modalHandle} />
+              </View>
 
               {selectedAccount && (
                 <>
@@ -274,8 +342,8 @@ export default function PaymentHub({ cuentas }: Props) {
                   </View>
                 </>
               )}
-            </TouchableOpacity>
-          </TouchableOpacity>
+            </Animated.View>
+          </SafeAreaView>
         </SafeAreaProvider>
       </Modal>
 
@@ -314,19 +382,22 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
+    justifyContent: "flex-end",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: THEME.colors.modalOverlay,
+  },
+  backdropTouch: {
+    flex: 1,
   },
   modalContent: {
     backgroundColor: THEME.colors.surface,
-    borderRadius: 16,
-    width: "100%",
-    maxHeight: height * 0.8,
-    minHeight: height * 0.4,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: height * 0.85,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 10,

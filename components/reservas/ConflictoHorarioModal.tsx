@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { THEME } from "@/constants/theme";
 
 interface ConflictoHorarioModalProps {
   visible: boolean;
@@ -211,7 +212,7 @@ export const ConflictoHorarioModal: React.FC<ConflictoHorarioModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: THEME.colors.modalOverlay,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,

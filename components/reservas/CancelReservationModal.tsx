@@ -1,3 +1,4 @@
+import { THEME } from "@/constants/theme";
 import React, { useState } from "react";
 import {
   Modal,
@@ -131,7 +132,7 @@ export default function CancelReservationModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: THEME.colors.modalOverlay,
   },
   keyboardView: {
     flex: 1,

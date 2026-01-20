@@ -12,8 +12,8 @@ import { PqrMainCards } from "@/components/pqr/PQRMainCards";
 import { ReservaAdminCards } from "@/components/reservas/ReservaAdminCards";
 import { CambiarPropietarioCard } from "@/components/propietarios/CambiarPropietarioCard";
 import { useRouter } from "expo-router";
-import DashboardHome from "@/components/dashboard/DashboardHome";
-import SystemAnnouncement from "@/components/dashboard/SystemAnnouncement";
+import DashboardAdmin from "@/components/dashboard/admin/DashboardAdmin";
+import AnuncioSistema from "@/components/dashboard/admin/AnuncioSistema";
 import { AvisosAdminCards } from "@/components/avisos/AvisosAdminCards";
 import { AsambleasDashboardCard } from "@/components/asambleas/AsambleasDashboardCard";
 import { CrearAsambleaDashboardCard } from "@/components/asambleas/CrearAsambleaDashboardCard";
@@ -69,8 +69,8 @@ const AdminInicioSection = React.memo(
     ) => void;
   }) => (
     <View style={styles.sectionContainer}>
-      <SystemAnnouncement />
-      <DashboardHome />
+      <AnuncioSistema />
+      <DashboardAdmin />
     </View>
   )
 );

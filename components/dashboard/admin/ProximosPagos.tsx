@@ -82,7 +82,7 @@ const getStatusText = (payment: Payment) => {
   return "Pagado";
 };
 
-export default function UpcomingPayments() {
+export default function ProximosPagos() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>

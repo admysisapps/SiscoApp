@@ -1,4 +1,4 @@
-import UserDashboard from "@/components/dashboard/UserDashboard";
+import DashboardPropietario from "@/components/dashboard/propietario/DashboardPropietario";
 import { PqrMainCards } from "@/components/pqr/PQRMainCards";
 import { ReservaMainCards } from "@/components/reservas/ReservaPropietarioCards";
 import { AvisosUserCards } from "@/components/avisos/AvisosUserCards";
@@ -69,7 +69,7 @@ InternalTab.displayName = "InternalTab";
 // Componente Inicio (dashboard de usuario)
 const InicioSection = React.memo(() => (
   <View style={styles.sectionContainer}>
-    <UserDashboard />
+    <DashboardPropietario />
   </View>
 ));
 InicioSection.displayName = "InicioSection";

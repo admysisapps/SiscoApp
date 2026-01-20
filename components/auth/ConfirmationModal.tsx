@@ -137,7 +137,7 @@ export default function ConfirmationModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: COLORS.modalOverlay,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     width: width - THEME.spacing.lg * 2,
     maxWidth: 400,
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: COLORS.text.primary,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
     shadowRadius: 20,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: THEME.fontSize.xl,
     fontWeight: "700",
-    color: COLORS.text.primary,
+    color: COLORS.text.heading,
     textAlign: "center",
     marginBottom: THEME.spacing.sm,
   },
@@ -220,6 +220,6 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     fontSize: THEME.fontSize.md,
     fontWeight: "600",
-    color: "white",
+    color: COLORS.text.inverse,
   },
 });
