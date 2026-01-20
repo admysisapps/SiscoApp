@@ -13,13 +13,13 @@ export function useProjectApartment() {
 
   // Cargar apartamentos cuando se selecciona un proyecto
   useEffect(() => {
-    const currentProjectId = selectedProject?.NIT || null;
+    const currentProjectId = selectedProject?.nit || null;
 
     // Solo ejecutar si el proyecto realmente cambió
     if (lastProjectRef.current !== currentProjectId) {
       lastProjectRef.current = currentProjectId;
 
-      if (selectedProject && selectedProject.rol_usuario !== "admin") {
+      if (selectedProject && selectedProject.rolUsuario !== "admin") {
         // Ejecutar de forma asíncrona para no bloquear el renderizado
         setTimeout(() => {
           loadApartments(selectedProject);

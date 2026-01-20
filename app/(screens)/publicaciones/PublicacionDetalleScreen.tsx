@@ -46,13 +46,13 @@ export default function PublicacionDetalleScreen() {
   }, [params.publicacion]);
 
   useEffect(() => {
-    if (!anuncio || !selectedProject?.NIT) return;
+    if (!anuncio || !selectedProject?.nit) return;
 
     const archivos = anuncio.archivos_nombres;
     if (!Array.isArray(archivos) || !archivos.length) return;
 
     let active = true;
-    const nit = selectedProject.NIT;
+    const nit = selectedProject.nit;
     const tipo = anuncio.tipo;
 
     (async () => {
@@ -76,7 +76,7 @@ export default function PublicacionDetalleScreen() {
     return () => {
       active = false;
     };
-  }, [anuncio, selectedProject?.NIT]);
+  }, [anuncio, selectedProject?.nit]);
 
   const handleBlock = () => {
     setShowBlockModal(true);

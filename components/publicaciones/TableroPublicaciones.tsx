@@ -37,7 +37,7 @@ function PublicacionImage({
 
   useEffect(() => {
     const loadFirstImage = async () => {
-      const nit = selectedProject?.NIT;
+      const nit = selectedProject?.nit;
       if (!archivos?.length || !nit) {
         setLoading(false);
         return;

@@ -362,7 +362,7 @@ export default function DetalleReservaScreen() {
 
           <View style={styles.precioContainer}>
             <View style={styles.precioContent}>
-              <Text style={styles.precioLabel}>Total pagado</Text>
+              <Text style={styles.precioLabel}>Total</Text>
               <Text style={styles.precioValue}>${precioFormateado}</Text>
             </View>
           </View>

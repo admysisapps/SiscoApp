@@ -104,7 +104,7 @@ const AsambleaFinalizadaAdmin: React.FC<AsambleaFinalizadaAdminProps> = ({
       }));
 
       const response = await s3Service.uploadAsambleaFiles(
-        selectedProject?.NIT || "",
+        selectedProject?.nit || "",
         files
       );
 
@@ -154,7 +154,7 @@ const AsambleaFinalizadaAdmin: React.FC<AsambleaFinalizadaAdminProps> = ({
   ) => {
     try {
       const response = await s3Service.getAsambleaFileUrl(
-        selectedProject?.NIT || "",
+        selectedProject?.nit || "",
         nombreS3
       );
 

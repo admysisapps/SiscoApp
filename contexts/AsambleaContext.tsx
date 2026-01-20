@@ -33,7 +33,7 @@ export const AsambleaProvider: React.FC<{ children: React.ReactNode }> = ({
     setError(null);
 
     try {
-      const response = await asambleaService.getAsambleas(selectedProject.NIT);
+      const response = await asambleaService.getAsambleas(selectedProject.nit);
 
       if (response.success && response.asambleas) {
         setAsambleas(response.asambleas);

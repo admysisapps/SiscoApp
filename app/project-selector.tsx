@@ -33,7 +33,7 @@ export default function ProjectSelectorScreen() {
 
   // NAVEGACIÓN: Si hay un proyecto seleccionado, navegar según el rol
   if (selectedProject) {
-    if (selectedProject.rol_usuario === "admin") {
+    if (selectedProject.rolUsuario === "admin") {
       return <Redirect href="/(admin)" />;
     } else {
       return <Redirect href="/(tabs)" />;

@@ -91,7 +91,7 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
   }, [apartamentos, selectedApartment, handleApartmentSelect]);
 
   // Si es admin en el proyecto seleccionado, no mostrar selector
-  if (selectedProject?.rol_usuario === "admin") {
+  if (selectedProject?.rolUsuario === "admin") {
     return null;
   }
 
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: THEME.colors.modalOverlay,
   },
   modalContent: {
     backgroundColor: THEME.colors.surface,

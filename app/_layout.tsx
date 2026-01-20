@@ -24,7 +24,7 @@ SplashScreen.setOptions({
 function RootNavigator() {
   const { selectedProject } = useProject();
   const { isAuthenticated } = useAuth();
-  const isAdmin = selectedProject?.rol_usuario === "admin";
+  const isAdmin = selectedProject?.rolUsuario === "admin";
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

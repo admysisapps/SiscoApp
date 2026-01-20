@@ -78,7 +78,7 @@ const AsambleaFinalizada: React.FC<AsambleaFinalizadaProps> = ({
   ) => {
     try {
       const response = await s3Service.getAsambleaFileUrl(
-        selectedProject?.NIT || "",
+        selectedProject?.nit || "",
         nombreS3
       );
 

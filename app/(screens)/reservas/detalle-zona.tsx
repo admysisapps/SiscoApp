@@ -42,9 +42,9 @@ export default function DetalleZonaScreen() {
         setZona(response.espacio);
 
         // Regenerar URL desde imagen_nombre
-        if (imagen_nombre && selectedProject?.NIT) {
+        if (imagen_nombre && selectedProject?.nit) {
           const result = await s3Service.getEspacioImageUrl(
-            selectedProject.NIT,
+            selectedProject.nit,
             imagen_nombre as string
           );
           if (result.success && result.url) {
@@ -65,7 +65,7 @@ export default function DetalleZonaScreen() {
     } finally {
       setLoading(false);
     }
-  }, [id, imagen_nombre, selectedProject?.NIT]);
+  }, [id, imagen_nombre, selectedProject?.nit]);
 
   useFocusEffect(
     useCallback(() => {

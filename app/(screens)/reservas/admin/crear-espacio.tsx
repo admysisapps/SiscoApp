@@ -224,7 +224,7 @@ export default function CrearEspacioScreen() {
             }
 
             // Si hay imagen, marcarla como existente y obtener URL
-            if (espacio.imagen_nombre && selectedProject?.NIT) {
+            if (espacio.imagen_nombre && selectedProject?.nit) {
               setImagen({
                 name: espacio.imagen_nombre,
                 uploaded: true,
@@ -233,7 +233,7 @@ export default function CrearEspacioScreen() {
 
               // Obtener URL firmada de S3
               const result = await s3Service.getEspacioImageUrl(
-                selectedProject.NIT,
+                selectedProject.nit,
                 espacio.imagen_nombre
               );
               if (result.success && result.url) {
@@ -260,7 +260,7 @@ export default function CrearEspacioScreen() {
     };
 
     cargarEspacio();
-  }, [isEditMode, id, selectedProject?.NIT, showLoading, hideLoading]);
+  }, [isEditMode, id, selectedProject?.nit, showLoading, hideLoading]);
 
   // Validaciones divididas en funciones específicas
   const validateBasicInfo = (errors: { [key: string]: string }) => {
@@ -385,7 +385,7 @@ export default function CrearEspacioScreen() {
   };
 
   const handleSelectImage = async () => {
-    if (!selectedProject?.NIT) {
+    if (!selectedProject?.nit) {
       Alert.alert(
         "Error de configuración",
         "No pudimos identificar tu proyecto. Cierra y vuelve a abrir la aplicación."
@@ -430,7 +430,7 @@ export default function CrearEspacioScreen() {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    if (!selectedProject?.NIT) {
+    if (!selectedProject?.nit) {
       Alert.alert(
         "Error de configuración",
         "No pudimos identificar tu proyecto. Cierra y vuelve a abrir la aplicación."
@@ -449,10 +449,10 @@ export default function CrearEspacioScreen() {
         const response = await reservaService.obtenerEspacio(Number(id));
         const imagenExistente = response?.espacio?.imagen_nombre;
 
-        if (imagenExistente && selectedProject?.NIT) {
+        if (imagenExistente && selectedProject?.nit) {
           try {
             await s3Service.deleteEspacioImage(
-              selectedProject.NIT,
+              selectedProject.nit,
               imagenExistente
             );
           } catch {
@@ -481,7 +481,7 @@ export default function CrearEspacioScreen() {
         }
 
         const uploadResult = await s3Service.uploadEspacioImage(
-          selectedProject.NIT,
+          selectedProject.nit,
           {
             uri: imagen.uri,
             name: imagen.name, // Nombre original del archivo

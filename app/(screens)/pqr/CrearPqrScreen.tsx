@@ -94,7 +94,7 @@ export default function CreatePQRScreen() {
       return;
     }
 
-    if (!selectedProject?.NIT) {
+    if (!selectedProject?.nit) {
       setErrorMessage("No se pudo obtener información del proyecto");
       setShowErrorModal(true);
       return;
@@ -109,7 +109,7 @@ export default function CreatePQRScreen() {
       // Subir archivo a S3 si existe
       if (archivo && !archivo.uploaded) {
         const uploadResult = await s3Service.uploadPQRFile(
-          selectedProject.NIT,
+          selectedProject.nit,
           {
             uri: archivo.uri,
             name: archivo.name,
@@ -185,7 +185,7 @@ export default function CreatePQRScreen() {
   };
 
   const handleSelectFile = async () => {
-    if (!selectedProject?.NIT) {
+    if (!selectedProject?.nit) {
       setErrorMessage("No se pudo obtener información del proyecto");
       setShowErrorModal(true);
       return;

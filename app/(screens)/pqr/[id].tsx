@@ -326,14 +326,14 @@ export default function PQRDetailScreen() {
   };
 
   const handleDescargarArchivo = async () => {
-    if (!pqr?.archivo_nombre || !selectedProject?.NIT) {
+    if (!pqr?.archivo_nombre || !selectedProject?.nit) {
       showToast("No se puede abrir el archivo", "error");
       return;
     }
 
     try {
       const result = await s3Service.downloadPQRFile(
-        selectedProject.NIT!,
+        selectedProject.nit!,
         pqr.archivo_nombre
       );
 

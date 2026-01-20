@@ -142,13 +142,13 @@ export default function CrearAvisoScreen() {
         let archivos_nombres: string | undefined = undefined;
 
         if (selectedFiles.length > 0) {
-          if (!selectedProject?.NIT) {
+          if (!selectedProject?.nit) {
             showToast("No se encontró información del proyecto", "error");
             return;
           }
 
           const uploadResult = await s3Service.uploadAvisoFiles(
-            selectedProject.NIT,
+            selectedProject.nit,
             selectedFiles
           );
 

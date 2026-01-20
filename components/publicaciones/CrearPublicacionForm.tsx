@@ -130,12 +130,12 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
 
       // Subir imágenes a S3 si hay alguna
       if (imagenes.length > 0) {
-        if (!selectedProject?.NIT) {
+        if (!selectedProject?.nit) {
           throw new Error("No hay proyecto seleccionado");
         }
 
         const uploadResult = await s3Service.uploadPublicacionFiles(
-          selectedProject.NIT,
+          selectedProject.nit,
           categoria,
           imagenes
         );

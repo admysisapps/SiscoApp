@@ -69,8 +69,8 @@ export default function PersonalInfo() {
 
   // Crear key única para esta combinación de usuario/proyecto
   const currentKey = useMemo(
-    () => `${user?.documento}_${selectedProject?.NIT}`,
-    [user?.documento, selectedProject?.NIT]
+    () => `${user?.documento}_${selectedProject?.nit}`,
+    [user?.documento, selectedProject?.nit]
   );
 
   // Función de carga memoizada
@@ -89,7 +89,7 @@ export default function PersonalInfo() {
       // 1. Intentar cache primero
       const cachedData = await userCacheService.getCachedData(
         user.documento,
-        selectedProject.NIT
+        selectedProject.nit
       );
 
       if (cachedData) {
@@ -108,7 +108,7 @@ export default function PersonalInfo() {
         // 3. Guardar en cache
         await userCacheService.setCachedData(
           user.documento,
-          selectedProject.NIT,
+          selectedProject.nit,
           response.data
         );
       }
@@ -163,7 +163,7 @@ export default function PersonalInfo() {
         setUser({ ...user, nombre: trimmedNombre, apellido: trimmedApellido });
         await userCacheService.setCachedData(
           user.documento,
-          selectedProject?.NIT || "",
+          selectedProject?.nit || "",
           { ...user, nombre: trimmedNombre, apellido: trimmedApellido }
         );
         setToast({
@@ -221,7 +221,7 @@ export default function PersonalInfo() {
         setUser({ ...user, telefono: trimmedPhone });
         await userCacheService.setCachedData(
           user.documento,
-          selectedProject?.NIT || "",
+          selectedProject?.nit || "",
           { ...user, telefono: trimmedPhone }
         );
         setToast({

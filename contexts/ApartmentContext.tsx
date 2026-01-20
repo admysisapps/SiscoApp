@@ -87,7 +87,7 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
       }
 
       // Si el rol en el proyecto es admin, no cargar apartamentos
-      if (selectedProject.rol_usuario === "admin") {
+      if (selectedProject.rolUsuario === "admin") {
         return;
       }
 
@@ -97,7 +97,7 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
       }
 
       const userDoc = user.documento || user.usuario;
-      const proyectoNIT = selectedProject.NIT;
+      const proyectoNIT = selectedProject.nit;
 
       if (!userDoc) {
         return;

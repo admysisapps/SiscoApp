@@ -74,7 +74,7 @@ export default function CambiarCorreoScreen() {
         if (user?.documento && selectedProject) {
           await userCacheService.invalidateProject(
             user.documento,
-            selectedProject.NIT
+            selectedProject.nit
           );
         }
 
@@ -115,7 +115,7 @@ export default function CambiarCorreoScreen() {
       if (user?.documento && selectedProject) {
         await userCacheService.invalidateProject(
           user.documento,
-          selectedProject.NIT
+          selectedProject.nit
         );
       }
 

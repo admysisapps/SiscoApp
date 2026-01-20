@@ -114,7 +114,7 @@ export default function GenerarPoderModal({
       const context = await AsyncStorage.getItem("user_context");
       if (context) {
         const parsedContext = JSON.parse(context);
-        setPoderesHabilitados(parsedContext.poderes_habilitados);
+        setPoderesHabilitados(parsedContext.poderesHabilitados);
         setUserCedula(parsedContext.documento?.trim() || null);
       }
     } catch {

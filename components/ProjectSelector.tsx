@@ -31,7 +31,7 @@ const ProjectCard = React.memo(
     index: number;
     onProjectSelected: (proyecto: Proyecto) => void;
   }) => {
-    const isAdmin = item.rol_usuario === "admin";
+    const isAdmin = item.rolUsuario === "admin";
 
     return (
       <View style={styles.projectCard}>
@@ -78,9 +78,9 @@ const ProjectCard = React.memo(
               {/* Información */}
               <View style={styles.infoSection}>
                 <Text style={styles.projectName} numberOfLines={1}>
-                  {item.Nombre}
+                  {item.nombre}
                 </Text>
-                <Text style={styles.nitText}>NIT: {item.NIT}</Text>
+                <Text style={styles.nitText}>NIT: {item.nit}</Text>
               </View>
             </View>
           </LinearGradient>
@@ -137,7 +137,7 @@ export default function ProjectSelector({
         <FlatList
           data={proyectos}
           renderItem={renderProyecto}
-          keyExtractor={(item) => `${item.NIT}-${item.rol_usuario}`}
+          keyExtractor={(item) => `${item.nit}-${item.rolUsuario}`}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />

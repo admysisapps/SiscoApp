@@ -135,7 +135,7 @@ export default function Index() {
 
     // Si tenemos proyecto seleccionado, ir directo
     if (selectedProject) {
-      if (selectedProject.rol_usuario === "admin") {
+      if (selectedProject.rolUsuario === "admin") {
         return <Redirect href="/(admin)" />;
       } else {
         return <Redirect href="/(tabs)" />;
@@ -159,7 +159,7 @@ export default function Index() {
       if (proyectos.length === 1) {
         const proyecto = proyectos[0];
 
-        if (proyecto.rol_usuario === "admin") {
+        if (proyecto.rolUsuario === "admin") {
           return <Redirect href="/(admin)" />;
         } else {
           return <Redirect href="/(tabs)" />;

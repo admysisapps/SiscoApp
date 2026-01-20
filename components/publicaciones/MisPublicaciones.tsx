@@ -30,7 +30,7 @@ const PublicacionImage = memo(function PublicacionImage({
 
   useEffect(() => {
     const loadFirstImage = async () => {
-      const nit = selectedProject?.NIT;
+      const nit = selectedProject?.nit;
       if (!archivos?.length || !nit) return;
 
       try {

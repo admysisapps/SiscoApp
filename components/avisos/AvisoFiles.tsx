@@ -64,7 +64,7 @@ export const AvisoFiles = ({
 
   const loadFileUrl = useCallback(
     async (fileName: string): Promise<string | null> => {
-      if (!selectedProject?.NIT) return null;
+      if (!selectedProject?.nit) return null;
 
       // Si ya está cargado, retornarlo
       if (fileUrls[fileName]) return fileUrls[fileName];
@@ -76,7 +76,7 @@ export const AvisoFiles = ({
 
       try {
         const result = await s3Service.getAvisoFileUrl(
-          selectedProject.NIT,
+          selectedProject.nit,
           fileName
         );
         if (result.success && result.url) {
@@ -94,12 +94,12 @@ export const AvisoFiles = ({
 
       return null;
     },
-    [selectedProject?.NIT, fileUrls, loadingFiles, avisoId]
+    [selectedProject?.nit, fileUrls, loadingFiles, avisoId]
   );
 
   // Auto-cargar imágenes cuando el componente se hace visible REALMENTE
   useEffect(() => {
-    if (isVisible && archivos_nombres && selectedProject?.NIT) {
+    if (isVisible && archivos_nombres && selectedProject?.nit) {
       let fileNames: string[] = [];
       try {
         fileNames = JSON.parse(archivos_nombres);
@@ -118,7 +118,7 @@ export const AvisoFiles = ({
         }
       });
     }
-  }, [isVisible, archivos_nombres, selectedProject?.NIT, loadFileUrl, avisoId]);
+  }, [isVisible, archivos_nombres, selectedProject?.nit, loadFileUrl, avisoId]);
 
   if (!archivos_nombres) return null;
 

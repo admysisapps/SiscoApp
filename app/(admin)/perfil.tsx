@@ -140,10 +140,10 @@ export default function AdminPerfil() {
           {/* Información del proyecto */}
           <View style={styles.adminProjectInfo}>
             <Text style={styles.adminProjectName}>
-              {selectedProject?.Nombre}
+              {selectedProject?.nombre}
             </Text>
             <Text style={styles.adminProjectNit}>
-              NIT: {selectedProject?.NIT}
+              NIT: {selectedProject?.nit}
             </Text>
 
             {selectedProject?.descripcion && (

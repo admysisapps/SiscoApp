@@ -85,10 +85,10 @@ const EspacioCardComponent: React.FC<EspacioCardProps> = ({
   const { selectedProject } = useProject();
 
   const loadImage = useCallback(async () => {
-    if (item.imagen_nombre && selectedProject?.NIT) {
+    if (item.imagen_nombre && selectedProject?.nit) {
       try {
         const result = await s3Service.getEspacioImageUrl(
-          selectedProject.NIT,
+          selectedProject.nit,
           item.imagen_nombre
         );
         if (result.success && result.url) {
@@ -99,12 +99,12 @@ const EspacioCardComponent: React.FC<EspacioCardProps> = ({
       }
     }
     setImageLoading(false);
-  }, [item.imagen_nombre, selectedProject?.NIT]);
+  }, [item.imagen_nombre, selectedProject?.nit]);
 
   React.useEffect(() => {
     // Cargar imagen con un pequeño delay para evitar cargas simultáneas
     const timer = setTimeout(() => {
-      if (item.imagen_nombre && selectedProject?.NIT && imageLoading) {
+      if (item.imagen_nombre && selectedProject?.nit && imageLoading) {
         loadImage();
       } else {
         setImageLoading(false);
@@ -112,7 +112,7 @@ const EspacioCardComponent: React.FC<EspacioCardProps> = ({
     }, Math.random() * 200); // Delay aleatorio entre 0-200ms
 
     return () => clearTimeout(timer);
-  }, [item.imagen_nombre, selectedProject?.NIT, imageLoading, loadImage]);
+  }, [item.imagen_nombre, selectedProject?.nit, imageLoading, loadImage]);
 
   return (
     <TouchableOpacity

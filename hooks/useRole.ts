@@ -6,8 +6,7 @@ export const useRole = () => {
   const { selectedProject } = useProject();
 
   // PRIORIDAD: rol del proyecto seleccionado, luego rol del usuario
-  const currentRole =
-    selectedProject?.rol_usuario || user?.rol || "propietario";
+  const currentRole = selectedProject?.rolUsuario || user?.rol || "propietario";
 
   const isAdmin = currentRole === "admin";
   const isUser = currentRole === "propietario";

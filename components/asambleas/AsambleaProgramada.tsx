@@ -135,7 +135,7 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
         </View>
       </View>
       {/* CORREGIDO: Usar Boolean() para evitar renderizar 0 */}
-      {Boolean(selectedProject?.poderes_habilitados) && (
+      {Boolean(selectedProject?.poderesHabilitados) && (
         <>
           {puedeCrearApoderados() ? (
             <TouchableOpacity
@@ -170,7 +170,7 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
         </>
       )}
 
-      {Boolean(selectedProject?.poderes_habilitados) && (
+      {Boolean(selectedProject?.poderesHabilitados) && (
         <GenerarPoderModal
           visible={modalVisible}
           onClose={() => {
@@ -258,7 +258,7 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
       />
 
       {/* Lista de Apoderados */}
-      {Boolean(selectedProject?.poderes_habilitados) && (
+      {Boolean(selectedProject?.poderesHabilitados) && (
         <ListaApoderados
           asambleaId={asamblea.id}
           refreshTrigger={refreshApoderados}

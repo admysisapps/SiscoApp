@@ -1,13 +1,13 @@
 export interface Proyecto {
-  NIT: string;
-  Nombre: string;
+  nit: string;
+  nombre: string;
   descripcion?: string;
-  rol_usuario: string;
+  rolUsuario: string;
   estado: "activo" | "inactivo";
-  poderes_habilitados: boolean;
-  max_apoderados_propietario: number;
-  max_apoderados_admin: number;
-  permiso_admin_apoderados: boolean;
+  poderesHabilitados: boolean;
+  maxApoderadosPropietario: number;
+  maxApoderadosAdmin: number;
+  permisoAdminApoderados: boolean;
   copropiedad: string;
   codigo?: string;
 }

@@ -22,7 +22,7 @@ export default function AdminLayout() {
     if (!isLoading) {
       if (!isAuthenticated) {
         router.replace("/(auth)/login");
-      } else if (!selectedProject || selectedProject.rol_usuario !== "admin") {
+      } else if (!selectedProject || selectedProject.rolUsuario !== "admin") {
         router.replace("/project-selector");
       }
     }
@@ -37,7 +37,7 @@ export default function AdminLayout() {
   if (
     !isAuthenticated ||
     !selectedProject ||
-    selectedProject.rol_usuario !== "admin"
+    selectedProject.rolUsuario !== "admin"
   ) {
     return null;
   }

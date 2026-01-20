@@ -259,8 +259,8 @@ export default function Perfil() {
 
           {/* Información del proyecto */}
           <View style={styles.projectInfo}>
-            <Text style={styles.projectName}>{selectedProject?.Nombre}</Text>
-            <Text style={styles.projectNit}>NIT: {selectedProject?.NIT}</Text>
+            <Text style={styles.projectName}>{selectedProject?.nombre}</Text>
+            <Text style={styles.projectNit}>NIT: {selectedProject?.nit}</Text>
 
             {selectedProject?.descripcion && (
               <Text style={styles.projectDesc}>
