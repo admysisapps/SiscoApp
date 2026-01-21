@@ -150,8 +150,6 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.background,
     padding: THEME.spacing.sm,
     borderRadius: THEME.borderRadius.md,
-    borderLeftWidth: 3,
-    borderLeftColor: THEME.colors.text.secondary,
   },
   notaText: {
     flex: 1,

@@ -249,7 +249,11 @@ const AsambleaModeracioScreen: React.FC = () => {
         <ConexionStatus onConnectionChange={handleConnectionChange} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Resumen del moderador */}
         <RepresentacionCardAdmin
           coeficienteTotal={registroData.coeficiente_total}
@@ -409,23 +413,20 @@ const AsambleaModeracioScreen: React.FC = () => {
           ))}
 
         {/* Acciones de control */}
-        <View style={styles.controlCard}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.touchable}
-            onPress={() => setShowFinalizarModal(true)}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setShowFinalizarModal(true)}
+        >
+          <LinearGradient
+            colors={["#F87171", "#EF4444", "#DC2626"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.finishButton}
           >
-            <LinearGradient
-              colors={["#F87171", "#EF4444", "#DC2626"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.finishButton}
-            >
-              <Ionicons name="stop-circle" size={20} color="white" />
-              <Text style={styles.controlButtonText}>Finalizar asamblea</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+            <Ionicons name="stop-circle" size={20} color="white" />
+            <Text style={styles.controlButtonText}>Finalizar asamblea</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
 
       <Toast
@@ -524,6 +525,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: THEME.spacing.lg,
   },
+  scrollContent: {
+    paddingBottom: THEME.spacing.xl,
+  },
   statusCard: {
     backgroundColor: THEME.colors.surface,
     borderRadius: THEME.borderRadius.lg,
@@ -595,6 +599,8 @@ const styles = StyleSheet.create({
     borderRadius: THEME.borderRadius.lg,
     padding: THEME.spacing.lg,
     marginBottom: THEME.spacing.lg,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   actionButton: {
     flexDirection: "row",
@@ -609,16 +615,6 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.primary,
     marginLeft: THEME.spacing.md,
   },
-  controlCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-  },
-  touchable: {
-    borderRadius: THEME.borderRadius.md,
-    overflow: "hidden",
-  },
   finishButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -627,6 +623,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: THEME.spacing.lg,
     borderRadius: THEME.borderRadius.md,
     gap: THEME.spacing.sm,
+    marginTop: THEME.spacing.lg,
+    marginBottom: THEME.spacing.lg,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,

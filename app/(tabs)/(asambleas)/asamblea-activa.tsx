@@ -504,6 +504,8 @@ const styles = StyleSheet.create({
     borderRadius: THEME.borderRadius.lg,
     padding: THEME.spacing.lg,
     marginBottom: THEME.spacing.lg,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   actionButton: {
     flexDirection: "row",

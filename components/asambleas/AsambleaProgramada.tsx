@@ -180,7 +180,7 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
             setEmailErrorMessage(null);
           }}
           apartamentosOcupados={apartamentosOcupados}
-          onSave={async (data) => {
+          onSave={async (data, saveToStorage, clearStorage) => {
             try {
               const result = await apoderadoService.generarPoder(
                 asamblea.id,
@@ -188,10 +188,15 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
               );
 
               if (result.success) {
+                // ✅ ÉXITO: Borrar AsyncStorage
+                await clearStorage();
                 onShowToast("Poder generado exitosamente.", "success");
                 setModalVisible(false);
                 setRefreshApoderados((prev) => prev + 1);
               } else {
+                // ❌ ERROR: Guardar en AsyncStorage para reintentar
+                await saveToStorage();
+
                 const errorMessage =
                   result.error || "No se pudo generar el poder";
                 const isEmailError =
@@ -230,6 +235,9 @@ const AsambleaProgramada: React.FC<AsambleaProgramadaProps> = ({
                 }
               }
             } catch (error) {
+              // ❌ ERROR: Guardar en AsyncStorage para reintentar
+              await saveToStorage();
+
               const errorMessage =
                 String(error).replace("Error: ", "") || "Error inesperado";
 

@@ -1,20 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  RefreshControl,
-  BackHandler,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, BackHandler } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { THEME } from "@/constants/theme";
 import { useApoderado } from "@/contexts/ApoderadoContext";
 import Toast from "@/components/Toast";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
+import ScreenHeader from "@/components/shared/ScreenHeader";
+import { sessionService } from "@/services/cache/sessionService";
 
 import AsambleaDetalleHeaderApoderado from "@/components/asambleas/AsambleaDetalleHeaderApoderado";
 import AsambleaProgramada from "@/components/asambleas/AsambleaProgramada";
@@ -28,7 +22,6 @@ export default function DetalleAsambleaScreen() {
   const { session, restoreSession } = useApoderado();
   const [asamblea, setAsamblea] = useState<Asamblea | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState({
     visible: false,
     message: "",
@@ -92,8 +85,6 @@ export default function DetalleAsambleaScreen() {
       }
     } catch {
       setError("Error al procesar los datos de la asamblea");
-    } finally {
-      setRefreshing(false);
     }
   }, [id, session, restoreSession]);
 
@@ -116,11 +107,6 @@ export default function DetalleAsambleaScreen() {
       return () => subscription.remove();
     }, [])
   );
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    cargarAsamblea();
-  }, [cargarAsamblea]);
 
   const showToast = useCallback(
     (message: string, type: "error" | "success" | "warning") => {
@@ -151,60 +137,28 @@ export default function DetalleAsambleaScreen() {
 
   if (error || !asamblea) {
     return (
-      <SafeAreaView
-        style={styles.container}
-        edges={["top", "left", "right", "bottom"]}
-      >
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={THEME.colors.header.title}
-            />
-          </TouchableOpacity>
-          <Text style={styles.title}>Detalle de Asamblea</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+      <View style={styles.container}>
+        <ScreenHeader title="Detalle de Asamblea" />
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
             {error || "No se pudo cargar la asamblea"}
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={["top", "left", "right", "bottom"]}
-    >
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => setShowExitModal(true)}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={THEME.colors.header.title}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Detalle de Asamblea</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <View style={styles.container}>
+      <ScreenHeader
+        title="Detalle de Asamblea"
+        onBackPress={() => setShowExitModal(true)}
+      />
 
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
       >
         {/* Encabezado con información básica */}
         <AsambleaDetalleHeaderApoderado
@@ -216,7 +170,7 @@ export default function DetalleAsambleaScreen() {
         {renderContenidoSegunEstado()}
 
         {/* Espacio adicional al final */}
-        <View style={{ height: 50 }} />
+        <View style={styles.bottomSpacer} />
       </ScrollView>
 
       <Toast
@@ -233,13 +187,20 @@ export default function DetalleAsambleaScreen() {
         message="Si sales ahora, deberás volver a iniciar sesión para acceder nuevamente. ¿Estás seguro?"
         confirmText="Salir"
         cancelText="Cancelar"
-        onConfirm={() => {
+        onConfirm={async () => {
           setShowExitModal(false);
+          // Limpiar sesión de apoderado y user_context
+          await sessionService.clearSession();
+          try {
+            await AsyncStorage.removeItem("user_context");
+          } catch (error) {
+            console.error("Error limpiando user_context:", error);
+          }
           router.replace("/(auth)/login");
         }}
         onCancel={() => setShowExitModal(false)}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -248,38 +209,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THEME.colors.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: THEME.borderRadius.md,
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    color: THEME.colors.header.title,
-    textAlign: "center",
-  },
   content: {
     flex: 1,
   },
   scrollContent: {
     padding: THEME.spacing.md,
-  },
-  headerSpacer: {
-    width: 40,
   },
   errorContainer: {
     flex: 1,
@@ -289,5 +223,8 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: THEME.fontSize.md,
     color: THEME.colors.error,
+  },
+  bottomSpacer: {
+    height: 50,
   },
 });

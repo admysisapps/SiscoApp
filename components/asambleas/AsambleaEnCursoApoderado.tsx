@@ -185,13 +185,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: THEME.spacing.sm,
   },
-
-  notaText: {
-    flex: 1,
-    marginLeft: THEME.spacing.sm,
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.secondary,
-  },
 });
 
 export default AsambleaEnCursoApoderado;

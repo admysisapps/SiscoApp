@@ -231,16 +231,6 @@ export default function PaymentMethodsModal({
               <>
                 <View style={styles.header}>
                   <Text style={styles.title}> Métodos de Pago</Text>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={handleClose}
-                  >
-                    <Ionicons
-                      name="close"
-                      size={20}
-                      color={THEME.colors.text.muted}
-                    />
-                  </TouchableOpacity>
                 </View>
 
                 <ScrollView
@@ -315,19 +305,6 @@ export default function PaymentMethodsModal({
                         name="arrow-back"
                         size={20}
                         color={THEME.colors.text.primary}
-                      />
-                    </TouchableOpacity>
-                    <Text style={styles.detailTitle}>
-                      {selectedAccount.nombre_banco}
-                    </Text>
-                    <TouchableOpacity
-                      style={styles.closeButton}
-                      onPress={handleClose}
-                    >
-                      <Ionicons
-                        name="close"
-                        size={20}
-                        color={THEME.colors.text.muted}
                       />
                     </TouchableOpacity>
                   </View>
@@ -510,14 +487,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: THEME.colors.text.primary,
   },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: THEME.colors.surfaceLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+
   content: {
     paddingHorizontal: width < 360 ? 12 : 20,
     paddingBottom: 20,

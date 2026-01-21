@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -267,24 +268,25 @@ const PreguntasForm: React.FC<PreguntasFormProps> = ({
         <TouchableOpacity style={styles.backButton} onPress={handleBackClick}>
           <Text style={styles.backButtonText}>Atrás</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           onPress={handleSubmit}
           disabled={preguntas.length === 0}
-          style={{ flex: 2 }}
         >
-          <LinearGradient
-            colors={
-              preguntas.length === 0
-                ? ["#94A3B8", "#94A3B8"]
-                : [THEME.colors.primary, "#1E40AF"]
-            }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.submitButton}
-          >
-            <Text style={styles.submitButtonText}>Crear Votación</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+          <View style={{ flex: 2 }}>
+            <LinearGradient
+              colors={
+                preguntas.length === 0
+                  ? ["#94A3B8", "#94A3B8"]
+                  : [THEME.colors.primary, "#1E40AF"]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.submitButton}
+            >
+              <Text style={styles.submitButtonText}>Crear Votación</Text>
+            </LinearGradient>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
 
       <ConfirmModal
@@ -380,7 +382,7 @@ const PreguntaFormInline: React.FC<{
 
   const handleSubmit = () => {
     if (!pregunta.trim()) {
-      showToast?.("La pregunta es requerida", "error");
+      showToast?.("Debes escribir una pregunta", "error");
       return;
     }
     if (tipo === "multiple" && opciones.some((op) => !op.trim())) {

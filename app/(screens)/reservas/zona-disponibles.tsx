@@ -8,7 +8,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, Fontisto } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { EspacioCard } from "@/components/reservas/EspacioCard";
 import { THEME } from "@/constants/theme";
@@ -119,10 +119,10 @@ export default function EspaciosDisponiblesScreen() {
               ))
             : inicializado && (
                 <View style={styles.emptyContainer}>
-                  <MaterialIcons
-                    name="park"
-                    size={100}
-                    color={THEME.colors.text.secondary}
+                  <Fontisto
+                    name="horizon-alt"
+                    size={150}
+                    color={THEME.colors.success}
                   />
                   <Text style={styles.emptyTitle}>
                     No hay zonas comunes creadas

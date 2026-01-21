@@ -11,7 +11,7 @@ import {
   Dimensions,
   Modal,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
@@ -109,22 +109,16 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
 
   if (!registroData) {
     return (
-      <SafeAreaView
-        style={styles.container}
-        edges={["top", "left", "right", "bottom"]}
-      >
+      <View style={styles.container}>
         <View style={styles.loadingContainer}>
           <Text>Cargando datos de asamblea...</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={["top", "left", "right", "bottom"]}
-    >
+    <View style={styles.container}>
       <ScreenHeader
         title="Asamblea en Curso"
         showBackButton={false}
@@ -335,7 +329,7 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -441,6 +435,8 @@ const styles = StyleSheet.create({
     borderRadius: THEME.borderRadius.lg,
     padding: THEME.spacing.lg,
     marginBottom: THEME.spacing.lg,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   actionButton: {
     flexDirection: "row",
@@ -460,7 +456,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: THEME.colors.modalOverlay,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,

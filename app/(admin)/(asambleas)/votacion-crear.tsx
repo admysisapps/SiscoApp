@@ -146,7 +146,7 @@ const VotacionCrearScreen: React.FC = () => {
         title="Salir sin guardar"
         message="Tienes preguntas sin guardar. Si sales ahora, se perderán todos los cambios. ¿Estás seguro?"
         confirmText="Salir"
-        cancelText="Continuar editando"
+        cancelText="Continuar"
         onConfirm={() => {
           setShowExitModal(false);
           setPreguntas([]);

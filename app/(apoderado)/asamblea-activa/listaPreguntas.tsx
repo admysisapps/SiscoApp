@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import LottieView from "lottie-react-native";
@@ -120,10 +119,7 @@ export default function ListaPreguntasApoderado() {
 
   if (loading) {
     return (
-      <SafeAreaView
-        style={styles.container}
-        edges={["top", "left", "right", "bottom"]}
-      >
+      <View style={styles.container}>
         <ScreenHeader title="Preguntas de Votación" />
         <View style={styles.loadingContainer}>
           <LottieView
@@ -134,16 +130,13 @@ export default function ListaPreguntasApoderado() {
           />
           <View style={styles.textPlaceholder} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (votaciones.length === 0) {
     return (
-      <SafeAreaView
-        style={styles.container}
-        edges={["top", "left", "right", "bottom"]}
-      >
+      <View style={styles.container}>
         <ScreenHeader title="Preguntas de Votación" />
         <View style={styles.emptyContainer}>
           <LottieView
@@ -157,15 +150,12 @@ export default function ListaPreguntasApoderado() {
             Las preguntas de votación aparecerán aquí cuando estén disponibles
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={["top", "left", "right", "bottom"]}
-    >
+    <View style={styles.container}>
       <ScreenHeader title="Preguntas de Votación" />
       <FlatList
         data={votaciones}
@@ -173,7 +163,7 @@ export default function ListaPreguntasApoderado() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -218,7 +208,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   votacionCard: {
-    backgroundColor: "#fff",
+    backgroundColor: THEME.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -231,20 +221,21 @@ const styles = StyleSheet.create({
   votacionTitulo: {
     fontSize: 18,
     fontWeight: "bold",
+    color: THEME.colors.text.heading,
     marginBottom: 8,
   },
   votacionDesc: {
     fontSize: 14,
-    color: "#666",
+    color: THEME.colors.text.secondary,
     marginBottom: 12,
   },
   preguntaCard: {
-    backgroundColor: "#fff",
+    backgroundColor: THEME.colors.surface,
     borderRadius: 12,
     padding: 18,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: THEME.colors.border,
   },
   preguntaInfo: {
     flex: 1,
@@ -252,7 +243,7 @@ const styles = StyleSheet.create({
   preguntaTexto: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0F172A",
+    color: THEME.colors.text.heading,
     marginBottom: 10,
     lineHeight: 22,
   },
@@ -275,7 +266,7 @@ const styles = StyleSheet.create({
   },
   tipoPregunta: {
     fontSize: 12,
-    color: "#64748B",
+    color: THEME.colors.text.secondary,
     fontWeight: "500",
   },
   opcionesContainer: {
@@ -284,7 +275,7 @@ const styles = StyleSheet.create({
   },
   opcionTexto: {
     fontSize: 14,
-    color: "#64748B",
+    color: THEME.colors.text.secondary,
     marginVertical: 3,
     lineHeight: 20,
   },

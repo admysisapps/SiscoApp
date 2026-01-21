@@ -16,7 +16,7 @@ import {
   Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, Fontisto } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { THEME } from "@/constants/theme";
@@ -379,10 +379,10 @@ export default function CrearReservaScreen() {
             ))
           ) : espacios.length === 0 && inicializado ? (
             <View style={styles.emptyContainer}>
-              <MaterialIcons
-                name="park"
-                size={80}
-                color={THEME.colors.text.secondary}
+              <Fontisto
+                name="horizon-alt"
+                size={150}
+                color={THEME.colors.success}
               />
               <Text style={styles.emptyTitle}>
                 No hay zonas comunes configuradas

@@ -7,7 +7,7 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { BarChart, PieChart } from "react-native-gifted-charts";
 import LottieView from "lottie-react-native";
 import { THEME } from "@/constants/theme";
@@ -305,9 +305,9 @@ export const ResultadosVotacion: React.FC<ResultadosVotacionProps> = ({
             ]}
             onPress={() => setTipoGrafico("barras")}
           >
-            <Ionicons
-              name="bar-chart"
-              size={20}
+            <SimpleLineIcons
+              name="chart"
+              size={18}
               color={
                 tipoGrafico === "barras" ? "#fff" : THEME.colors.text.secondary
               }
@@ -320,9 +320,9 @@ export const ResultadosVotacion: React.FC<ResultadosVotacionProps> = ({
             ]}
             onPress={() => setTipoGrafico("torta")}
           >
-            <Ionicons
+            <SimpleLineIcons
               name="pie-chart"
-              size={20}
+              size={18}
               color={
                 tipoGrafico === "torta" ? "#fff" : THEME.colors.text.secondary
               }
@@ -382,11 +382,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: THEME.colors.background,
     borderRadius: THEME.borderRadius.md,
-    padding: 2,
+    padding: 3,
+    gap: 4,
   },
   toggleButton: {
-    padding: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.sm + 2,
     borderRadius: THEME.borderRadius.sm,
+    minWidth: 44,
+    alignItems: "center",
+    justifyContent: "center",
   },
   toggleButtonActive: {
     backgroundColor: THEME.colors.primary,

@@ -289,7 +289,7 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: THEME.colors.modalOverlay,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,

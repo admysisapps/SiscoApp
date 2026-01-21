@@ -9,18 +9,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { THEME } from "@/constants/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { apiService } from "@/services/apiService";
-import ConfirmModal from "@/components/asambleas/ConfirmModal";
 import type { ApoderadoFormData, ApoderadoFormErrors } from "@/types/Apoderado";
 
 interface GenerarPoderModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (data: ApoderadoFormData) => void;
+  onSave: (
+    data: ApoderadoFormData,
+    saveToStorage: () => Promise<void>,
+    clearStorage: () => Promise<void>
+  ) => void;
   asambleaId: number;
   onShowToast?: (
     message: string,
@@ -48,11 +52,15 @@ export default function GenerarPoderModal({
   const [selectedApartamentos, setSelectedApartamentos] = useState<string[]>(
     []
   );
-  const [hasChanges, setHasChanges] = useState(false);
   const [errors, setErrors] = useState<ApoderadoFormErrors>({});
 
   // Estados de apartamentos
-  const [apartamentos, setApartamentos] = useState<string[]>([]);
+  interface Apartamento {
+    codigo_apt: string;
+    numero: string;
+    bloque: string;
+  }
+  const [apartamentos, setApartamentos] = useState<Apartamento[]>([]);
   const [loadingApartamentos, setLoadingApartamentos] = useState(false);
   const [errorApartamentos, setErrorApartamentos] = useState<string | null>(
     null
@@ -67,8 +75,8 @@ export default function GenerarPoderModal({
   // Estado para la cédula del usuario actual
   const [userCedula, setUserCedula] = useState<string | null>(null);
 
-  // Estado para modal de confirmación
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  // Estado de carga al guardar
+  const [isSaving, setIsSaving] = useState(false);
 
   // Cargar apartamentos desde API
   const loadApartamentos = useCallback(async () => {
@@ -79,10 +87,7 @@ export default function GenerarPoderModal({
       const response = await apiService.getApartamentosUsuario();
 
       if (response.success && response.data) {
-        const apartamentosFormateados = response.data.map((apt: any) =>
-          apt.bloque ? `${apt.numero}-${apt.bloque}` : apt.numero
-        );
-        setApartamentos(apartamentosFormateados);
+        setApartamentos(response.data);
       } else {
         setErrorApartamentos("No se pudieron cargar los apartamentos");
       }
@@ -134,13 +139,7 @@ export default function GenerarPoderModal({
             .map((apt: string) => apt.trim());
           // Filtrar apartamentos que ahora están ocupados
           const apartamentosValidos = apartamentosGuardados.filter(
-            (apartamento: string) => {
-              const codigoApt = apartamento.includes("-")
-                ? apartamento.split("-")[1] +
-                  apartamento.split("-")[0].padStart(3, "0")
-                : apartamento.padStart(3, "0");
-              return !apartamentosOcupados.includes(codigoApt);
-            }
+            (apartamento: string) => !apartamentosOcupados.includes(apartamento)
           );
           setSelectedApartamentos(apartamentosValidos);
         } else {
@@ -155,7 +154,6 @@ export default function GenerarPoderModal({
       setSelectedApartamentos([]);
     }
     setErrors({});
-    setHasChanges(false);
   }, [getStorageKey, apartamentosOcupados]);
 
   // Inicializar modal cuando se abre
@@ -165,6 +163,7 @@ export default function GenerarPoderModal({
       loadApartamentos();
       loadSavedData();
       setEmailError(null);
+      setIsSaving(false);
     }
   }, [visible, asambleaId, checkPoderes, loadApartamentos, loadSavedData]);
 
@@ -172,13 +171,7 @@ export default function GenerarPoderModal({
   useEffect(() => {
     if (apartamentosOcupados.length > 0 && selectedApartamentos.length > 0) {
       const apartamentosValidos = selectedApartamentos.filter(
-        (apartamento: string) => {
-          const codigoApt = apartamento.includes("-")
-            ? apartamento.split("-")[1] +
-              apartamento.split("-")[0].padStart(3, "0")
-            : apartamento.padStart(3, "0");
-          return !apartamentosOcupados.includes(codigoApt);
-        }
+        (apartamento: string) => !apartamentosOcupados.includes(apartamento)
       );
       if (apartamentosValidos.length !== selectedApartamentos.length) {
         setSelectedApartamentos(apartamentosValidos);
@@ -190,51 +183,6 @@ export default function GenerarPoderModal({
   useEffect(() => {
     setEmailError(externalEmailError || null);
   }, [externalEmailError]);
-
-  // Detectar cambios en el formulario
-  useEffect(() => {
-    const checkChanges = async () => {
-      try {
-        const storageKey = await getStorageKey();
-        const savedData = await AsyncStorage.getItem(storageKey);
-        if (savedData) {
-          const parsedData = JSON.parse(savedData);
-          const savedApartamentos = parsedData.apartamentos
-            ? parsedData.apartamentos
-                .split(",")
-                .map((apt: string) => apt.trim())
-            : [];
-
-          const apartamentosChanged =
-            selectedApartamentos.length !== savedApartamentos.length ||
-            selectedApartamentos.some(
-              (apt) => !savedApartamentos.includes(apt)
-            );
-
-          const changed =
-            formData.nombre !== parsedData.nombre ||
-            formData.cedula !== parsedData.cedula ||
-            formData.correo !== parsedData.correo ||
-            (formData.telefono || "") !== (parsedData.telefono || "") ||
-            apartamentosChanged;
-
-          setHasChanges(changed);
-        } else {
-          setHasChanges(
-            formData.nombre !== "" ||
-              formData.cedula !== "" ||
-              formData.correo !== "" ||
-              (formData.telefono || "") !== "" ||
-              selectedApartamentos.length > 0
-          );
-        }
-      } catch {
-        setHasChanges(true);
-      }
-    };
-
-    checkChanges();
-  }, [formData, selectedApartamentos, getStorageKey]);
 
   // Validar formulario
   const validateForm = () => {
@@ -255,7 +203,7 @@ export default function GenerarPoderModal({
     } else if (!/^[1-9][0-9]{3,10}$/.test(cleanCedula)) {
       newErrors.cedula = "Verifica la cédula";
     } else if (userCedula && cleanCedula === userCedula) {
-      newErrors.cedula = "No puedes asignar poder a tu propia cédula";
+      newErrors.cedula = "No puedes asignarte un poder a ti mismo";
     }
 
     if (!cleanCorreo) {
@@ -282,52 +230,59 @@ export default function GenerarPoderModal({
   const handleSave = async () => {
     if (!validateForm()) return;
 
+    setIsSaving(true);
+
+    // Limpiar espacios en blanco antes de enviar
+    const dataToSave = {
+      nombre: formData.nombre.trim(),
+      cedula: formData.cedula.trim(),
+      correo: formData.correo.trim(),
+      telefono: formData.telefono?.trim(),
+      apartamentos: selectedApartamentos.join(","),
+    };
+
+    // Pasar funciones de storage al padre
+    onSave(dataToSave, () => saveToStorage(dataToSave), clearStorage);
+  };
+
+  // Función para guardar en AsyncStorage (solo en caso de error)
+  const saveToStorage = async (data: ApoderadoFormData) => {
     try {
-      // Limpiar espacios en blanco antes de guardar
-      const dataToSave = {
-        nombre: formData.nombre.trim(),
-        cedula: formData.cedula.trim(),
-        correo: formData.correo.trim(),
-        telefono: formData.telefono?.trim(),
-        apartamentos: selectedApartamentos.join(","),
-      };
-
       const storageKey = await getStorageKey();
-      await AsyncStorage.setItem(storageKey, JSON.stringify(dataToSave));
+      await AsyncStorage.setItem(storageKey, JSON.stringify(data));
+    } catch (error) {
+      console.error("Error guardando en AsyncStorage:", error);
+    }
+  };
 
-      onSave(dataToSave);
-    } catch {
-      onShowToast?.("No se pudo guardar la información", "error");
+  // Función para borrar de AsyncStorage (en caso de éxito)
+  const clearStorage = async () => {
+    try {
+      const storageKey = await getStorageKey();
+      await AsyncStorage.removeItem(storageKey);
+    } catch (error) {
+      console.error("Error borrando AsyncStorage:", error);
     }
   };
 
   // Cerrar modal con confirmación si hay cambios
   const handleClose = () => {
-    if (hasChanges) {
-      setShowConfirmModal(true);
-    } else {
-      onClose();
-    }
+    onClose();
   };
 
   // Seleccionar/deseleccionar apartamento
-  const toggleApartamento = (apartamento: string) => {
-    // Convertir formato: "13-A" -> "A013"
-    const codigoApt = apartamento.includes("-")
-      ? apartamento.split("-")[1] + apartamento.split("-")[0].padStart(3, "0")
-      : apartamento.padStart(3, "0");
-
+  const toggleApartamento = (apartamentoKey: string) => {
     // Verificar si está ocupado
-    if (apartamentosOcupados.includes(codigoApt)) {
+    if (apartamentosOcupados.includes(apartamentoKey)) {
       return; // No hacer nada si está ocupado
     }
 
-    if (selectedApartamentos.includes(apartamento)) {
+    if (selectedApartamentos.includes(apartamentoKey)) {
       setSelectedApartamentos(
-        selectedApartamentos.filter((apt) => apt !== apartamento)
+        selectedApartamentos.filter((apt) => apt !== apartamentoKey)
       );
     } else {
-      setSelectedApartamentos([...selectedApartamentos, apartamento]);
+      setSelectedApartamentos([...selectedApartamentos, apartamentoKey]);
     }
   };
 
@@ -491,36 +446,35 @@ export default function GenerarPoderModal({
                 {/* Grid de apartamentos */}
                 {!loadingApartamentos && !errorApartamentos && (
                   <View style={styles.apartamentosGrid}>
-                    {apartamentos.map((apartamento) => {
-                      // Convertir formato: "13-A" -> "A013"
-                      const codigoApt = apartamento.includes("-")
-                        ? apartamento.split("-")[1] +
-                          apartamento.split("-")[0].padStart(3, "0")
-                        : apartamento.padStart(3, "0");
-                      const estaOcupado =
-                        apartamentosOcupados.includes(codigoApt);
+                    {apartamentos.map((apt) => {
+                      const apartamentoKey = apt.bloque
+                        ? `${apt.numero}-${apt.bloque}`
+                        : apt.numero;
+                      const estaOcupado = apartamentosOcupados.includes(
+                        apt.numero
+                      );
 
                       return (
                         <TouchableOpacity
-                          key={apartamento}
+                          key={apartamentoKey}
                           style={[
                             styles.apartamentoItem,
-                            selectedApartamentos.includes(apartamento) &&
+                            selectedApartamentos.includes(apartamentoKey) &&
                               styles.apartamentoSelected,
                             estaOcupado && styles.apartamentoDisabled,
                           ]}
-                          onPress={() => toggleApartamento(apartamento)}
+                          onPress={() => toggleApartamento(apartamentoKey)}
                           disabled={estaOcupado}
                         >
                           <Text
                             style={[
                               styles.apartamentoText,
-                              selectedApartamentos.includes(apartamento) &&
+                              selectedApartamentos.includes(apartamentoKey) &&
                                 styles.apartamentoTextSelected,
                               estaOcupado && styles.apartamentoTextDisabled,
                             ]}
                           >
-                            {apartamento}
+                            {apartamentoKey}
                           </Text>
                         </TouchableOpacity>
                       );
@@ -558,30 +512,20 @@ export default function GenerarPoderModal({
               <TouchableOpacity
                 style={[
                   styles.submitButton,
-                  !hasChanges && styles.submitButtonDisabled,
+                  isSaving && styles.submitButtonDisabled,
                 ]}
                 onPress={handleSave}
-                disabled={!hasChanges}
+                disabled={isSaving}
               >
-                <Text style={styles.submitButtonText}>Guardar</Text>
+                {isSaving ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.submitButtonText}>Guardar</Text>
+                )}
               </TouchableOpacity>
             </ScrollView>
           </KeyboardAvoidingView>
         </View>
-
-        <ConfirmModal
-          visible={showConfirmModal}
-          type="warning"
-          title="Descartar cambios"
-          message="¿Estás seguro de que quieres cerrar sin guardar?"
-          confirmText="Descartar"
-          cancelText="Continuar editando"
-          onConfirm={() => {
-            setShowConfirmModal(false);
-            onClose();
-          }}
-          onCancel={() => setShowConfirmModal(false)}
-        />
       </View>
     </Modal>
   );

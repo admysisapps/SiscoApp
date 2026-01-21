@@ -5,7 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
@@ -27,11 +27,11 @@ const VotacionForm: React.FC<VotacionFormProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.titulo?.trim()) {
-      newErrors.titulo = "El título es requerido";
+      newErrors.titulo = "Escribe un titulo";
     }
 
     if (!formData.descripcion?.trim()) {
-      newErrors.descripcion = "La descripción es requerida";
+      newErrors.descripcion = "Escribe una descripcion";
     }
 
     setErrors(newErrors);
@@ -89,16 +89,18 @@ const VotacionForm: React.FC<VotacionFormProps> = ({
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity onPress={handleSubmit}>
-          <LinearGradient
-            colors={[THEME.colors.primary, "#1E40AF"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.nextButton}
-          >
-            <Text style={styles.nextButtonText}>Agregar Preguntas</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <TouchableWithoutFeedback onPress={handleSubmit}>
+          <View>
+            <LinearGradient
+              colors={[THEME.colors.primary, "#1E40AF"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.nextButton}
+            >
+              <Text style={styles.nextButtonText}>Agregar Preguntas</Text>
+            </LinearGradient>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
     </ScrollView>
   );

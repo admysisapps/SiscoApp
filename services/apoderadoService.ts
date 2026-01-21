@@ -133,12 +133,12 @@ export const apoderadoService = {
       if (response.success) {
         return {
           success: true,
-          message: response.message || "Apoderado eliminado exitosamente",
+          message: "Apoderado eliminado exitosamente",
         };
       } else {
         return {
           success: false,
-          error: response.error || "Error al eliminar apoderado",
+          error: "Error al eliminar apoderado",
         };
       }
     } catch (error) {

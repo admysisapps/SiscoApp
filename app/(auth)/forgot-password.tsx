@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -122,31 +123,40 @@ export default function ForgotPassword() {
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.title}>Cambiar contraseña</Text>
-              <Text style={styles.subtitle}>
+              {/* <Text style={styles.subtitle}>
                 Ingresa tu documento o correo para continuar
-              </Text>
+              </Text> */}
             </View>
 
             {/* Formulario */}
             <View style={styles.form}>
               <View style={styles.inputCard}>
-                <Text style={styles.label}>Documento o correo electrónico</Text>
-                <TextInput
-                  style={[styles.input, fieldError && styles.inputError]}
-                  // placeholder="Ingresa tu cédula o email"
-                  // placeholderTextColor={COLORS.text.muted}
-                  value={username}
-                  onChangeText={(text) => {
-                    setUsername(text);
-                    if (fieldError) setFieldError("");
-                  }}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-                {fieldError && (
-                  <Text style={styles.errorText}>{fieldError}</Text>
-                )}
+                <View style={styles.inputIconContainer}>
+                  <Ionicons
+                    name="person-outline"
+                    size={20}
+                    color={COLORS.primary}
+                  />
+                </View>
+                <View style={styles.inputContent}>
+                  <Text style={styles.label}>
+                    Documento o correo electrónico
+                  </Text>
+                  <TextInput
+                    style={[styles.input, fieldError && styles.inputError]}
+                    placeholder="Ingresa tu cédula o email"
+                    placeholderTextColor={COLORS.text.muted}
+                    value={username}
+                    onChangeText={(text) => {
+                      setUsername(text);
+                      if (fieldError) setFieldError("");
+                    }}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                </View>
               </View>
+              {fieldError && <Text style={styles.errorText}>{fieldError}</Text>}
 
               <TouchableOpacity
                 style={styles.sendButton}
@@ -156,9 +166,15 @@ export default function ForgotPassword() {
               </TouchableOpacity>
 
               <View style={styles.helpCard}>
+                <Ionicons
+                  name="information-circle-outline"
+                  size={18}
+                  color={COLORS.primary}
+                  style={styles.helpIcon}
+                />
                 <Text style={styles.helpText}>
-                  Te enviaremos un código de verificación al correo asociado a
-                  tu cuenta
+                  Ingresa tu cédula o correo. Si usas tu cédula, el código se
+                  enviará al correo asociado a tu cuenta.
                 </Text>
               </View>
             </View>
@@ -262,36 +278,53 @@ const styles = StyleSheet.create({
     gap: THEME.spacing.md,
   },
   inputCard: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.surface,
     borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.md,
+    padding: THEME.spacing.lg,
     borderWidth: 1,
     borderColor: COLORS.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  inputIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primary + "15",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: THEME.spacing.md,
+  },
+  inputContent: {
+    flex: 1,
   },
   label: {
-    fontSize: THEME.fontSize.sm,
+    fontSize: THEME.fontSize.xs,
     fontWeight: "500",
     color: COLORS.text.secondary,
-    marginBottom: THEME.spacing.sm,
+    marginBottom: THEME.spacing.xs,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: "white",
-    borderRadius: THEME.borderRadius.md,
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    fontSize: THEME.fontSize.md,
+    fontSize: THEME.fontSize.lg,
     color: COLORS.text.primary,
-    height: 50,
+    fontWeight: "600",
+    padding: 0,
   },
   inputError: {
-    borderColor: COLORS.error,
+    color: COLORS.error,
   },
   errorText: {
     color: COLORS.error,
     fontSize: THEME.fontSize.xs,
-    marginTop: THEME.spacing.xs,
+    marginTop: -THEME.spacing.sm,
+    marginLeft: THEME.spacing.sm,
   },
   sendButton: {
     backgroundColor: COLORS.primary,
@@ -307,16 +340,22 @@ const styles = StyleSheet.create({
     fontSize: THEME.fontSize.md,
   },
   helpCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
     backgroundColor: COLORS.primaryLight + "20",
     padding: THEME.spacing.md,
     borderRadius: THEME.borderRadius.md,
     borderWidth: 1,
     borderColor: COLORS.primaryLight + "40",
   },
+  helpIcon: {
+    marginRight: THEME.spacing.sm,
+    marginTop: 1,
+  },
   helpText: {
+    flex: 1,
     fontSize: THEME.fontSize.xs,
     color: COLORS.text.secondary,
-    textAlign: "center",
     lineHeight: 18,
   },
   footer: {
@@ -328,7 +367,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: COLORS.primary,
-    fontSize: THEME.fontSize.lg,
+    fontSize: THEME.fontSize.md,
     fontWeight: "500",
   },
 });
