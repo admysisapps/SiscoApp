@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 10,
-    zIndex: 99999,
+    zIndex: 999999,
   },
   content: {
     flexDirection: "row",

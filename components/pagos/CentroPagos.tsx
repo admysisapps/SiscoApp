@@ -328,6 +328,7 @@ export default function CentroPagos({ cuentas }: Props) {
                             await Clipboard.setStringAsync(
                               selectedAccount.numero_cuenta
                             );
+                            showToast("Número copiado", "success");
                           }
                         }}
                       >

@@ -26,6 +26,7 @@ export default function PaymentCard({ cuenta, onPress, onError }: Props) {
   const handleCopyAccount = async () => {
     if (cuenta.numero_cuenta) {
       await Clipboard.setStringAsync(cuenta.numero_cuenta);
+      onError?.("Número copiado");
     }
   };
 

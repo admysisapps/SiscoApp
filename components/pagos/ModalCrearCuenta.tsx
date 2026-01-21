@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -50,9 +49,17 @@ export default function CreateAccountModal({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [hasChanges, setHasChanges] = useState(false);
   const [initialFormData, setInitialFormData] = useState(formData);
-  const [behavior, setBehavior] = useState<"padding" | "height" | undefined>(
-    Platform.OS === "ios" ? "padding" : "height"
-  );
+
+  const handleFieldChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -104,32 +111,14 @@ export default function CreateAccountModal({
       nombre_banco: formData.nombre_banco.trim(),
       tipo_cuenta: formData.tipo_cuenta,
       titular: formData.titular.trim(),
-      numero_cuenta: formData.numero_cuenta.trim() || undefined,
+      numero_cuenta: formData.numero_cuenta.trim() || (null as any),
       descripcion: formData.descripcion.trim(),
-      enlace_pago: formData.enlace_pago.trim() || undefined,
-      informacion_adicional: formData.informacion_adicional.trim() || undefined,
+      enlace_pago: formData.enlace_pago.trim() || (null as any),
+      informacion_adicional:
+        formData.informacion_adicional.trim() || (null as any),
     };
 
     onSave(newAccount);
-    if (!loading) {
-      resetForm();
-    }
-  };
-
-  const resetForm = () => {
-    const emptyForm = {
-      nombre_banco: "",
-      tipo_cuenta: "ahorros" as CuentaPago["tipo_cuenta"],
-      titular: "",
-      numero_cuenta: "",
-      descripcion: "",
-      enlace_pago: "",
-      informacion_adicional: "",
-    };
-    setFormData(emptyForm);
-    setInitialFormData(emptyForm);
-    setErrors({});
-    setHasChanges(false);
     onClose();
   };
 
@@ -142,62 +131,71 @@ export default function CreateAccountModal({
         "¿Deseas salir sin guardar los cambios?",
         [
           { text: "Cancelar", style: "cancel" },
-          { text: "Salir", style: "destructive", onPress: resetForm },
+          { text: "Salir", style: "destructive", onPress: onClose },
         ]
       );
     } else {
-      resetForm();
+      onClose();
     }
   };
 
-  // Actualizar formulario cuando cambie initialData
+  // Actualizar formulario cuando cambie initialData o visible
   useEffect(() => {
-    if (initialData && isEditMode) {
-      const newFormData = {
-        nombre_banco: initialData.nombre_banco || "",
-        tipo_cuenta: initialData.tipo_cuenta || "ahorros",
-        titular: initialData.titular || "",
-        numero_cuenta: initialData.numero_cuenta || "",
-        descripcion: initialData.descripcion || "",
-        enlace_pago: initialData.enlace_pago || "",
-        informacion_adicional: initialData.informacion_adicional || "",
-      };
-      setFormData(newFormData);
-      setInitialFormData(newFormData);
+    if (visible) {
+      if (initialData && isEditMode) {
+        const newFormData = {
+          nombre_banco: initialData.nombre_banco || "",
+          tipo_cuenta: initialData.tipo_cuenta || "ahorros",
+          titular: initialData.titular || "",
+          numero_cuenta: initialData.numero_cuenta || "",
+          descripcion: initialData.descripcion || "",
+          enlace_pago: initialData.enlace_pago || "",
+          informacion_adicional: initialData.informacion_adicional || "",
+        };
+        setFormData(newFormData);
+        setInitialFormData(newFormData);
+      } else {
+        const emptyForm = {
+          nombre_banco: "",
+          tipo_cuenta: "ahorros" as CuentaPago["tipo_cuenta"],
+          titular: "",
+          numero_cuenta: "",
+          descripcion: "",
+          enlace_pago: "",
+          informacion_adicional: "",
+        };
+        setFormData(emptyForm);
+        setInitialFormData(emptyForm);
+      }
+      setErrors({});
+      setHasChanges(false);
     }
-  }, [initialData, isEditMode]);
+  }, [visible, initialData, isEditMode]);
 
   // Detectar cambios en el formulario
   useEffect(() => {
+    // Normalizar valores vacíos para comparación
+    const normalize = (val: string | undefined) => (val || "").trim();
+
     const changed =
-      formData.nombre_banco !== initialFormData.nombre_banco ||
+      normalize(formData.nombre_banco) !==
+        normalize(initialFormData.nombre_banco) ||
       formData.tipo_cuenta !== initialFormData.tipo_cuenta ||
-      formData.titular !== initialFormData.titular ||
-      formData.numero_cuenta !== initialFormData.numero_cuenta ||
-      formData.descripcion !== initialFormData.descripcion ||
-      formData.enlace_pago !== initialFormData.enlace_pago ||
-      formData.informacion_adicional !== initialFormData.informacion_adicional;
+      normalize(formData.titular) !== normalize(initialFormData.titular) ||
+      normalize(formData.numero_cuenta) !==
+        normalize(initialFormData.numero_cuenta) ||
+      normalize(formData.descripcion) !==
+        normalize(initialFormData.descripcion) ||
+      normalize(formData.enlace_pago) !==
+        normalize(initialFormData.enlace_pago) ||
+      normalize(formData.informacion_adicional) !==
+        normalize(initialFormData.informacion_adicional);
     setHasChanges(changed);
   }, [formData, initialFormData]);
 
   const showNumberField = useMemo(() => {
     return TIPOS_CON_NUMERO.includes(formData.tipo_cuenta as any);
   }, [formData.tipo_cuenta]);
-
-  useEffect(() => {
-    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setBehavior(Platform.OS === "ios" ? "padding" : "height");
-    });
-
-    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setBehavior(undefined);
-    });
-
-    return () => {
-      keyboardShowListener.remove();
-      keyboardHideListener.remove();
-    };
-  }, []);
 
   return (
     <Modal
@@ -207,7 +205,10 @@ export default function CreateAccountModal({
       statusBarTranslucent
     >
       <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView behavior={behavior} style={styles.keyboardView}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardView}
+        >
           <View style={styles.header}>
             <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
               <Ionicons
@@ -224,6 +225,7 @@ export default function CreateAccountModal({
 
           <ScrollView
             style={styles.content}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
@@ -233,12 +235,7 @@ export default function CreateAccountModal({
               <TextInput
                 style={[styles.input, errors.nombre_banco && styles.inputError]}
                 value={formData.nombre_banco}
-                onChangeText={(text) => {
-                  setFormData((prev) => ({ ...prev, nombre_banco: text }));
-                  if (errors.nombre_banco) {
-                    setErrors((prev) => ({ ...prev, nombre_banco: "" }));
-                  }
-                }}
+                onChangeText={(text) => handleFieldChange("nombre_banco", text)}
                 placeholder="Bancolombia, Nequi, Wompi"
                 placeholderTextColor={THEME.colors.text.muted}
               />
@@ -295,12 +292,7 @@ export default function CreateAccountModal({
               <TextInput
                 style={[styles.input, errors.titular && styles.inputError]}
                 value={formData.titular}
-                onChangeText={(text) => {
-                  setFormData((prev) => ({ ...prev, titular: text }));
-                  if (errors.titular) {
-                    setErrors((prev) => ({ ...prev, titular: "" }));
-                  }
-                }}
+                onChangeText={(text) => handleFieldChange("titular", text)}
                 placeholder="Nombre del titular"
                 placeholderTextColor={THEME.colors.text.muted}
               />
@@ -323,12 +315,9 @@ export default function CreateAccountModal({
                     errors.numero_cuenta && styles.inputError,
                   ]}
                   value={formData.numero_cuenta}
-                  onChangeText={(text) => {
-                    setFormData((prev) => ({ ...prev, numero_cuenta: text }));
-                    if (errors.numero_cuenta) {
-                      setErrors((prev) => ({ ...prev, numero_cuenta: "" }));
-                    }
-                  }}
+                  onChangeText={(text) =>
+                    handleFieldChange("numero_cuenta", text)
+                  }
                   placeholderTextColor={THEME.colors.text.muted}
                   keyboardType="numeric"
                 />
@@ -344,12 +333,7 @@ export default function CreateAccountModal({
               <TextInput
                 style={[styles.input, errors.enlace_pago && styles.inputError]}
                 value={formData.enlace_pago}
-                onChangeText={(text) => {
-                  setFormData((prev) => ({ ...prev, enlace_pago: text }));
-                  if (errors.enlace_pago) {
-                    setErrors((prev) => ({ ...prev, enlace_pago: "" }));
-                  }
-                }}
+                onChangeText={(text) => handleFieldChange("enlace_pago", text)}
                 placeholderTextColor={THEME.colors.text.muted}
                 keyboardType="url"
               />
@@ -368,12 +352,7 @@ export default function CreateAccountModal({
                   errors.descripcion && styles.inputError,
                 ]}
                 value={formData.descripcion}
-                onChangeText={(text) => {
-                  setFormData((prev) => ({ ...prev, descripcion: text }));
-                  if (errors.descripcion) {
-                    setErrors((prev) => ({ ...prev, descripcion: "" }));
-                  }
-                }}
+                onChangeText={(text) => handleFieldChange("descripcion", text)}
                 placeholder="Instrucciones claras para realizar el pago"
                 placeholderTextColor={THEME.colors.text.muted}
                 multiline
@@ -391,10 +370,7 @@ export default function CreateAccountModal({
                 style={[styles.input, styles.textArea]}
                 value={formData.informacion_adicional}
                 onChangeText={(text) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    informacion_adicional: text,
-                  }))
+                  handleFieldChange("informacion_adicional", text)
                 }
                 placeholder="Restricciones, horarios, notas especiales..."
                 placeholderTextColor={THEME.colors.text.muted}
@@ -461,6 +437,9 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingVertical: 16,
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
   field: {
     marginBottom: 20,

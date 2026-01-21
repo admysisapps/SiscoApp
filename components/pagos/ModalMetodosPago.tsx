@@ -85,7 +85,7 @@ export default function PaymentMethodsModal({
         }),
       ]).start();
     }
-  }, [visible, translateY, backdropOpacity]);
+  }, [visible, backdropOpacity, translateY]);
 
   useEffect(() => {
     if (!visible) return;
@@ -200,8 +200,6 @@ export default function PaymentMethodsModal({
     [userContext]
   );
 
-  const cuentasActivas = cuentas || [];
-
   return (
     <Modal
       visible={visible}
@@ -266,7 +264,7 @@ export default function PaymentMethodsModal({
                         </TouchableOpacity>
                       )}
                     </View>
-                  ) : cuentasActivas.length === 0 ? (
+                  ) : cuentas.length === 0 ? (
                     <View style={styles.emptyContainer}>
                       <Ionicons
                         name="card-outline"
@@ -281,7 +279,7 @@ export default function PaymentMethodsModal({
                       </Text>
                     </View>
                   ) : (
-                    cuentasActivas.map((cuenta) => (
+                    cuentas.map((cuenta) => (
                       <TarjetaPago
                         key={cuenta.id}
                         cuenta={cuenta}
@@ -406,11 +404,12 @@ export default function PaymentMethodsModal({
                     {selectedAccount.numero_cuenta && (
                       <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={() =>
-                          Clipboard.setStringAsync(
+                        onPress={async () => {
+                          await Clipboard.setStringAsync(
                             selectedAccount.numero_cuenta!
-                          )
-                        }
+                          );
+                          showToast("Número copiado", "success");
+                        }}
                       >
                         <Ionicons
                           name="copy"
@@ -507,13 +506,6 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.surfaceLight,
     alignItems: "center",
     justifyContent: "center",
-  },
-  detailTitle: {
-    fontSize: width < 360 ? 16 : 18,
-    fontWeight: "700",
-    color: THEME.colors.text.primary,
-    flex: 1,
-    textAlign: "center",
   },
   detailContent: {
     paddingHorizontal: width < 360 ? 16 : 20,
