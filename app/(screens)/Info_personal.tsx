@@ -284,27 +284,45 @@ export default function PersonalInfo() {
               {/* Nombre */}
               <View style={styles.fieldContainer}>
                 <Text style={styles.fieldLabel}>Nombre</Text>
-                <TextInput
-                  style={styles.input}
-                  value={nombre}
-                  onChangeText={setNombre}
-                  placeholder="Ingresa tu nombre"
-                  placeholderTextColor={THEME.colors.text.muted}
-                  editable={!isLoadingFullData}
-                />
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    style={styles.input}
+                    value={nombre}
+                    onChangeText={setNombre}
+                    placeholder="Ingresa tu nombre"
+                    placeholderTextColor={THEME.colors.text.muted}
+                    editable={!isLoadingFullData}
+                  />
+                  {isLoadingFullData && (
+                    <ActivityIndicator
+                      size="small"
+                      color={THEME.colors.primary}
+                      style={styles.inputLoader}
+                    />
+                  )}
+                </View>
               </View>
 
               {/* Apellido */}
               <View style={styles.fieldContainer}>
                 <Text style={styles.fieldLabel}>Apellidos</Text>
-                <TextInput
-                  style={styles.input}
-                  value={apellido}
-                  onChangeText={setApellido}
-                  placeholder="Ingresa tus apellidos"
-                  placeholderTextColor={THEME.colors.text.muted}
-                  editable={!isLoadingFullData}
-                />
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    style={styles.input}
+                    value={apellido}
+                    onChangeText={setApellido}
+                    placeholder="Ingresa tus apellidos"
+                    placeholderTextColor={THEME.colors.text.muted}
+                    editable={!isLoadingFullData}
+                  />
+                  {isLoadingFullData && (
+                    <ActivityIndicator
+                      size="small"
+                      color={THEME.colors.primary}
+                      style={styles.inputLoader}
+                    />
+                  )}
+                </View>
               </View>
 
               {/* Documento */}
@@ -614,6 +632,14 @@ const styles = StyleSheet.create({
     right: THEME.spacing.md,
     top: "50%",
     transform: [{ translateY: -10 }],
+  },
+  inputWrapper: {
+    position: "relative",
+  },
+  inputLoader: {
+    position: "absolute",
+    right: 12,
+    top: 14,
   },
   helperText: {
     fontSize: THEME.fontSize.xs,
