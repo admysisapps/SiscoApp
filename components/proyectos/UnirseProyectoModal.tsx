@@ -276,30 +276,40 @@ export default function UnirseProyectoModal({
               <View style={styles.header}></View>
 
               <View style={styles.iconContainer}>
-                <Animated.View
-                  style={[
-                    styles.iconBackground,
-                    step === "confirm" && styles.iconBackgroundSuccess,
-                    {
-                      transform: [
-                        { rotate: step === "input" ? spin : "0deg" },
-                        { scale: step === "input" ? scaleValue : 1 },
-                      ],
-                    },
-                  ]}
-                >
-                  <View style={styles.iconInner}>
-                    <Feather
-                      name={step === "input" ? "compass" : "check-circle"}
-                      size={28}
-                      color={
-                        step === "input"
-                          ? THEME.colors.primary
-                          : THEME.colors.success
-                      }
-                    />
+                {step === "input" ? (
+                  <Animated.View
+                    style={[
+                      styles.iconBackground,
+                      styles.iconBackgroundAnimated,
+                      {
+                        transform: [{ rotate: spin }, { scale: scaleValue }],
+                      },
+                    ]}
+                  >
+                    <View style={styles.iconInner}>
+                      <Feather
+                        name="compass"
+                        size={28}
+                        color={THEME.colors.primary}
+                      />
+                    </View>
+                  </Animated.View>
+                ) : (
+                  <View
+                    style={[
+                      styles.iconBackground,
+                      styles.iconBackgroundSuccess,
+                    ]}
+                  >
+                    <View style={styles.iconInner}>
+                      <Feather
+                        name="check-circle"
+                        size={28}
+                        color={THEME.colors.success}
+                      />
+                    </View>
                   </View>
-                </Animated.View>
+                )}
               </View>
 
               <Text style={styles.title}>
@@ -462,18 +472,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: THEME.colors.border,
-    borderTopColor: THEME.colors.primary,
-    borderRightColor: THEME.colors.primary,
     shadowColor: THEME.colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
+  iconBackgroundAnimated: {
+    borderColor: THEME.colors.border,
+    borderTopColor: THEME.colors.primary,
+    borderRightColor: THEME.colors.primary,
+  },
   iconBackgroundSuccess: {
-    borderTopColor: THEME.colors.success,
-    borderRightColor: THEME.colors.success,
+    borderColor: THEME.colors.success,
     shadowColor: THEME.colors.success,
   },
   iconInner: {

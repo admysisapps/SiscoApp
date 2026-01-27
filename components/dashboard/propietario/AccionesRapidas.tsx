@@ -28,7 +28,7 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
     {
       id: "2",
       title: "Zonas Comunes",
-      subtitle: "Disfruta de tu edificio",
+      subtitle: "Disfruta de tu copropiedad",
       icon: "calendar",
       color: "#8B5CF6",
       onPress: () => router.push("/(screens)/reservas/zona-disponibles"),
