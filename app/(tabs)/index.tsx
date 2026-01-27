@@ -201,7 +201,6 @@ export default function Index() {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleTabPress = useCallback((index: number) => {
-    setActiveSection(index);
     // Pre-renderizar la sección destino antes de hacer scroll
     setRenderedSections(
       (prev) =>
@@ -212,6 +211,8 @@ export default function Index() {
         )
     );
     scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
+    // Retrasar el cambio de activeSection para que coincida con la animación
+    setTimeout(() => setActiveSection(index), 50);
   }, []);
 
   const handleScroll = (event: any) => {

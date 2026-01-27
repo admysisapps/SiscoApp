@@ -282,7 +282,6 @@ export default function AdminIndex() {
   };
 
   const handleTabPress = useCallback((index: number) => {
-    setActiveSection(index);
     setRenderedSections(
       (prev) =>
         new Set(
@@ -292,6 +291,7 @@ export default function AdminIndex() {
         )
     );
     scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
+    setTimeout(() => setActiveSection(index), 50);
   }, []);
 
   const handleScroll = useCallback(
