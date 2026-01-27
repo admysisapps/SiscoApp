@@ -388,7 +388,7 @@ export default function UnirseProyectoModal({
                       </Text>
                     )}
                     <Text style={styles.confirmSubtext}>
-                      Tendrás acceso a todas las funciones de la copropiedad @
+                      Tendrás acceso a todas las funciones de la copropiedad
                     </Text>
                   </View>
 
