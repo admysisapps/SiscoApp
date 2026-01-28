@@ -71,6 +71,9 @@ export default function MisPublicaciones() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [expandedReasons, setExpandedReasons] = useState<Set<number>>(
+    new Set()
+  );
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -285,16 +288,39 @@ export default function MisPublicaciones() {
 
             {publicacion.estado === "bloqueada" &&
               publicacion.razon_bloqueo && (
-                <View style={styles.reasonRow}>
+                <TouchableOpacity
+                  style={styles.reasonRow}
+                  onPress={() => {
+                    setExpandedReasons((prev) => {
+                      const newSet = new Set(prev);
+                      if (newSet.has(publicacion.id)) {
+                        newSet.delete(publicacion.id);
+                      } else {
+                        newSet.add(publicacion.id);
+                      }
+                      return newSet;
+                    });
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={styles.reasonText}
+                    numberOfLines={
+                      expandedReasons.has(publicacion.id) ? undefined : 2
+                    }
+                  >
+                    {publicacion.razon_bloqueo}
+                  </Text>
                   <Ionicons
-                    name="information-circle"
+                    name={
+                      expandedReasons.has(publicacion.id)
+                        ? "chevron-up"
+                        : "chevron-down"
+                    }
                     size={12}
                     color={THEME.colors.error}
                   />
-                  <Text style={styles.reasonText} numberOfLines={2}>
-                    {publicacion.razon_bloqueo}
-                  </Text>
-                </View>
+                </TouchableOpacity>
               )}
           </View>
         </View>
@@ -336,7 +362,7 @@ export default function MisPublicaciones() {
         )}
       </View>
     ),
-    [cambiarEstado]
+    [cambiarEstado, expandedReasons]
   );
 
   const keyExtractor = useCallback(

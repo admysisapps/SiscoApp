@@ -379,11 +379,7 @@ export default function CrearReservaScreen() {
             ))
           ) : espacios.length === 0 && inicializado ? (
             <View style={styles.emptyContainer}>
-              <Fontisto
-                name="horizon-alt"
-                size={150}
-                color={THEME.colors.success}
-              />
+              <Fontisto name="horizon-alt" size={150} color="#CBD5E1" />
               <Text style={styles.emptyTitle}>
                 No hay zonas comunes configuradas
               </Text>
