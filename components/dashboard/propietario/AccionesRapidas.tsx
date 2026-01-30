@@ -52,32 +52,34 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
   ];
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Acciones Rápidas</Text>
+    <View style={styles.wrapper}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Acciones Rápidas</Text>
 
-      <View style={styles.actionsGrid}>
-        {quickActions.map((action) => (
-          <TouchableOpacity
-            key={action.id}
-            style={styles.actionCard}
-            onPress={action.onPress}
-            activeOpacity={0.7}
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                { backgroundColor: `${action.color}20` },
-              ]}
+        <View style={styles.actionsGrid}>
+          {quickActions.map((action) => (
+            <TouchableOpacity
+              key={action.id}
+              style={styles.actionCard}
+              onPress={action.onPress}
+              activeOpacity={0.7}
             >
-              <Ionicons name={action.icon} size={24} color={action.color} />
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>{action.title}</Text>
-              <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-          </TouchableOpacity>
-        ))}
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: `${action.color}20` },
+                ]}
+              >
+                <Ionicons name={action.icon} size={24} color={action.color} />
+              </View>
+              <View style={styles.actionContent}>
+                <Text style={styles.actionTitle}>{action.title}</Text>
+                <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -86,11 +88,14 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
 export default AccionesRapidas;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: 1,
+    marginBottom: 16,
+  },
   container: {
     backgroundColor: "white",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

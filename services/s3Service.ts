@@ -226,8 +226,28 @@ export const s3Service = {
 
   async getAvisoFileUrl(proyectoNit: string, fileName: string) {
     try {
+      const cacheKey = `aviso_${proyectoNit}_${fileName}`;
+
+      // Verificar si existe en cache y no ha expirado
+      const cached = urlCache.get(cacheKey);
+      if (cached && Date.now() < cached.expires) {
+        return {
+          success: true,
+          url: cached.url,
+          fileName,
+        };
+      }
+
+      // No está en cache o expiró, generar nueva URL
       const key = `${proyectoNit}/comunicados/${fileName}`;
       const url = await this.getFileUrl(key);
+
+      // Guardar en cache por 5 horas
+      urlCache.set(cacheKey, {
+        url,
+        expires: Date.now() + 5 * 60 * 60 * 1000,
+      });
+
       return {
         success: true,
         url,

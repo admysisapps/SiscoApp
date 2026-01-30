@@ -128,19 +128,21 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
   // Si no hay apartamentos, mostrar con icono fijo
   if (apartamentos.length === 0) {
     return (
-      <View style={styles.card}>
-        <View style={styles.iconContainer}>
-          <FontAwesome5
-            name="door-open"
-            size={30}
-            color={THEME.colors.primary}
-          />
-        </View>
-        <View style={styles.contentContainer}>
-          <Text style={styles.label}>Mi Unidad</Text>
-          <Text style={styles.noApartmentsText}>
-            No se encontraron unidades
-          </Text>
+      <View style={styles.wrapper}>
+        <View style={styles.card}>
+          <View style={styles.iconContainer}>
+            <FontAwesome5
+              name="door-open"
+              size={30}
+              color={THEME.colors.primary}
+            />
+          </View>
+          <View style={styles.contentContainer}>
+            <Text style={styles.label}>Mi Unidad</Text>
+            <Text style={styles.noApartmentsText}>
+              No se encontraron unidades
+            </Text>
+          </View>
         </View>
       </View>
     );
@@ -149,7 +151,7 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
   const isSelectable = apartamentos.length > 1;
 
   return (
-    <>
+    <View style={styles.wrapper}>
       <TouchableOpacity
         style={styles.card}
         onPress={handleSelectApartment}
@@ -213,7 +215,7 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
           </SafeAreaView>
         </Modal>
       )}
-    </>
+    </View>
   );
 });
 
@@ -244,43 +246,49 @@ const ApartmentSkeleton = () => {
   });
 
   return (
-    <View style={styles.card}>
-      <View style={styles.iconContainer}>
-        <FontAwesome5 name="door-open" size={30} color={THEME.colors.primary} />
-      </View>
-      <View style={styles.contentContainer}>
-        <View style={styles.apartmentInfo}>
-          <Animated.View
-            style={[
-              styles.skeletonBox,
-              {
-                width: 60,
-                height: THEME.fontSize.xs,
-                opacity,
-                marginBottom: 4,
-              },
-            ]}
-          />
-          <Animated.View
-            style={[
-              styles.skeletonBox,
-              {
-                width: 100,
-                height: THEME.fontSize.lg,
-                opacity,
-                marginBottom: 2,
-              },
-            ]}
-          />
-          <Animated.View
-            style={[
-              styles.skeletonBox,
-              { width: 75, height: THEME.fontSize.sm, opacity },
-            ]}
+    <View style={styles.wrapper}>
+      <View style={styles.card}>
+        <View style={styles.iconContainer}>
+          <FontAwesome5
+            name="door-open"
+            size={30}
+            color={THEME.colors.primary}
           />
         </View>
+        <View style={styles.contentContainer}>
+          <View style={styles.apartmentInfo}>
+            <Animated.View
+              style={[
+                styles.skeletonBox,
+                {
+                  width: 60,
+                  height: THEME.fontSize.xs,
+                  opacity,
+                  marginBottom: 4,
+                },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.skeletonBox,
+                {
+                  width: 100,
+                  height: THEME.fontSize.lg,
+                  opacity,
+                  marginBottom: 2,
+                },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.skeletonBox,
+                { width: 75, height: THEME.fontSize.sm, opacity },
+              ]}
+            />
+          </View>
+        </View>
+        <View style={styles.rightContainer} />
       </View>
-      <View style={styles.rightContainer} />
     </View>
   );
 };
@@ -288,13 +296,16 @@ const ApartmentSkeleton = () => {
 export default ApartmentSelector;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: 1,
+    marginBottom: THEME.spacing.md,
+  },
   card: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: THEME.colors.surface,
     padding: THEME.spacing.md,
     borderRadius: THEME.borderRadius.lg,
-    marginBottom: THEME.spacing.md,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
