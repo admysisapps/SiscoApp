@@ -288,7 +288,7 @@ export default function ApoderadoLogin() {
                   placeholderTextColor={COLORS.text.muted}
                   value={codigoCopropiedad}
                   onChangeText={(text) => {
-                    setCodigoCopropiedad(text);
+                    setCodigoCopropiedad(text.toUpperCase());
                     clearFieldError("codigoCopropiedad");
                   }}
                   autoCapitalize="characters"
@@ -409,7 +409,6 @@ export default function ApoderadoLogin() {
   );
 }
 
-// ========== ESTILOS MODERNOS ==========
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import LottieView from "lottie-react-native";
@@ -119,7 +120,7 @@ export default function ListaPreguntasApoderado() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <ScreenHeader title="Preguntas de Votación" />
         <View style={styles.loadingContainer}>
           <LottieView
@@ -130,13 +131,13 @@ export default function ListaPreguntasApoderado() {
           />
           <View style={styles.textPlaceholder} />
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (votaciones.length === 0) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <ScreenHeader title="Preguntas de Votación" />
         <View style={styles.emptyContainer}>
           <LottieView
@@ -150,12 +151,12 @@ export default function ListaPreguntasApoderado() {
             Las preguntas de votación aparecerán aquí cuando estén disponibles
           </Text>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScreenHeader title="Preguntas de Votación" />
       <FlatList
         data={votaciones}
@@ -163,7 +164,7 @@ export default function ListaPreguntasApoderado() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

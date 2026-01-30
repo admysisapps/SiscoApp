@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, BackHandler } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -149,7 +150,7 @@ export default function DetalleAsambleaScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScreenHeader
         title="Detalle de Asamblea"
         onBackPress={() => setShowExitModal(true)}
@@ -200,7 +201,7 @@ export default function DetalleAsambleaScreen() {
         }}
         onCancel={() => setShowExitModal(false)}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -11,6 +11,7 @@ import {
   Dimensions,
   Modal,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -118,7 +119,7 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScreenHeader
         title="Asamblea en Curso"
         showBackButton={false}
@@ -127,7 +128,11 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
         }
       />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Resumen de representación */}
         <RepresentacionCard
           coeficienteTotal={registroData.coeficiente_total}
@@ -329,7 +334,7 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -346,6 +351,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: THEME.spacing.lg,
+  },
+  scrollContent: {
+    paddingBottom: THEME.spacing.xl * 2,
   },
   statusCard: {
     backgroundColor: THEME.colors.surface,
