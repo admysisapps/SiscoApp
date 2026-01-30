@@ -21,7 +21,7 @@ export const PqrMainCards: React.FC = () => {
       {!isAdmin && (
         <TouchableOpacity style={styles.card} onPress={handleCreatePQR}>
           <View style={styles.iconContainer}>
-            <Ionicons name="add-circle" size={32} color="#4F46E5" />
+            <Ionicons name="add-circle" size={26} color="#4F46E5" />
           </View>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Crear nueva PQR</Text>
@@ -35,7 +35,7 @@ export const PqrMainCards: React.FC = () => {
       {/* Card Ver PQRs */}
       <TouchableOpacity style={styles.card} onPress={handleViewPQRs}>
         <View style={styles.iconContainer}>
-          <Ionicons name="list-circle" size={32} color="#4F46E5" />
+          <Ionicons name="list-circle" size={26} color="#4F46E5" />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>
@@ -69,6 +69,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#4F46E515",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
   },
   cardContent: {

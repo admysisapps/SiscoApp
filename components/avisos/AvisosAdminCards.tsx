@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useRole } from "@/hooks/useRole";
 
@@ -32,8 +32,12 @@ export const AvisosAdminCards: React.FC = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.card} onPress={handleViewAvisos}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="notifications" size={32} color="#DC2626" />
+        <View style={[styles.iconContainer, styles.iconRed]}>
+          <MaterialCommunityIcons
+            name="comment-alert"
+            size={26}
+            color="#DC2626"
+          />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Comunicados</Text>
@@ -42,8 +46,8 @@ export const AvisosAdminCards: React.FC = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.card} onPress={handleCreateAviso}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="add-circle" size={32} color="#DC2626" />
+        <View style={[styles.iconContainer, styles.iconRed]}>
+          <Ionicons name="add-circle" size={26} color="#DC2626" />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Crear Nuevo Comunicado</Text>
@@ -59,8 +63,12 @@ export const AvisosAdminCards: React.FC = () => {
           router.push("/(screens)/publicaciones/TableroAnunciosScreen")
         }
       >
-        <View style={styles.iconContainer}>
-          <Ionicons name="newspaper" size={32} color="#0EA5E9" />
+        <View style={[styles.iconContainer, styles.iconBlue]}>
+          <MaterialCommunityIcons
+            name="bulletin-board"
+            size={26}
+            color="#0EA5E9"
+          />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Publicaciones</Text>
@@ -90,7 +98,18 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
+  },
+  iconRed: {
+    backgroundColor: "#DC262615",
+  },
+  iconBlue: {
+    backgroundColor: "#0EA5E915",
   },
   cardContent: {
     flex: 1,

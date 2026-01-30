@@ -1,5 +1,5 @@
 import React from "react";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { router } from "expo-router";
 export const AvisosUserCards: React.FC = () => {
@@ -14,8 +14,12 @@ export const AvisosUserCards: React.FC = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.card} onPress={handleViewAvisos}>
-        <View style={styles.iconContainer}>
-          <MaterialIcons name="announcement" size={32} color="#DC2626" />
+        <View style={styles.iconContainerRed}>
+          <MaterialCommunityIcons
+            name="comment-alert"
+            size={26}
+            color="#DC2626"
+          />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Ver Comunicados</Text>
@@ -26,11 +30,11 @@ export const AvisosUserCards: React.FC = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.card} onPress={handleViewTablero}>
-        <View style={styles.iconContainer}>
+        <View style={styles.iconContainerBlue}>
           <MaterialCommunityIcons
             name="bulletin-board"
-            size={32}
-            color="#DC2626"
+            size={26}
+            color="#0EA5E9"
           />
         </View>
         <View style={styles.cardContent}>
@@ -60,7 +64,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  iconContainer: {
+  iconContainerRed: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#DC262615",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  iconContainerBlue: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#0EA5E915",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
   },
   cardContent: {

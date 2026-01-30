@@ -33,7 +33,7 @@ export const ReservaMainCards: React.FC = () => {
       <>
         <TouchableOpacity style={styles.card} onPress={handleViewSpaces}>
           <View style={styles.iconContainer}>
-            <Ionicons name="map-outline" size={32} color="#10B981" />
+            <Ionicons name="map-outline" size={26} color="#10B981" />
           </View>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Zonas Comunes Disponibles</Text>
@@ -45,7 +45,7 @@ export const ReservaMainCards: React.FC = () => {
 
         <TouchableOpacity style={styles.card} onPress={handleCreateReservation}>
           <View style={styles.iconContainer}>
-            <Ionicons name="add-circle" size={32} color="#10B981" />
+            <Ionicons name="add-circle" size={26} color="#10B981" />
           </View>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Nueva Reserva</Text>
@@ -57,7 +57,7 @@ export const ReservaMainCards: React.FC = () => {
       {/* Card Ver Reservas - Para ambos roles */}
       <TouchableOpacity style={styles.card} onPress={handleViewReservations}>
         <View style={styles.iconContainer}>
-          <Ionicons name="calendar-number-outline" size={32} color="#10B981" />
+          <Ionicons name="calendar-number-outline" size={26} color="#10B981" />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Mis Reservas</Text>
@@ -70,7 +70,7 @@ export const ReservaMainCards: React.FC = () => {
       {/* Card Métodos de Pago */}
       <TouchableOpacity style={styles.card} onPress={openPaymentMethods}>
         <View style={styles.iconContainer}>
-          <Ionicons name="card" size={32} color="#10B981" />
+          <Ionicons name="card" size={26} color="#10B981" />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Informacion de Pago</Text>
@@ -109,6 +109,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#10B98115",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
   },
   cardContent: {

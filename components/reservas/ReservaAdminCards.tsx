@@ -39,7 +39,7 @@ export const ReservaAdminCards: React.FC = () => {
       {/* Card zonas comunees */}
       <TouchableOpacity style={styles.card} onPress={handleManageSpaces}>
         <View style={styles.iconContainer}>
-          <FontAwesome6 name="gear" size={34} color="#10B981" />
+          <FontAwesome6 name="gear" size={26} color="#10B981" />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Gestionar zonas comunes </Text>
@@ -54,7 +54,7 @@ export const ReservaAdminCards: React.FC = () => {
         <View style={styles.iconContainer}>
           <MaterialCommunityIcons
             name="calendar-search"
-            size={34}
+            size={26}
             color="#10B981"
           />
         </View>
@@ -87,6 +87,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#10B98115",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
   },
   cardContent: {

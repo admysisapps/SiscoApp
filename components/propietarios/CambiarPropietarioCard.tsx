@@ -13,7 +13,7 @@ export const CambiarPropietarioCard: React.FC<CambiarPropietarioCardProps> = ({
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.iconContainer}>
-        <Ionicons name="swap-horizontal" size={24} color={COLORS.primary} />
+        <Ionicons name="swap-horizontal" size={26} color={COLORS.primary} />
       </View>
 
       <View style={styles.content}>

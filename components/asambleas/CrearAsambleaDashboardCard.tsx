@@ -39,7 +39,7 @@ export function CrearAsambleaDashboardCard() {
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.header}>
         <View style={styles.iconContainer}>
-          <Ionicons name="add-circle" size={24} color={THEME.colors.success} />
+          <Ionicons name="add-circle" size={26} color={THEME.colors.success} />
         </View>
         <View style={styles.headerText}>
           <Text style={styles.title}>Crear Asamblea</Text>

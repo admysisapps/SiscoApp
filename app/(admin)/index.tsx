@@ -7,7 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { PqrMainCards } from "@/components/pqr/PQRMainCards";
 import { ReservaAdminCards } from "@/components/reservas/ReservaAdminCards";
 import { CambiarPropietarioCard } from "@/components/propietarios/CambiarPropietarioCard";
@@ -28,14 +28,15 @@ import Animated, {
 const { width } = Dimensions.get("window");
 
 interface InternalTabProps {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Ionicons.glyphMap | string;
+  iconType?: "ionicons" | "materialcommunity";
   onPress: () => void;
   color: string;
   isActive: boolean;
 }
 
 const InternalTab: React.FC<InternalTabProps> = React.memo(
-  ({ icon, onPress, color, isActive }) => (
+  ({ icon, iconType = "ionicons", onPress, color, isActive }) => (
     <TouchableOpacity
       style={styles.internalTab}
       onPress={onPress}
@@ -47,11 +48,19 @@ const InternalTab: React.FC<InternalTabProps> = React.memo(
           { backgroundColor: isActive ? color : "transparent" },
         ]}
       >
-        <Ionicons
-          name={icon}
-          size={18}
-          color={isActive ? "white" : "#94A3B8"}
-        />
+        {iconType === "materialcommunity" ? (
+          <MaterialCommunityIcons
+            name={icon as any}
+            size={18}
+            color={isActive ? "white" : "#94A3B8"}
+          />
+        ) : (
+          <Ionicons
+            name={icon as keyof typeof Ionicons.glyphMap}
+            size={18}
+            color={isActive ? "white" : "#94A3B8"}
+          />
+        )}
       </View>
     </TouchableOpacity>
   )
@@ -175,25 +184,26 @@ const ADMIN_SECTIONS = [
   {
     key: "pqr",
     component: AdminPQRSection,
-    icon: "clipboard",
+    icon: "document-text",
     color: "#4F46E5",
   },
   {
     key: "areas",
     component: AdminAreasSection,
-    icon: "library",
-    color: "#10B981",
+    icon: "calendar-multiple-check",
+    iconType: "materialcommunity",
+    color: "#059669",
   },
   {
     key: "avisos",
     component: AdminAvisosSection,
-    icon: "megaphone",
+    icon: "notifications",
     color: "#DC2626",
   },
   {
     key: "asambleas",
     component: AdminAsambleasSection,
-    icon: "people-circle",
+    icon: "people",
     color: "#7C3AED",
   },
   {
@@ -248,7 +258,8 @@ const InternalTabBar: React.FC<InternalTabBarProps> = ({
       {ADMIN_SECTIONS.map((section, index) => (
         <InternalTab
           key={section.key}
-          icon={section.icon as keyof typeof Ionicons.glyphMap}
+          icon={section.icon}
+          iconType={section.iconType as "ionicons" | "materialcommunity"}
           onPress={() => onTabPress(index)}
           color={section.color}
           isActive={activeSection === index}

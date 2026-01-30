@@ -39,7 +39,7 @@ export function AsambleasDashboardCard() {
         <View style={styles.iconContainer}>
           <FontAwesome6
             name="users-line"
-            size={24}
+            size={26}
             color={THEME.colors.primary}
           />
         </View>
