@@ -250,18 +250,17 @@ export default function SeleccionarApartamentoScreen() {
       />
 
       {/* Usuario destino */}
-      <View style={styles.userCard}>
-        <Ionicons name="person-circle" size={32} color={COLORS.primary} />
+      <View style={[styles.userCard, esUsuarioNuevo && styles.userCardNew]}>
+        <Ionicons
+          name="person-circle"
+          size={32}
+          color={esUsuarioNuevo ? COLORS.success : COLORS.primary}
+        />
         <View style={styles.userInfo}>
           <Text style={styles.userName}>
             {usuario?.nombre} {usuario?.apellido}
           </Text>
           <Text style={styles.userDocument}>Cédula: {usuario?.documento}</Text>
-          {esUsuarioNuevo && (
-            <View style={styles.newUserBadge}>
-              <Text style={styles.newUserText}>Usuario Nuevo</Text>
-            </View>
-          )}
         </View>
       </View>
 
@@ -411,6 +410,10 @@ const styles = StyleSheet.create({
     borderRadius: THEME.borderRadius.lg,
     borderWidth: 1,
     borderColor: COLORS.primary,
+  },
+  userCardNew: {
+    borderColor: COLORS.success,
+    backgroundColor: COLORS.success + "08",
   },
   userInfo: {
     marginLeft: THEME.spacing.md,

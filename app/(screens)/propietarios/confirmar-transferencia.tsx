@@ -245,8 +245,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFBEB",
     padding: 12,
     borderRadius: 6,
-    borderLeftWidth: 3,
-    borderLeftColor: "#F59E0B",
+
     marginBottom: 20,
   },
   legalText: {
