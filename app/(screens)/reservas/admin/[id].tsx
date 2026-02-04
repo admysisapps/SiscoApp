@@ -924,7 +924,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bottomContainer: {
-    padding: 16,
+    padding: THEME.spacing.md,
     backgroundColor: THEME.colors.surface,
     borderTopWidth: 1,
     borderTopColor: THEME.colors.border,
@@ -932,7 +932,6 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: "row",
     gap: 12,
-    marginBottom: 12,
   },
   actionButton: {
     flex: 1,

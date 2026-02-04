@@ -1411,6 +1411,7 @@ const styles = StyleSheet.create({
     borderColor: THEME.colors.border,
     borderRadius: THEME.borderRadius.md,
     marginBottom: THEME.spacing.sm,
+    overflow: "hidden",
   },
   picker: {
     height: 50,

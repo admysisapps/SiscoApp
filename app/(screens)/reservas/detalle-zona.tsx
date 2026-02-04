@@ -482,15 +482,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   bottomBar: {
-    padding: 20,
+    padding: THEME.spacing.md,
     backgroundColor: THEME.colors.surface,
     borderTopWidth: 1,
     borderTopColor: THEME.colors.border,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
   },
   reservarButton: {
     flexDirection: "row",

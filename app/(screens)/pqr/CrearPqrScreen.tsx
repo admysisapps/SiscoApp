@@ -674,11 +674,6 @@ const styles = StyleSheet.create({
     paddingBottom: THEME.spacing.md,
     borderTopWidth: 1,
     borderTopColor: THEME.colors.border,
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   submitButton: {
     backgroundColor: THEME.colors.indigo,
