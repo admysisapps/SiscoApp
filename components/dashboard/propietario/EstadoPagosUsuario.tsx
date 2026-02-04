@@ -9,7 +9,7 @@ const mockCuentaCobro: CuentaCobro = {
   unidad: 102,
   tipo: "Cuenta de Cobro",
   param: {
-    fecha_desc: "2026-01-31",
+    fecha_desc: "2026-02-31",
     porcentaje_desc: 10.0,
   },
   movimientos: [

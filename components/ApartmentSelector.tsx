@@ -14,12 +14,17 @@ import {
   Modal,
   ScrollView,
   Animated,
+  Dimensions,
+  PanResponder,
+  Easing,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { THEME } from "@/constants/theme";
 import { useProject } from "@/contexts/ProjectContext";
 import { useApartment } from "@/contexts/ApartmentContext";
 import { Apartamento } from "@/types/Apartamento";
+
+const { height } = Dimensions.get("window");
 
 const ApartmentSelector = React.memo(function ApartmentSelector() {
   const { selectedProject } = useProject();
@@ -31,9 +36,27 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
   } = useApartment();
   const [modalVisible, setModalVisible] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const translateY = useRef(new Animated.Value(height)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (modalVisible) {
+      translateY.setValue(height);
+      backdropOpacity.setValue(0);
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 350,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -51,7 +74,49 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
     } else {
       pulseAnim.setValue(1);
     }
-  }, [modalVisible, pulseAnim]);
+  }, [modalVisible, pulseAnim, translateY, backdropOpacity]);
+
+  const handleCloseModal = useCallback(() => {
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: height,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setModalVisible(false);
+    });
+  }, [translateY, backdropOpacity]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return gestureState.dy > 5;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          translateY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 50 || gestureState.vy > 0.5) {
+          handleCloseModal();
+        } else {
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   const handleSelectApartment = useCallback(() => {
     if (apartamentos.length === 1) return;
@@ -61,9 +126,9 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
   const handleApartmentSelect = useCallback(
     (apartment: Apartamento) => {
       setSelectedApartment(apartment);
-      setModalVisible(false);
+      handleCloseModal();
     },
-    [setSelectedApartment]
+    [setSelectedApartment, handleCloseModal]
   );
 
   const apartmentItems = useMemo(() => {
@@ -194,16 +259,30 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
       </TouchableOpacity>
 
       {/* Modal de selección */}
-      {modalVisible && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <SafeAreaView style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHandle} />
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={handleCloseModal}
+        statusBarTranslucent
+      >
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={styles.modalOverlay}>
+            <Animated.View
+              style={[styles.backdrop, { opacity: backdropOpacity }]}
+            >
+              <TouchableOpacity
+                style={styles.backdropTouch}
+                activeOpacity={1}
+                onPress={handleCloseModal}
+              />
+            </Animated.View>
+            <Animated.View
+              style={[styles.modalContent, { transform: [{ translateY }] }]}
+            >
+              <View {...panResponder.panHandlers}>
+                <View style={styles.modalHandle} />
+              </View>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Seleccionar Unidad</Text>
               </View>
@@ -211,10 +290,10 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
               <ScrollView contentContainerStyle={styles.apartmentsList}>
                 {apartmentItems}
               </ScrollView>
-            </View>
-          </SafeAreaView>
-        </Modal>
-      )}
+            </Animated.View>
+          </View>
+        </GestureHandlerRootView>
+      </Modal>
     </View>
   );
 });
@@ -352,11 +431,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  loadingText: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.muted,
-    fontStyle: "italic",
-  },
   skeletonBox: {
     backgroundColor: THEME.colors.border,
     borderRadius: 4,
@@ -369,22 +443,33 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: THEME.colors.modalOverlay,
+  },
+  backdropTouch: {
+    flex: 1,
   },
   modalContent: {
     backgroundColor: THEME.colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: "70%",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: height * 0.7,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 15,
   },
   modalHandle: {
-    width: 36,
-    height: 5,
+    width: 40,
+    height: 4,
     backgroundColor: THEME.colors.border,
-    borderRadius: 3,
+    borderRadius: 2,
     alignSelf: "center",
-    marginTop: 8,
-    marginBottom: 4,
+    marginTop: 12,
+    marginBottom: 8,
   },
   modalHeader: {
     flexDirection: "row",
@@ -392,7 +477,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: THEME.spacing.lg,
     paddingVertical: THEME.spacing.md,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 1,
     borderBottomColor: THEME.colors.border,
   },
   modalTitle: {
