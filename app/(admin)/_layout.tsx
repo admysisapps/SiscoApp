@@ -7,6 +7,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProject } from "@/contexts/ProjectContext";
+import { THEME } from "@/constants/theme";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import CustomTabBar from "@/components/CustomTabBar";
 
@@ -43,7 +44,10 @@ export default function AdminLayout() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: THEME.colors.background }]}
+      edges={["top"]}
+    >
       {/* Indicador de Rol Admin */}
       <LinearGradient
         colors={["#DC2626", "#B91C1C"]}
@@ -86,7 +90,6 @@ export default function AdminLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
   roleIndicator: {
     paddingVertical: 8,

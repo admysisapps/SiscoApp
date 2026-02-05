@@ -1,37 +1,13 @@
-import React, { useEffect } from "react";
-import { Tabs, useRouter } from "expo-router";
+import React from "react";
+import { Tabs } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useUser } from "@/contexts/UserContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
-import LoadingOverlay from "@/components/LoadingOverlay";
 import CustomTabBar from "@/components/CustomTabBar";
 
 export default function TabLayout() {
-  const { isLoading: userLoading } = useUser();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const isLoading = userLoading || authLoading;
   const { isAdmin } = useRole();
-  const router = useRouter();
-
-  // Protección: verificar autenticación
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace("/(auth)/login");
-    }
-  }, [isAuthenticated, isLoading, router]);
-
-  // Mostrar loading
-  if (isLoading) {
-    return <LoadingOverlay visible={true} />;
-  }
-
-  // Si no está autenticado, no mostrar nada mientras redirige
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>

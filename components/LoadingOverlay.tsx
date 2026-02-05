@@ -137,8 +137,6 @@ const styles = StyleSheet.create({
     marginBottom: 60,
   },
   logoShadow: {
-    width: 400,
-    height: 400,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,

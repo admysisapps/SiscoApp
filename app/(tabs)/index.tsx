@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   internalTabBar: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.surface,
     marginHorizontal: 12,
     marginTop: 8,
     marginBottom: 8,
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
     borderWidth: 0.5,
-    borderColor: "#E2E8F0",
+    borderColor: THEME.colors.border,
   },
   tabIndicator: {
     position: "absolute",

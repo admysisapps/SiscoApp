@@ -26,19 +26,43 @@ function RootNavigator() {
   const { isAuthenticated } = useAuth();
   const isAdmin = selectedProject?.rolUsuario === "admin";
 
+  // "default" - Nativa del sistema (iOS: slide_from_right, Android: slide_from_bottom)
+  // "fade" - Fade in/out suave
+  // "slide_from_right" - Slide desde derecha (estilo iOS)
+  // "slide_from_left" - Slide desde izquierda
+  // "slide_from_bottom" - Slide desde abajo (estilo modal)
+  // "fade_from_bottom" - Fade + slide desde abajo (moderno)
+  // "flip" - Volteo 3D (experimental)
+  // "simple_push" - Push simple sin fade
+  // "none" - Sin animación
+
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: "default",
+      }}
+    >
       {/* Ruta de anclaje para usuarios autenticados */}
-      <Stack.Screen name="project-selector" />
+      <Stack.Screen
+        name="project-selector"
+        options={{ animation: "default" }}
+      />
 
       {/* Rutas protegidas por AUTENTICACIÓN */}
       <Stack.Protected guard={isAuthenticated}>
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="(tabs)"
+          options={{ animation: "slide_from_right" }}
+        />
       </Stack.Protected>
 
       {/* Rutas protegidas por rol ADMIN */}
       <Stack.Protected guard={isAdmin}>
-        <Stack.Screen name="(admin)" />
+        <Stack.Screen
+          name="(admin)"
+          options={{ animation: "slide_from_right" }}
+        />
       </Stack.Protected>
     </Stack>
   );
