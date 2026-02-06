@@ -22,7 +22,8 @@
     "utils/**/*.ts",
     "constants/**/*.ts",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "app.config.ts"
   ],
   "exclude": ["amplify/**/*", "node_modules", ".expo", "android", "ios"]
 }

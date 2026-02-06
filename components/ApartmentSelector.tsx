@@ -377,7 +377,7 @@ export default ApartmentSelector;
 const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 1,
-    marginBottom: THEME.spacing.md,
+    marginBottom: THEME.spacing.lg,
   },
   card: {
     flexDirection: "row",
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   },
   apartmentsList: {
     padding: THEME.spacing.md,
-    paddingBottom: THEME.spacing.xl,
+    paddingBottom: THEME.spacing.xxl,
   },
   apartmentOption: {
     flexDirection: "row",
