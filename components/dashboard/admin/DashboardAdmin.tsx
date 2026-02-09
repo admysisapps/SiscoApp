@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet } from "react-native";
 import GraficoPagos from "./GraficoPagos";
 import EstadoFinanciero from "./EstadoFinanciero";
 import ProximosPagos from "./ProximosPagos";
-import ActividadReciente from "./ActividadReciente";
 
 export default function DashboardAdmin() {
   return (
@@ -11,7 +10,6 @@ export default function DashboardAdmin() {
       <GraficoPagos />
       <EstadoFinanciero />
       <ProximosPagos />
-      <ActividadReciente />
     </ScrollView>
   );
 }

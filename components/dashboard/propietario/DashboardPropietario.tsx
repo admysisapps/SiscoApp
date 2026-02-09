@@ -4,7 +4,6 @@ import ApartmentSelector from "../../ApartmentSelector";
 import AnuncioSistema from "./AnuncioSistema";
 import EstadoPagosUsuario from "./EstadoPagosUsuario";
 import AccionesRapidas from "./AccionesRapidas";
-import ActividadUsuario from "./ActividadUsuario";
 
 const DashboardPropietario = React.memo(function DashboardPropietario() {
   return (
@@ -13,7 +12,6 @@ const DashboardPropietario = React.memo(function DashboardPropietario() {
       <AnuncioSistema />
       <EstadoPagosUsuario />
       <AccionesRapidas />
-      <ActividadUsuario />
     </ScrollView>
   );
 });
