@@ -35,6 +35,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const tabWidth = width / 3; // 3 tabs fijos
+  const indicatorWidth = tabWidth * 0.5; // 50% del ancho del tab
   const translateX = useSharedValue(0);
   const lottieRef = useRef<LottieView>(null);
 
@@ -62,14 +63,15 @@ const CustomTabBar: React.FC<TabBarProps> = ({
       (routeName) => routeName === activeRoute.name
     );
     if (displayIndex !== -1) {
-      // Optimización: Reducir la rigidez de la animación para menos stutter
-      translateX.value = withSpring(displayIndex * tabWidth, {
+      // Centrar el indicador en el tab
+      const offset = (tabWidth - indicatorWidth) / 2;
+      translateX.value = withSpring(displayIndex * tabWidth + offset, {
         damping: 15,
         stiffness: 150,
         mass: 0.8,
       });
     }
-  }, [state.index, state.routes, tabWidth, translateX]);
+  }, [state.index, state.routes, tabWidth, translateX, indicatorWidth]);
 
   const getIconName = (routeName: string, focused: boolean) => {
     switch (routeName) {
@@ -101,7 +103,11 @@ const CustomTabBar: React.FC<TabBarProps> = ({
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       {/* Indicador animado redondeado */}
       <Animated.View
-        style={[styles.indicator, animatedIndicatorStyle, { width: tabWidth }]}
+        style={[
+          styles.indicator,
+          animatedIndicatorStyle,
+          { width: indicatorWidth },
+        ]}
       />
 
       {/* Tabs */}
@@ -112,8 +118,9 @@ const CustomTabBar: React.FC<TabBarProps> = ({
         const isFocused = state.index === originalIndex;
 
         const onPress = () => {
-          // Optimización: Animación más suave
-          translateX.value = withSpring(displayIndex * tabWidth, {
+          // Centrar el indicador en el tab
+          const offset = (tabWidth - indicatorWidth) / 2;
+          translateX.value = withSpring(displayIndex * tabWidth + offset, {
             damping: 15,
             stiffness: 150,
             mass: 0.8,
@@ -218,7 +225,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     backgroundColor: THEME.colors.surface,
-    paddingVertical: THEME.spacing.xs,
+    paddingVertical: 6,
     paddingHorizontal: THEME.spacing.xs,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -234,24 +241,24 @@ const styles = StyleSheet.create({
   indicator: {
     position: "absolute",
     top: 0,
-    height: 3,
+    height: 2,
     backgroundColor: THEME.colors.primary,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2,
   },
   tab: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: THEME.spacing.xs,
+    paddingVertical: 4,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: THEME.spacing.xs / 2,
+    marginBottom: 2,
   },
   label: {
     fontSize: THEME.fontSize.xs,
