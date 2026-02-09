@@ -158,4 +158,9 @@ export const CONTEXT_TYPES = {
 
   //eliminar cuenta
   DELETE_ACCOUNT: ["documento", "proyecto_nit", "copropiedad"],
+
+  //documentos
+  DOCUMENTOS_CREATE: ["documento", "rol", "copropiedad"],
+  DOCUMENTOS_LIST: ["copropiedad"],
+  DOCUMENTOS_DELETE: ["documento", "rol", "copropiedad", "proyecto_nit"],
 };

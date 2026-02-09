@@ -12,4 +12,5 @@ export const EVENTS = {
   CUENTA_PAGO_DELETED: "cuenta_pago:deleted",
   PUBLICACION_CREATED: "publicacion:created",
   PUBLICACION_UPDATED: "publicacion:updated",
+  DOCUMENTO_CACHED: "documento:cached",
 };
