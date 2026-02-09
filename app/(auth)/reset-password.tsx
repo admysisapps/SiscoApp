@@ -501,9 +501,8 @@ const styles = StyleSheet.create({
     marginBottom: THEME.spacing.xl,
   },
   loginLinkText: {
-    paddingBlock: 25,
     color: COLORS.primary,
-    fontSize: THEME.fontSize.lg,
+    fontSize: THEME.fontSize.sm,
   },
   inputError: {
     borderColor: COLORS.error,

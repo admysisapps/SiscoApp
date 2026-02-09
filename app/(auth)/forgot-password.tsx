@@ -180,17 +180,14 @@ export default function ForgotPassword() {
             </View>
 
             {/* Footer */}
-            <View style={styles.footer}>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.push("/(auth)/login")}
-              >
-                <Text style={styles.backButtonText}>
-                  {" "}
-                  Volver al inicio de sesión
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.push("/(auth)/login")}
+            >
+              <Text style={styles.backButtonText}>
+                Volver al inicio de sesión
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -358,16 +355,12 @@ const styles = StyleSheet.create({
     color: COLORS.text.secondary,
     lineHeight: 18,
   },
-  footer: {
-    marginTop: THEME.spacing.lg,
-    alignItems: "center",
-  },
   backButton: {
-    paddingVertical: THEME.spacing.sm,
+    alignItems: "center",
+    marginTop: THEME.spacing.md,
   },
   backButtonText: {
     color: COLORS.primary,
-    fontSize: THEME.fontSize.md,
-    fontWeight: "500",
+    fontSize: THEME.fontSize.sm,
   },
 });

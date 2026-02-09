@@ -8,6 +8,7 @@ export default function AdminFinancieroLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen name="Documentos" />
     </Stack>
   );
 }

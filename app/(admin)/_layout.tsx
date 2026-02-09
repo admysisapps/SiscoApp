@@ -70,9 +70,32 @@ export default function AdminLayout() {
       <Tabs
         tabBar={(props) => {
           const currentRoute = props.state.routes[props.state.index];
+
+          // Ocultar tab bar en asambleas
           if (currentRoute.name === "(asambleas)") {
             return null;
           }
+
+          // Ocultar tab bar si hay un estado anidado con la ruta Documentos
+          if (
+            currentRoute.state &&
+            "routes" in currentRoute.state &&
+            "index" in currentRoute.state
+          ) {
+            const nestedRoutes = currentRoute.state.routes;
+            const nestedIndex = currentRoute.state.index;
+            if (nestedRoutes && typeof nestedIndex === "number") {
+              const nestedRoute = nestedRoutes[nestedIndex];
+              if (
+                nestedRoute &&
+                "name" in nestedRoute &&
+                nestedRoute.name === "Documentos"
+              ) {
+                return null;
+              }
+            }
+          }
+
           return <CustomTabBar {...props} />;
         }}
         screenOptions={{

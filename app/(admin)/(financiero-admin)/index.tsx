@@ -1,598 +1,328 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import React, { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
+import Animated, {
+  FadeInUp,
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
 
-const mockBalanceGeneral = {
-  fecha: "11/06/25 - 15:29:07",
-  mes: "Noviembre",
-  año: 2025,
-  activo: {
-    disponible: {
-      caja: {
-        total: 500000,
-        detalle: [{ concepto: "Caja Menor", valor: 500000 }],
-      },
-      bancos: {
-        total: 10524453.01,
-        detalle: [
-          { concepto: "Banco Colpatria Cta Cte 12693", valor: 10524453.01 },
-        ],
-      },
-      cuentasAhorro: {
-        total: 25312748.32,
-        detalle: [
-          { concepto: "Banco Colpatria Cta AH", valor: 1678502.11 },
-          { concepto: "Banco Colpatria Fdo Imprevistos", valor: 23634246.21 },
-        ],
-      },
-      total: 36337201.33,
-    },
-    deudores: {
-      clientes: {
-        total: 276756480.9,
-        detalle: [
-          { concepto: "Administración", valor: 136172681 },
-          { concepto: "Intereses de Mora", valor: 101529850 },
-          { concepto: "Parqueadero Comunal", valor: 261900 },
-          { concepto: "Extraordinaria", valor: 16090118 },
-          { concepto: "Depósito", valor: 1455000 },
-          { concepto: "Bicicletero", valor: 156600 },
-          { concepto: "Retroactivo Administración", valor: 1661832 },
-          { concepto: "Multa Asamblea", valor: 1190200 },
-          { concepto: "Cobros Jurídicos", valor: 1809234 },
-          { concepto: "Parqueadero Moto", valor: 47300 },
-          { concepto: "Intereses Cuota Extraordinaria", valor: 16049500 },
-          { concepto: "Revisión de Coeficientes", valor: 144712 },
-          { concepto: "Parq Visitantes", valor: 271999 },
-          { concepto: "Extraordinaria Ascensores", valor: 2400000 },
-          { concepto: "Certificado de Tradición y Libertad", valor: 87600 },
-          { concepto: "Instalación Registro", valor: 65000 },
-          { concepto: "Consignaciones por Identificar", valor: -2637045.1 },
-        ],
-      },
-      anticipos: {
-        total: 34965650,
-        detalle: [{ concepto: "A Contratistas", valor: 34965650 }],
-      },
-      provisiones: {
-        total: -87873750,
-        detalle: [
-          { concepto: "Provisión Intereses de Mora", valor: -87873750 },
-        ],
-      },
-      total: 223848380.9,
-    },
-    propiedadPlantaEquipo: {
-      maquinaria: {
-        total: 30051777,
-        detalle: [{ concepto: "Otros", valor: 30051777 }],
-      },
-      muebles: {
-        total: 12783627,
-        detalle: [{ concepto: "Muebles y Enseres", valor: 12783627 }],
-      },
-      equipoComputo: {
-        total: 6357550,
-        detalle: [
-          { concepto: "Equipo de Computación", valor: 4927550 },
-          { concepto: "Cámaras de Televisión", valor: 1430000 },
-        ],
-      },
-      depreciacion: {
-        total: -49192954,
-        detalle: [
-          { concepto: "Depreciación Maquinaria y Equipo", valor: -30051777 },
-          { concepto: "Depreciación Equipo de Oficina", valor: -12783627 },
-          { concepto: "Depreciación Equipo de Computación", valor: -6357550 },
-        ],
-      },
-      total: 0,
-    },
-    diferidos: {
-      seguros: {
-        total: 12100657.46,
-        detalle: [{ concepto: "Seguros", valor: 12100657.46 }],
-      },
-      total: 12100657.46,
-    },
-    total: 272286239.69,
-  },
-  pasivo: {
-    cuentasPorPagar: {
-      costos: {
-        total: -500000,
-        detalle: [{ concepto: "Otras Cuentas por Pagar", valor: -500000 }],
-      },
-      retencionFuente: {
-        total: 394324,
-        detalle: [
-          { concepto: "Rentas de Trabajo", valor: 22888 },
-          { concepto: "Sobre Servicios Generales 6%", valor: 63900 },
-          { concepto: "Servicios Tarifa 2%", valor: 51673 },
-          { concepto: "Servicios Generales 4%", valor: 255863 },
-        ],
-      },
-      total: -105676,
-    },
-    impuestos: {
-      iva: {
-        total: 40075,
-        detalle: [{ concepto: "I.V.A. Recaudado", valor: 40075 }],
-      },
-      total: 40075,
-    },
-    diferidos: {
-      anticipoAdmin: {
-        total: 407700,
-        detalle: [{ concepto: "Anticipo de Administración", valor: 407700 }],
-      },
-      total: 407700,
-    },
-    otrosPasivos: {
-      fondosEspecificos: {
-        total: 47789930,
-        detalle: [{ concepto: "Cuota Extraordinaria", valor: 47789930 }],
-      },
-      ingresosParaTerceros: {
-        total: 7064850,
-        detalle: [
-          { concepto: "Valores Recibidos para Terceros", valor: 55300 },
-          { concepto: "Empresa de Vigilancia", valor: 4360100 },
-          { concepto: "Revisión de Coeficientes", valor: 700350 },
-          { concepto: "Compra de Certificados", valor: 1949100 },
-        ],
-      },
-      total: 54854780,
-    },
-    total: 55196879,
-  },
-  patrimonio: {
-    reservas: 23061610.78,
-    utilidadEjercicio: 101218018.41,
-    utilidadesAcumuladas: 92809731.5,
-    total: 217089360.69,
-  },
-};
+import { THEME } from "@/constants/theme";
+import { BotonesAccion } from "@/components/siscoweb/admin/BotonesAccion";
+import { FilaActivo } from "@/components/siscoweb/admin/FilaActivo";
+import { TarjetaSaldo } from "@/components/siscoweb/admin/TarjetaSaldo";
+import { DATOS_COPROPIEDAD } from "@/components/siscoweb/admin/constants";
+import { useProject } from "@/contexts/ProjectContext";
 
-export default function Index() {
-  const [expandedSections, setExpandedSections] = useState<{
-    [key: string]: boolean;
-  }>({});
+const FilaInfo = ({ label, value, icon, valueColor }: any) => (
+  <View style={styles.infoRow}>
+    <Ionicons name={icon} size={16} color={THEME.colors.text.secondary} />
+    <Text style={styles.infoLabel}>{label}:</Text>
+    <Text style={[styles.infoValue, valueColor && { color: valueColor }]}>
+      {value || "N/A"}
+    </Text>
+  </View>
+);
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 2,
-    }).format(value);
+export default function FinancieroIndex() {
+  const router = useRouter();
+  const scrollY = useSharedValue(0);
+  const { selectedProject } = useProject();
+  const [showInfo, setShowInfo] = React.useState(false);
 
-  const toggleSection = (key: string) => {
-    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
 
-  const renderDetailRow = (item: any, key: string, label: string) => {
-    const isExpanded = expandedSections[key];
-    const hasDetail = item.detalle && item.detalle.length > 0;
-
-    return (
-      <View>
-        <TouchableOpacity
-          style={styles.row}
-          onPress={() => hasDetail && toggleSection(key)}
-          disabled={!hasDetail}
-        >
-          <Text style={styles.label}>
-            {hasDetail && (isExpanded ? "▼ " : "▶ ")}
-            {label}
-          </Text>
-          <Text style={[styles.value, item.total < 0 && styles.negative]}>
-            {formatCurrency(item.total)}
-          </Text>
-        </TouchableOpacity>
-        {isExpanded &&
-          hasDetail &&
-          item.detalle.map((det: any, idx: number) => (
-            <View key={idx} style={styles.detailRow}>
-              <Text style={styles.detailLabel}>• {det.concepto}</Text>
-              <Text
-                style={[styles.detailValue, det.valor < 0 && styles.negative]}
-              >
-                {formatCurrency(det.valor)}
-              </Text>
-            </View>
-          ))}
-      </View>
-    );
+  const getAvatarText = () => {
+    const codigo = selectedProject?.codigo;
+    if (codigo && codigo.length >= 2) {
+      return codigo.substring(0, 2);
+    }
+    return "CP";
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
+    <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Balance General</Text>
-        <Text style={styles.subtitle}>Estado de Situación Financiera</Text>
-        <Text style={styles.date}>
-          {mockBalanceGeneral.mes} {mockBalanceGeneral.año}
-        </Text>
-        <Text style={styles.date}>{mockBalanceGeneral.fecha}</Text>
+        <View style={styles.profileSection}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{getAvatarText()}</Text>
+          </View>
+          <View>
+            <Text style={styles.greetingName}>
+              {selectedProject?.nombre || "Copropiedad"}
+            </Text>
+          </View>
+        </View>
+        <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={() => router.push("/(screens)/avisos/AvisosScreen")}
+        >
+          <View style={styles.notificationDot} />
+          <Ionicons
+            name="notifications-outline"
+            size={20}
+            color={THEME.colors.text.primary}
+          />
+        </TouchableOpacity>
       </View>
 
-      {/* ACTIVO */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>ACTIVO</Text>
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={styles.scrollContent}
+        style={styles.scrollView}
+      >
+        <TarjetaSaldo />
 
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>Disponible</Text>
-          {renderDetailRow(
-            mockBalanceGeneral.activo.disponible.caja,
-            "caja",
-            "Caja"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.activo.disponible.bancos,
-            "bancos",
-            "Bancos"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.activo.disponible.cuentasAhorro,
-            "cuentasAhorro",
-            "Cuentas de Ahorro"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Disponible</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(mockBalanceGeneral.activo.disponible.total)}
+        <BotonesAccion
+          onSendBy={() => console.log("Finanzas")}
+          onReceive={() => console.log("Reportes")}
+          onSwap={() => console.log("Proyectos")}
+          onBuy={() => console.log("Servicios")}
+        />
+
+        <TouchableOpacity
+          style={styles.menuHeader}
+          onPress={() => setShowInfo(!showInfo)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.menuHeaderLeft}>
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color={THEME.colors.primary}
+            />
+            <Text style={styles.menuHeaderText}>
+              Información de la Copropiedad
             </Text>
           </View>
-        </View>
+          <Ionicons
+            name={showInfo ? "chevron-up" : "chevron-down"}
+            size={20}
+            color={THEME.colors.text.secondary}
+          />
+        </TouchableOpacity>
 
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>Deudores</Text>
-          {renderDetailRow(
-            mockBalanceGeneral.activo.deudores.clientes,
-            "clientes",
-            "Clientes"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.activo.deudores.anticipos,
-            "anticipos",
-            "Anticipos y Avances"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.activo.deudores.provisiones,
-            "provisiones",
-            "Provisiones"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Deudores</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(mockBalanceGeneral.activo.deudores.total)}
-            </Text>
+        {showInfo && (
+          <Animated.View
+            entering={FadeInUp.duration(300)}
+            style={styles.infoContainer}
+          >
+            <FilaInfo
+              label="NIT"
+              value={selectedProject?.nit}
+              icon="business-outline"
+            />
+            <FilaInfo
+              label="Código"
+              value={selectedProject?.codigo}
+              icon="barcode-outline"
+            />
+
+            <FilaInfo
+              label="Poderes Habilitados"
+              value={selectedProject?.poderesHabilitados ? "Sí" : "No"}
+              icon="document-text-outline"
+              valueColor={
+                selectedProject?.poderesHabilitados
+                  ? THEME.colors.success
+                  : THEME.colors.error
+              }
+            />
+            <FilaInfo
+              label="Permiso Admin Apoderados"
+              value={selectedProject?.permisoAdminApoderados ? "Sí" : "No"}
+              icon="shield-checkmark-outline"
+            />
+            <FilaInfo
+              label="Máx. Apoderados (Propietario)"
+              value={selectedProject?.maxApoderadosPropietario?.toString()}
+              icon="people-outline"
+            />
+
+            <FilaInfo
+              label="Máx. Apoderados (Admin)"
+              value={selectedProject?.maxApoderadosAdmin?.toString()}
+              icon="people-circle-outline"
+            />
+
+            {selectedProject?.descripcion && (
+              <FilaInfo
+                label="Descripción"
+                value={selectedProject.descripcion}
+                icon="text-outline"
+              />
+            )}
+          </Animated.View>
+        )}
+
+        <View style={styles.assetsSection}>
+          <View style={styles.assetsSectionHeader}>
+            <Text style={styles.assetsSectionTitle}>Estado Financiero</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>Ver Todo</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.assetsList}>
+            {DATOS_COPROPIEDAD.map((dato, index) => (
+              <Animated.View
+                key={dato.id}
+                entering={FadeInUp.delay(400 + index * 100).springify()}
+              >
+                <FilaActivo
+                  asset={dato}
+                  onPress={() => console.log("Dato:", dato.nombre)}
+                />
+              </Animated.View>
+            ))}
           </View>
         </View>
-
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>Propiedad, Planta y Equipo</Text>
-          {renderDetailRow(
-            mockBalanceGeneral.activo.propiedadPlantaEquipo.maquinaria,
-            "maquinaria",
-            "Maquinaria y Equipo"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.activo.propiedadPlantaEquipo.muebles,
-            "muebles",
-            "Muebles y Enseres"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.activo.propiedadPlantaEquipo.equipoComputo,
-            "equipoComputo",
-            "Equipo de Cómputo"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.activo.propiedadPlantaEquipo.depreciacion,
-            "depreciacion",
-            "Depreciación Acumulada"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total P.P.E.</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(
-                mockBalanceGeneral.activo.propiedadPlantaEquipo.total
-              )}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>Diferidos</Text>
-          {renderDetailRow(
-            mockBalanceGeneral.activo.diferidos.seguros,
-            "seguros",
-            "Seguros y Fianzas"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Diferidos</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(mockBalanceGeneral.activo.diferidos.total)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={[styles.row, styles.grandTotalRow]}>
-          <Text style={styles.grandTotalLabel}>TOTAL ACTIVO</Text>
-          <Text style={styles.grandTotalValue}>
-            {formatCurrency(mockBalanceGeneral.activo.total)}
-          </Text>
-        </View>
-      </View>
-
-      {/* PASIVO */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}> PASIVO</Text>
-
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>Cuentas por Pagar</Text>
-          {renderDetailRow(
-            mockBalanceGeneral.pasivo.cuentasPorPagar.costos,
-            "costos",
-            "Otras Cuentas por Pagar"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.pasivo.cuentasPorPagar.retencionFuente,
-            "retencionFuente",
-            "Retención en la Fuente"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Cuentas por Pagar</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(mockBalanceGeneral.pasivo.cuentasPorPagar.total)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>
-            Impuestos, Gravámenes y Tasas
-          </Text>
-          {renderDetailRow(
-            mockBalanceGeneral.pasivo.impuestos.iva,
-            "iva",
-            "IVA por Pagar"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Impuestos</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(mockBalanceGeneral.pasivo.impuestos.total)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>Diferidos</Text>
-          {renderDetailRow(
-            mockBalanceGeneral.pasivo.diferidos.anticipoAdmin,
-            "anticipoAdmin",
-            "Anticipo de Administración"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Diferidos</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(mockBalanceGeneral.pasivo.diferidos.total)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.subsection}>
-          <Text style={styles.subsectionTitle}>Otros Pasivos</Text>
-          {renderDetailRow(
-            mockBalanceGeneral.pasivo.otrosPasivos.fondosEspecificos,
-            "fondosEspecificos",
-            "Fondos con Destino Específico"
-          )}
-          {renderDetailRow(
-            mockBalanceGeneral.pasivo.otrosPasivos.ingresosParaTerceros,
-            "ingresosParaTerceros",
-            "Ingresos para Terceros"
-          )}
-          <View style={[styles.row, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Otros Pasivos</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(mockBalanceGeneral.pasivo.otrosPasivos.total)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={[styles.row, styles.grandTotalRow]}>
-          <Text style={styles.grandTotalLabel}>TOTAL PASIVO</Text>
-          <Text style={styles.grandTotalValue}>
-            {formatCurrency(mockBalanceGeneral.pasivo.total)}
-          </Text>
-        </View>
-      </View>
-
-      {/* PATRIMONIO */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}> PATRIMONIO</Text>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Reservas</Text>
-          <Text style={styles.value}>
-            {formatCurrency(mockBalanceGeneral.patrimonio.reservas)}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Utilidad del Ejercicio</Text>
-          <Text style={styles.value}>
-            {formatCurrency(mockBalanceGeneral.patrimonio.utilidadEjercicio)}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Utilidades Acumuladas</Text>
-          <Text style={styles.value}>
-            {formatCurrency(mockBalanceGeneral.patrimonio.utilidadesAcumuladas)}
-          </Text>
-        </View>
-
-        <View style={[styles.row, styles.grandTotalRow]}>
-          <Text style={styles.grandTotalLabel}>TOTAL PATRIMONIO</Text>
-          <Text style={styles.grandTotalValue}>
-            {formatCurrency(mockBalanceGeneral.patrimonio.total)}
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
+      </Animated.ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-    padding: 16,
-  },
-  contentContainer: {
-    paddingBottom: 40,
+    backgroundColor: THEME.colors.background,
   },
   header: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 16,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#666",
-    marginTop: 4,
-  },
-  date: {
-    fontSize: 13,
-    color: "#999",
-    marginTop: 4,
-  },
-  section: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 21,
-    fontWeight: "bold",
-    color: "#2c3e50",
-    marginBottom: 12,
-  },
-  subsection: {
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  subsectionTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#34495e",
-    marginBottom: 8,
-  },
-  row: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 6,
+    paddingHorizontal: THEME.spacing.lg,
+    paddingTop: THEME.spacing.md,
+    paddingBottom: THEME.spacing.md,
+    backgroundColor: THEME.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: THEME.colors.border,
   },
-  label: {
-    fontSize: 15,
-    color: "#555",
+  profileSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.md,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: THEME.borderRadius.full,
+    backgroundColor: THEME.colors.surfaceLight,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  avatarText: {
+    fontWeight: "700",
+    fontSize: THEME.fontSize.lg,
+    color: THEME.colors.text.primary,
+  },
+  greetingName: {
+    color: THEME.colors.text.primary,
+    fontWeight: "700",
+    fontSize: THEME.fontSize.lg,
+  },
+  notificationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: THEME.borderRadius.full,
+    backgroundColor: THEME.colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  notificationDot: {
+    position: "absolute",
+    top: 8,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: THEME.borderRadius.full,
+    backgroundColor: THEME.colors.error,
+    zIndex: 10,
+    borderWidth: 1,
+    borderColor: THEME.colors.surface,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: THEME.spacing.lg,
+  },
+  scrollContent: {
+    paddingBottom: THEME.spacing.sm,
+  },
+  menuHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: THEME.colors.surface,
+    padding: THEME.spacing.md,
+    borderRadius: THEME.borderRadius.lg,
+    marginBottom: THEME.spacing.md,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  menuHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.sm,
+  },
+  menuHeaderText: {
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
+    color: THEME.colors.text.primary,
+  },
+  infoContainer: {
+    backgroundColor: THEME.colors.surface,
+    padding: THEME.spacing.md,
+    borderRadius: THEME.borderRadius.lg,
+    marginBottom: THEME.spacing.lg,
+    gap: THEME.spacing.md,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.sm,
+  },
+  infoLabel: {
+    fontSize: THEME.fontSize.sm,
+    color: THEME.colors.text.secondary,
+    fontWeight: "500",
+    minWidth: 180,
+  },
+  infoValue: {
+    fontSize: THEME.fontSize.sm,
+    color: THEME.colors.text.primary,
+    fontWeight: "600",
     flex: 1,
   },
-  value: {
-    fontSize: 15,
-    color: "#333",
+  assetsSection: {
+    marginBottom: THEME.spacing.lg,
+  },
+  assetsSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: THEME.spacing.md,
+  },
+  assetsSectionTitle: {
+    fontSize: THEME.fontSize.xl,
+    fontWeight: "700",
+    color: THEME.colors.text.primary,
+  },
+  seeAllText: {
+    color: THEME.colors.text.secondary,
+    fontSize: THEME.fontSize.sm,
     fontWeight: "500",
   },
-  negative: {
-    color: "#e74c3c",
-  },
-  detailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 4,
-    paddingLeft: 20,
-    backgroundColor: "#f9f9f9",
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: "#666",
-    flex: 1,
-  },
-  detailValue: {
-    fontSize: 14,
-    color: "#555",
-  },
-  totalRow: {
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
-  },
-  totalLabel: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#2c3e50",
-    flex: 1,
-  },
-  totalValue: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#2c3e50",
-  },
-  grandTotalRow: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 2,
-    borderTopColor: "#2c3e50",
-    backgroundColor: "#ecf0f1",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 4,
-  },
-  grandTotalLabel: {
-    fontSize: 17,
-    fontWeight: "bold",
-    color: "#2c3e50",
-    flex: 1,
-  },
-  grandTotalValue: {
-    fontSize: 17,
-    fontWeight: "bold",
-    color: "#2c3e50",
-  },
-  equation: {
-    backgroundColor: "#d5f4e6",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  equationText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#27ae60",
-    marginBottom: 8,
-  },
-  equationValues: {
-    fontSize: 12,
-    color: "#27ae60",
+  assetsList: {
+    gap: THEME.spacing.sm,
   },
 });
