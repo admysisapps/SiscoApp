@@ -10,6 +10,7 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -28,6 +29,7 @@ interface PreguntasFormProps {
   onBack: () => void;
   onPreguntasChange?: (preguntas: PreguntaFormData[]) => void;
   showToast?: (message: string, type: "success" | "error" | "warning") => void;
+  isCreating?: boolean;
 }
 
 const PreguntasForm: React.FC<PreguntasFormProps> = ({
@@ -37,6 +39,7 @@ const PreguntasForm: React.FC<PreguntasFormProps> = ({
   onBack,
   onPreguntasChange,
   showToast,
+  isCreating = false,
 }) => {
   const [preguntas, setPreguntas] = useState<PreguntaFormDataWithTempId[]>(
     initialPreguntas.map((p) => ({
@@ -270,12 +273,12 @@ const PreguntasForm: React.FC<PreguntasFormProps> = ({
         </TouchableOpacity>
         <TouchableWithoutFeedback
           onPress={handleSubmit}
-          disabled={preguntas.length === 0}
+          disabled={preguntas.length === 0 || isCreating}
         >
           <View style={{ flex: 2 }}>
             <LinearGradient
               colors={
-                preguntas.length === 0
+                preguntas.length === 0 || isCreating
                   ? ["#94A3B8", "#94A3B8"]
                   : [THEME.colors.primary, "#1E40AF"]
               }
@@ -283,7 +286,11 @@ const PreguntasForm: React.FC<PreguntasFormProps> = ({
               end={{ x: 1, y: 0 }}
               style={styles.submitButton}
             >
-              <Text style={styles.submitButtonText}>Crear Votación</Text>
+              {isCreating ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.submitButtonText}>Crear Votación</Text>
+              )}
             </LinearGradient>
           </View>
         </TouchableWithoutFeedback>

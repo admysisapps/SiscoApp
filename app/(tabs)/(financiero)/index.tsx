@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -160,9 +161,8 @@ export default function FinancieroIndex() {
               </View>
               <View style={styles.iconContainer}>
                 {downloadingId === doc.id ? (
-                  <Ionicons
-                    name="hourglass-outline"
-                    size={24}
+                  <ActivityIndicator
+                    size="small"
                     color={THEME.colors.primary}
                   />
                 ) : !doc.enCache ? (

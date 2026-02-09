@@ -32,6 +32,7 @@ const VotacionCrearScreen: React.FC = () => {
   });
   const [preguntas, setPreguntas] = useState<PreguntaFormData[]>([]);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -56,6 +57,7 @@ const VotacionCrearScreen: React.FC = () => {
 
   const handlePreguntasSubmit = async (preguntasData: PreguntaFormData[]) => {
     setPreguntas(preguntasData);
+    setIsCreating(true);
     try {
       const response = await votacionesService.crearVotacion(
         asambleaId!,
@@ -66,12 +68,17 @@ const VotacionCrearScreen: React.FC = () => {
 
       if (response.success) {
         showToast("Votación creada exitosamente", "success");
-        setTimeout(() => router.back(), 1500);
+        setTimeout(() => {
+          setIsCreating(false);
+          router.back();
+        }, 1500);
       } else {
+        setIsCreating(false);
         showToast(response.error || "Error al crear la votación", "error");
       }
     } catch (error) {
       console.error("Error creando votación:", error);
+      setIsCreating(false);
       showToast("Error al crear la votación", "error");
     }
   };
@@ -128,6 +135,7 @@ const VotacionCrearScreen: React.FC = () => {
             onBack={() => setCurrentStep(1)}
             onPreguntasChange={setPreguntas}
             showToast={showToast}
+            isCreating={isCreating}
           />
         )}
       </View>
