@@ -4,7 +4,7 @@ const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: IS_PREVIEW ? "SiscoApp (Preview)" : "SiscoApp",
+  name: IS_PREVIEW ? "SiscoApp (Preview)" : "siscoapp",
   slug: "SiscoApp",
   owner: "admysis",
   version: "1.0.0",
