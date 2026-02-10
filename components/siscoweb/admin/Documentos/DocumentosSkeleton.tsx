@@ -44,13 +44,21 @@ export default function DocumentosSkeleton() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <SkeletonBox
+          width="40%"
+          height={18}
+          style={{ marginBottom: THEME.spacing.sm }}
+        />
+      </View>
       {[1, 2, 3, 4, 5].map((item) => (
         <View key={item} style={styles.itemContainer}>
+          <SkeletonBox width={24} height={24} style={{ borderRadius: 4 }} />
           <View style={styles.info}>
-            <SkeletonBox width="70%" height={18} style={{ marginBottom: 8 }} />
-            <SkeletonBox width="40%" height={14} />
+            <SkeletonBox width="70%" height={16} style={{ marginBottom: 6 }} />
+            <SkeletonBox width="50%" height={12} />
           </View>
-          <SkeletonBox width={24} height={24} style={{ borderRadius: 12 }} />
+          <SkeletonBox width={20} height={20} style={{ borderRadius: 4 }} />
         </View>
       ))}
     </View>
@@ -61,17 +69,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerContainer: {
+    marginTop: THEME.spacing.sm,
+    marginBottom: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.md + THEME.spacing.xs,
+  },
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: THEME.spacing.lg,
-    paddingHorizontal: THEME.spacing.lg,
+    padding: THEME.spacing.md,
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.borderRadius.md,
     borderBottomWidth: 1,
     borderBottomColor: THEME.colors.border,
+    marginHorizontal: THEME.spacing.md,
+    marginBottom: THEME.spacing.sm,
   },
   info: {
     flex: 1,
-    paddingRight: THEME.spacing.md,
+    marginLeft: THEME.spacing.sm,
+    marginRight: THEME.spacing.sm,
   },
 });

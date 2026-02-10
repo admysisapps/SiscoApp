@@ -12,9 +12,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { THEME } from "@/constants/theme";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
+import DocumentosSkeleton from "@/components/siscoweb/admin/Documentos/DocumentosSkeleton";
 import { useProject } from "@/contexts/ProjectContext";
 import { documentoService } from "@/services/documentoService";
 import { documentoCacheService } from "@/services/cache/documentoCacheService";
+
 import { eventBus, EVENTS } from "@/utils/eventBus";
 import { Documento } from "@/types/Documento";
 
@@ -127,10 +129,7 @@ export default function DocumentosScreen() {
         showsVerticalScrollIndicator={false}
       >
         {loading ? (
-          <View style={styles.emptyState}>
-            <ActivityIndicator size="large" color={THEME.colors.primary} />
-            <Text style={styles.emptyText}>Cargando documentos...</Text>
-          </View>
+          <DocumentosSkeleton />
         ) : documentos.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons

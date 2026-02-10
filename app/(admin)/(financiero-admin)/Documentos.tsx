@@ -38,6 +38,8 @@ export default function Documentos() {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [deleting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const cargarDocumentos = useCallback(async () => {
     try {
@@ -143,30 +145,35 @@ export default function Documentos() {
       return;
     }
 
+    setShowDeleteModal(false);
+    setDeletingId(documentoToDelete);
+
+    // Esperar solo la animación (250ms)
+    setTimeout(() => {
+      // Quitar de la lista inmediatamente después de la animación
+      setDocumentos((prev) => prev.filter((d) => d.id !== documentoToDelete));
+      setDeletingId(null);
+    }, 250);
+
+    // Eliminar del servidor en segundo plano
     try {
       const doc = documentos.find((d) => d.id === documentoToDelete);
       if (!doc || !doc.nombre_archivo) return;
 
-      const result = await documentoService.eliminarDocumento(
+      await documentoService.eliminarDocumento(
         selectedProject.nit,
         doc.id,
         doc.nombre_archivo,
         doc.nombre
       );
-
-      if (result.success) {
-        setDocumentos(documentos.filter((d) => d.id !== documentoToDelete));
-      } else {
-        setErrorMessage(result.error || "Error al eliminar documento");
-        setShowErrorModal(true);
-      }
     } catch (error) {
       console.error("Error eliminando documento:", error);
+      // Si falla, recargar la lista
+      cargarDocumentos();
       setErrorMessage("Error al eliminar documento");
       setShowErrorModal(true);
     } finally {
       setDocumentoToDelete(null);
-      setShowDeleteModal(false);
     }
   };
 
@@ -250,6 +257,7 @@ export default function Documentos() {
                   onEliminar={() => handleEliminarDocumento(doc.id)}
                   openItemId={openItemId}
                   isDownloading={downloadingId === doc.id}
+                  shouldDelete={deletingId === doc.id}
                 />
               ))}
             </View>
@@ -287,10 +295,11 @@ export default function Documentos() {
           type="confirm"
           title="Eliminar Documento"
           message="¿Estás seguro de eliminar este documento? Esta acción no se puede deshacer."
-          confirmText="Eliminar"
+          confirmText={deleting ? "Eliminando..." : "Eliminar"}
           cancelText="Cancelar"
           onConfirm={confirmDelete}
           onCancel={() => setShowDeleteModal(false)}
+          loading={deleting}
         />
 
         <ConfirmModal

@@ -6,6 +6,7 @@ import {
   Modal,
   TouchableOpacity,
   Animated,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { THEME } from "@/constants/theme";
@@ -24,6 +25,7 @@ interface ConfirmModalProps {
   onConfirm?: () => void;
   onCancel: () => void;
   showCancel?: boolean;
+  loading?: boolean;
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -37,6 +39,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel,
   showCancel = true,
+  loading = false,
 }) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -152,6 +155,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
               <TouchableOpacity
                 style={[styles.button, styles.buttonSecondary]}
                 onPress={onCancel}
+                disabled={loading}
               >
                 <Ionicons
                   name="close"
@@ -169,6 +173,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 styles.buttonPrimary,
                 { backgroundColor: buttonColor },
                 !showCancel && styles.buttonFull,
+                loading && styles.buttonDisabled,
               ]}
               onPress={() => {
                 if (onConfirm) {
@@ -177,8 +182,13 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                   onCancel();
                 }
               }}
+              disabled={loading}
             >
-              <Ionicons name="checkmark" size={24} color="white" />
+              {loading ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Ionicons name="checkmark" size={24} color="white" />
+              )}
               <Text style={styles.buttonTextPrimary} numberOfLines={1}>
                 {confirmText}
               </Text>
@@ -261,6 +271,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     flexShrink: 1,
     textAlign: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });
 

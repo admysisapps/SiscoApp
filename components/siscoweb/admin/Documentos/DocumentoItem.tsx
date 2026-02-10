@@ -16,6 +16,8 @@ import Animated, {
   withTiming,
   useAnimatedReaction,
   SharedValue,
+  interpolate,
+  Extrapolation,
 } from "react-native-reanimated";
 import { Documento } from "@/types/Documento";
 
@@ -25,7 +27,10 @@ interface DocumentoItemProps {
   onEliminar: () => void;
   openItemId: SharedValue<string | null>;
   isDownloading?: boolean;
+  shouldDelete?: boolean;
 }
+
+const SWIPE_THRESHOLD = -80;
 
 export const DocumentoItem: React.FC<DocumentoItemProps> = ({
   documento,
@@ -33,9 +38,17 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
   onEliminar,
   openItemId,
   isDownloading = false,
+  shouldDelete = false,
 }) => {
   const translateX = useSharedValue(0);
   const savedPosition = useSharedValue(0);
+
+  // Ejecutar animación de salida cuando shouldDelete cambie a true
+  React.useEffect(() => {
+    if (shouldDelete) {
+      translateX.value = withTiming(-500, { duration: 250 });
+    }
+  }, [shouldDelete, translateX]);
 
   // Cerrar este item si otro se abre
   useAnimatedReaction(
@@ -60,15 +73,15 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
     })
     .onUpdate((event) => {
       const newValue = savedPosition.value + event.translationX;
-      if (newValue < 0 && newValue > -80) {
+      if (newValue < 0 && newValue > SWIPE_THRESHOLD) {
         translateX.value = newValue;
       }
     })
     .onEnd((event) => {
       const finalPosition = savedPosition.value + event.translationX;
-      if (finalPosition < -40) {
-        translateX.value = withSpring(-80);
-        savedPosition.value = -80;
+      if (finalPosition < SWIPE_THRESHOLD / 2) {
+        translateX.value = withSpring(SWIPE_THRESHOLD);
+        savedPosition.value = SWIPE_THRESHOLD;
         openItemId.value = documento.id;
       } else {
         translateX.value = withSpring(0);
@@ -83,21 +96,39 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
     transform: [{ translateX: translateX.value }],
   }));
 
+  const deleteButtonStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      translateX.value,
+      [0, SWIPE_THRESHOLD],
+      [0.5, 1],
+      Extrapolation.CLAMP
+    );
+    const opacity = interpolate(
+      translateX.value,
+      [0, SWIPE_THRESHOLD],
+      [0, 1],
+      Extrapolation.CLAMP
+    );
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
   const handleDelete = () => {
-    translateX.value = withTiming(0, { duration: 200 }, (finished) => {
-      if (finished && openItemId.value === documento.id) {
-        openItemId.value = null;
-      }
-    });
-    setTimeout(() => onEliminar(), 200);
+    onEliminar();
   };
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.deleteBackground}>
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Ionicons name="trash-outline" size={24} color="#fff" />
-        </TouchableOpacity>
+        <Animated.View
+          style={[styles.deleteButtonContainer, deleteButtonStyle]}
+        >
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Ionicons name="trash-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
       </View>
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.container, animatedStyle]}>
@@ -112,7 +143,7 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
               color={THEME.colors.primary}
             />
             <View style={styles.documentoInfo}>
-              <Text style={styles.documentoNombre} numberOfLines={2}>
+              <Text style={styles.documentoNombre} numberOfLines={1}>
                 {documento.nombre}
               </Text>
               <Text style={styles.documentoMeta}>
@@ -122,14 +153,14 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
             <View style={styles.iconContainer}>
               {isDownloading ? (
                 <ActivityIndicator size="small" color={THEME.colors.primary} />
-              ) : !documento.enCache ? (
-                <Ionicons
-                  name="download-outline"
-                  size={20}
-                  color={THEME.colors.primary}
-                />
               ) : (
-                <View style={styles.iconPlaceholder} />
+                !documento.enCache && (
+                  <Ionicons
+                    name="download-outline"
+                    size={20}
+                    color={THEME.colors.primary}
+                  />
+                )
               )}
             </View>
           </TouchableOpacity>
@@ -141,28 +172,27 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    position: "relative",
-    overflow: "hidden",
     marginHorizontal: THEME.spacing.md,
     marginBottom: THEME.spacing.sm,
+    backgroundColor: "#f44336",
     borderRadius: THEME.borderRadius.md,
+    overflow: "hidden",
   },
   deleteBackground: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: 80,
-    backgroundColor: "#f44336",
+    ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
-    alignItems: "center",
-    borderRadius: THEME.borderRadius.md,
+    alignItems: "flex-end",
   },
-  deleteButton: {
+  deleteButtonContainer: {
     width: 80,
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  deleteButton: {
+    paddingHorizontal: 20,
+    height: "100%",
+    justifyContent: "center",
   },
   container: {
     flexDirection: "row",
@@ -170,8 +200,6 @@ const styles = StyleSheet.create({
     padding: THEME.spacing.md,
     backgroundColor: THEME.colors.surface,
     borderRadius: THEME.borderRadius.md,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
   },
   touchable: {
     flexDirection: "row",
@@ -185,6 +213,7 @@ const styles = StyleSheet.create({
   },
   documentoNombre: {
     fontSize: THEME.fontSize.md,
+    fontWeight: "600",
     color: THEME.colors.text.primary,
   },
   documentoMeta: {
@@ -197,9 +226,5 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: "center",
     justifyContent: "center",
-  },
-  iconPlaceholder: {
-    width: 20,
-    height: 20,
   },
 });
