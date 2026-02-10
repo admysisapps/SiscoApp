@@ -238,16 +238,21 @@ export default function Documentos() {
               <Text style={styles.emptyText}>No hay documentos</Text>
             </View>
           ) : (
-            documentos.map((doc) => (
-              <DocumentoItem
-                key={doc.id}
-                documento={doc}
-                onDescargar={() => handleDescargarDocumento(doc)}
-                onEliminar={() => handleEliminarDocumento(doc.id)}
-                openItemId={openItemId}
-                isDownloading={downloadingId === doc.id}
-              />
-            ))
+            <View style={styles.documentosContainer}>
+              <Text style={styles.documentosTitulo}>
+                Documentos ({documentos.length})
+              </Text>
+              {documentos.map((doc) => (
+                <DocumentoItem
+                  key={doc.id}
+                  documento={doc}
+                  onDescargar={() => handleDescargarDocumento(doc)}
+                  onEliminar={() => handleEliminarDocumento(doc.id)}
+                  openItemId={openItemId}
+                  isDownloading={downloadingId === doc.id}
+                />
+              ))}
+            </View>
           )}
         </ScrollView>
 
@@ -360,5 +365,15 @@ const styles = StyleSheet.create({
     fontSize: THEME.fontSize.md,
     color: THEME.colors.text.muted,
     marginTop: THEME.spacing.md,
+  },
+  documentosContainer: {
+    marginTop: THEME.spacing.sm,
+  },
+  documentosTitulo: {
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
+    color: THEME.colors.text.primary,
+    marginBottom: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.lg,
   },
 });

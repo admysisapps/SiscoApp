@@ -102,31 +102,37 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.container, animatedStyle]}>
           <TouchableOpacity
-            style={styles.info}
+            style={styles.touchable}
             onPress={onDescargar}
             activeOpacity={0.7}
           >
-            <Text style={styles.nombre} numberOfLines={2}>
-              {documento.nombre}
-            </Text>
-            <Text style={styles.fecha}>{documento.fecha}</Text>
-          </TouchableOpacity>
-          <View style={styles.iconContainer}>
-            {isDownloading ? (
-              <ActivityIndicator size="small" color={THEME.colors.primary} />
-            ) : !documento.enCache ? (
-              <TouchableOpacity
-                style={styles.downloadButton}
-                onPress={onDescargar}
-              >
+            <Ionicons
+              name="document-text-outline"
+              size={24}
+              color={THEME.colors.primary}
+            />
+            <View style={styles.documentoInfo}>
+              <Text style={styles.documentoNombre} numberOfLines={2}>
+                {documento.nombre}
+              </Text>
+              <Text style={styles.documentoMeta}>
+                {documento.tipo} • {documento.tamaño} • {documento.fecha}
+              </Text>
+            </View>
+            <View style={styles.iconContainer}>
+              {isDownloading ? (
+                <ActivityIndicator size="small" color={THEME.colors.primary} />
+              ) : !documento.enCache ? (
                 <Ionicons
                   name="download-outline"
-                  size={24}
+                  size={20}
                   color={THEME.colors.primary}
                 />
-              </TouchableOpacity>
-            ) : null}
-          </View>
+              ) : (
+                <View style={styles.iconPlaceholder} />
+              )}
+            </View>
+          </TouchableOpacity>
         </Animated.View>
       </GestureDetector>
     </View>
@@ -137,6 +143,9 @@ const styles = StyleSheet.create({
   wrapper: {
     position: "relative",
     overflow: "hidden",
+    marginHorizontal: THEME.spacing.md,
+    marginBottom: THEME.spacing.sm,
+    borderRadius: THEME.borderRadius.md,
   },
   deleteBackground: {
     position: "absolute",
@@ -147,6 +156,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f44336",
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: THEME.borderRadius.md,
   },
   deleteButton: {
     width: 80,
@@ -157,34 +167,39 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: THEME.spacing.lg,
-    paddingHorizontal: THEME.spacing.lg,
+    padding: THEME.spacing.md,
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.borderRadius.md,
     borderBottomWidth: 1,
-    borderBottomColor: "#847e7e",
-    backgroundColor: THEME.colors.background,
+    borderBottomColor: THEME.colors.border,
   },
-  info: {
+  touchable: {
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
-    paddingRight: THEME.spacing.md,
   },
-  nombre: {
+  documentoInfo: {
+    flex: 1,
+    marginLeft: THEME.spacing.sm,
+    marginRight: THEME.spacing.sm,
+  },
+  documentoNombre: {
     fontSize: THEME.fontSize.md,
-    fontWeight: "600",
     color: THEME.colors.text.primary,
-    marginBottom: 4,
   },
-  fecha: {
-    fontSize: THEME.fontSize.sm,
+  documentoMeta: {
+    fontSize: THEME.fontSize.xs,
     color: THEME.colors.text.secondary,
+    marginTop: 2,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
+    width: 24,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
   },
-  downloadButton: {
-    padding: THEME.spacing.xs,
+  iconPlaceholder: {
+    width: 20,
+    height: 20,
   },
 });

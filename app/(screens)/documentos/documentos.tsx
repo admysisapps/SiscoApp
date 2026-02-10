@@ -80,24 +80,6 @@ export default function DocumentosScreen() {
     };
   }, [cargarDocumentos]);
 
-  const getFileIcon = (tipo: string) => {
-    const tipoLower = tipo.toLowerCase();
-    if (tipoLower === "pdf") return "document-text";
-    if (["doc", "docx"].includes(tipoLower)) return "document";
-    if (["xls", "xlsx"].includes(tipoLower)) return "grid";
-    if (["jpg", "jpeg", "png"].includes(tipoLower)) return "image";
-    return "document-outline";
-  };
-
-  const getFileColor = (tipo: string) => {
-    const tipoLower = tipo.toLowerCase();
-    if (tipoLower === "pdf") return "#EF4444";
-    if (["doc", "docx"].includes(tipoLower)) return "#3B82F6";
-    if (["xls", "xlsx"].includes(tipoLower)) return "#10B981";
-    if (["jpg", "jpeg", "png"].includes(tipoLower)) return "#F59E0B";
-    return THEME.colors.primary;
-  };
-
   const handleDescargarDocumento = async (doc: Documento) => {
     if (!selectedProject?.nit || !doc.nombre_archivo) return;
 
@@ -159,53 +141,49 @@ export default function DocumentosScreen() {
             <Text style={styles.emptyText}>No hay documentos</Text>
           </View>
         ) : (
-          documentos.map((doc) => (
-            <TouchableOpacity
-              key={doc.id}
-              style={styles.documentoItem}
-              onPress={() => handleDescargarDocumento(doc)}
-              activeOpacity={0.7}
-            >
-              <View
-                style={[
-                  styles.fileIcon,
-                  { backgroundColor: `${getFileColor(doc.tipo)}15` },
-                ]}
+          <View style={styles.documentosContainer}>
+            <Text style={styles.documentosTitulo}>
+              Documentos ({documentos.length})
+            </Text>
+            {documentos.map((doc) => (
+              <TouchableOpacity
+                key={doc.id}
+                style={styles.documentoItem}
+                onPress={() => handleDescargarDocumento(doc)}
+                activeOpacity={0.7}
               >
                 <Ionicons
-                  name={getFileIcon(doc.tipo) as any}
+                  name="document-text-outline"
                   size={24}
-                  color={getFileColor(doc.tipo)}
+                  color={THEME.colors.primary}
                 />
-              </View>
-              <View style={styles.info}>
-                <Text style={styles.nombre} numberOfLines={2}>
-                  {doc.nombre}
-                </Text>
-                <View style={styles.metadata}>
-                  <Text style={styles.metadataText}>{doc.tipo}</Text>
-                  <Text style={styles.metadataDot}>•</Text>
-                  <Text style={styles.metadataText}>{doc.tamaño}</Text>
-                  <Text style={styles.metadataDot}>•</Text>
-                  <Text style={styles.metadataText}>{doc.fecha}</Text>
+                <View style={styles.documentoInfo}>
+                  <Text style={styles.documentoNombre} numberOfLines={2}>
+                    {doc.nombre}
+                  </Text>
+                  <Text style={styles.documentoMeta}>
+                    {doc.tipo} • {doc.tamaño}
+                  </Text>
                 </View>
-              </View>
-              <View style={styles.iconContainer}>
-                {downloadingId === doc.id ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={THEME.colors.primary}
-                  />
-                ) : !doc.enCache ? (
-                  <Ionicons
-                    name="download-outline"
-                    size={24}
-                    color={THEME.colors.primary}
-                  />
-                ) : null}
-              </View>
-            </TouchableOpacity>
-          ))
+                <View style={styles.iconContainer}>
+                  {downloadingId === doc.id ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={THEME.colors.primary}
+                    />
+                  ) : !doc.enCache ? (
+                    <Ionicons
+                      name="download-outline"
+                      size={20}
+                      color={THEME.colors.primary}
+                    />
+                  ) : (
+                    <View style={styles.iconPlaceholder} />
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
       </ScrollView>
 
@@ -244,57 +222,48 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.muted,
     marginTop: THEME.spacing.md,
   },
-  documentoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: THEME.spacing.md,
-    paddingHorizontal: THEME.spacing.md,
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    marginBottom: THEME.spacing.sm,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: "#F1F5F9",
+  documentosContainer: {
+    marginTop: THEME.spacing.sm,
   },
-  fileIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: THEME.borderRadius.md,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: THEME.spacing.md,
-  },
-  info: {
-    flex: 1,
-    paddingRight: THEME.spacing.md,
-  },
-  nombre: {
+  documentosTitulo: {
     fontSize: THEME.fontSize.md,
     fontWeight: "600",
     color: THEME.colors.text.primary,
-    marginBottom: 6,
+    marginBottom: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.xs,
   },
-  metadata: {
+  documentoItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    padding: THEME.spacing.md,
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.borderRadius.md,
+    marginBottom: THEME.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: THEME.colors.border,
   },
-  metadataText: {
+  documentoInfo: {
+    flex: 1,
+    marginLeft: THEME.spacing.sm,
+    marginRight: THEME.spacing.sm,
+  },
+  documentoNombre: {
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.primary,
+  },
+  documentoMeta: {
     fontSize: THEME.fontSize.xs,
     color: THEME.colors.text.secondary,
-  },
-  metadataDot: {
-    fontSize: THEME.fontSize.xs,
-    color: THEME.colors.text.muted,
+    marginTop: 2,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
+    width: 24,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
+  },
+  iconPlaceholder: {
+    width: 20,
+    height: 20,
   },
 });

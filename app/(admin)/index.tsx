@@ -18,6 +18,8 @@ import { AvisosAdminCards } from "@/components/avisos/AvisosAdminCards";
 import { AsambleasDashboardCard } from "@/components/asambleas/AsambleasDashboardCard";
 import { CrearAsambleaDashboardCard } from "@/components/asambleas/CrearAsambleaDashboardCard";
 
+import { THEME } from "@/constants/theme";
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -296,11 +298,11 @@ export default function AdminIndex() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: THEME.colors.background,
   },
   internalTabBar: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.surface,
     marginHorizontal: 12,
     marginTop: 8,
     marginBottom: 8,
@@ -312,7 +314,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
     borderWidth: 0.5,
-    borderColor: "#E2E8F0",
+    borderColor: THEME.colors.border,
   },
   tabIndicator: {
     position: "absolute",
