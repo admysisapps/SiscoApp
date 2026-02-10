@@ -17,16 +17,7 @@ import Animated, {
   useAnimatedReaction,
   SharedValue,
 } from "react-native-reanimated";
-
-interface Documento {
-  id: string;
-  nombre: string;
-  tipo: string;
-  tamaño: string;
-  fecha: string;
-  categoria: string;
-  enCache?: boolean;
-}
+import { Documento } from "@/types/Documento";
 
 interface DocumentoItemProps {
   documento: Documento;
@@ -170,7 +161,7 @@ const styles = StyleSheet.create({
     paddingVertical: THEME.spacing.lg,
     paddingHorizontal: THEME.spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
+    borderBottomColor: "#847e7e",
     backgroundColor: THEME.colors.background,
   },
   info: {

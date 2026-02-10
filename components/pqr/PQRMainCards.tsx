@@ -15,6 +15,10 @@ export const PqrMainCards: React.FC = () => {
     router.push("/(screens)/pqr/PqrListaScreen");
   };
 
+  const handleViewDocuments = () => {
+    router.push("/(screens)/documentos/documentos");
+  };
+
   return (
     <View style={styles.container}>
       {/* Card Crear PQR - Solo para usuarios */}
@@ -48,6 +52,21 @@ export const PqrMainCards: React.FC = () => {
           </Text>
         </View>
       </TouchableOpacity>
+
+      {/* Card Documentos - Solo para usuarios */}
+      {!isAdmin && (
+        <TouchableOpacity style={styles.card} onPress={handleViewDocuments}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="document-text" size={26} color="#4F46E5" />
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Documentos</Text>
+            <Text style={styles.cardDescription}>
+              Ver documentos de la copropiedad
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
