@@ -144,6 +144,7 @@ export const CONTEXT_TYPES = {
   ASSEMBLY_CREATE: ["documento", "rol", "copropiedad", "proyecto_nit"], // Crear asamblea (admin)
   ASSEMBLY_UPDATE: ["documento", "rol", "copropiedad", "proyecto_nit"], // Cambiar estado (admin)
   ASSEMBLY_QUORUM: ["documento", "copropiedad", "proyecto_nit"], // Consultar quórum
+  ASSEMBLY_REPORT: ["documento", "rol", "copropiedad", "proyecto_nit"], // Generar reportes (admin)
 
   //poderes
   GENERATE_POWER: ["documento", "rol", "proyecto_nit", "copropiedad"],
@@ -162,6 +163,6 @@ export const CONTEXT_TYPES = {
   //documentos
   DOCUMENTOS_CREATE: ["documento", "rol", "copropiedad"],
   DOCUMENTOS_LIST: ["copropiedad", "rol"],
-  DOCUMENTOS_DELETE: ["documento", "rol", "copropiedad"],
+  DOCUMENTOS_DELETE: ["documento", "rol", "copropiedad", "proyecto_nit"],
   DOCUMENTOS_UPDATE_VISIBILITY: ["documento", "rol", "copropiedad"],
 };

@@ -4,6 +4,7 @@ export interface DocumentoDB {
   nombre_archivo: string;
   nombre_original: string;
   tamaño: number;
+  subido_por: string;
   fecha_creacion: string;
   visible_cop: number; // 1 = visible para todos, 0 = solo admin
 }

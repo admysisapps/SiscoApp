@@ -19,6 +19,7 @@ import { votacionesService } from "@/services/votacionesService";
 import { ResultadosVotacion } from "@/components/votaciones/base/ResultadosVotacion";
 import { s3Service } from "@/services/s3Service";
 import { asambleaService } from "@/services/asambleaService";
+import { useRouter } from "expo-router";
 import { useProject } from "@/contexts/ProjectContext";
 
 type IconName =
@@ -40,6 +41,7 @@ const AsambleaFinalizadaAdmin: React.FC<AsambleaFinalizadaAdminProps> = ({
   asamblea,
   onShowToast,
 }) => {
+  const router = useRouter();
   const { selectedProject } = useProject();
   const [showResultados, setShowResultados] = useState(false);
   const [loadingResultados, setLoadingResultados] = useState(false);
@@ -52,7 +54,35 @@ const AsambleaFinalizadaAdmin: React.FC<AsambleaFinalizadaAdminProps> = ({
     nombreS3: string;
     nombre: string;
   } | null>(null);
+  const [generandoReporte, setGenerandoReporte] = useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;
+
+  const handleGenerarReporte = async () => {
+    try {
+      setGenerandoReporte(true);
+      const response = await asambleaService.generarReporteAsistencia(
+        asamblea.id
+      );
+
+      if (response.success) {
+        onShowToast?.(response.mensaje, "success");
+
+        // Si el reporte se generó correctamente (no existía antes), navegar a Documentos
+        if (!response.mensaje.includes("ya existe")) {
+          setTimeout(() => {
+            router.push("/(admin)/(financiero-admin)/Documentos");
+          }, 1500); // Esperar 1.5s para que el usuario vea el toast
+        }
+      } else {
+        onShowToast?.(response.error || "Error al generar reporte", "error");
+      }
+    } catch (error) {
+      console.error("Error generando reporte:", error);
+      onShowToast?.("Error al generar reporte de asistencia", "error");
+    } finally {
+      setGenerandoReporte(false);
+    }
+  };
 
   // Cargar archivos existentes desde la BD
   useEffect(() => {
@@ -254,6 +284,31 @@ const AsambleaFinalizadaAdmin: React.FC<AsambleaFinalizadaAdminProps> = ({
           />
           <Text style={styles.uploadButtonText}>
             {uploadingFiles ? "Subiendo..." : "Subir Documentos"}
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+
+      {/* Botón para generar reporte de asistencia */}
+      <TouchableOpacity
+        onPress={handleGenerarReporte}
+        disabled={generandoReporte}
+        activeOpacity={0.9}
+      >
+        <LinearGradient
+          colors={["#059669", "#047857", "#065F46"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.reportButton}
+        >
+          <Ionicons
+            name={"document-text-outline" as IconName}
+            size={20}
+            color="white"
+          />
+          <Text style={styles.reportButtonText}>
+            {generandoReporte
+              ? "Generando..."
+              : "Generar Reporte de Asistencia"}
           </Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -468,6 +523,22 @@ const styles = StyleSheet.create({
     gap: THEME.spacing.sm,
   },
   uploadButtonText: {
+    color: "white",
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
+  },
+
+  // Botón de reporte
+  reportButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: THEME.spacing.md,
+    borderRadius: THEME.borderRadius.md,
+    marginBottom: THEME.spacing.md,
+    gap: THEME.spacing.sm,
+  },
+  reportButtonText: {
     color: "white",
     fontSize: THEME.fontSize.md,
     fontWeight: "600",

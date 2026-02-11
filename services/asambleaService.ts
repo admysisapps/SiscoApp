@@ -110,4 +110,21 @@ export const asambleaService = {
       throw error;
     }
   },
+
+  // Genera reporte de asistencia para asamblea finalizada
+
+  async generarReporteAsistencia(asambleaId: number) {
+    try {
+      return await apiService.makeRequestWithContextType(
+        "/asambleas/reportes/asistencia",
+        {
+          asamblea_id: asambleaId,
+        },
+        "ASSEMBLY_REPORT"
+      );
+    } catch (error) {
+      console.error("Error generando reporte de asistencia:", error);
+      throw error;
+    }
+  },
 };

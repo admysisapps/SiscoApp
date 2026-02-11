@@ -88,8 +88,6 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.background,
     padding: THEME.spacing.md,
     borderRadius: THEME.borderRadius.md,
-    borderLeftWidth: 3,
-    borderLeftColor: THEME.colors.text.muted,
   },
   notaText: {
     fontSize: THEME.fontSize.sm,

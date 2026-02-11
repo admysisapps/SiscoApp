@@ -132,8 +132,8 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
             <Ionicons
               name={
                 documento.visibleCop
-                  ? "lock-open-outline"
-                  : "lock-closed-outline"
+                  ? "lock-closed-outline"
+                  : "lock-open-outline"
               }
               size={24}
               color="#fff"
