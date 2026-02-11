@@ -5,6 +5,7 @@ export interface DocumentoDB {
   nombre_original: string;
   tamaño: number;
   fecha_creacion: string;
+  visible_cop: number; // 1 = visible para todos, 0 = solo admin
 }
 
 // Documento para la UI
@@ -17,6 +18,7 @@ export interface Documento {
   categoria: string;
   nombre_archivo?: string;
   enCache?: boolean;
+  visibleCop?: boolean; // true = visible para todos, false = solo admin
 }
 
 // Resultado de subir documento

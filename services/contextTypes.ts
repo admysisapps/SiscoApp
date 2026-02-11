@@ -161,6 +161,7 @@ export const CONTEXT_TYPES = {
 
   //documentos
   DOCUMENTOS_CREATE: ["documento", "rol", "copropiedad"],
-  DOCUMENTOS_LIST: ["copropiedad"],
-  DOCUMENTOS_DELETE: ["documento", "rol", "copropiedad", "proyecto_nit"],
+  DOCUMENTOS_LIST: ["copropiedad", "rol"],
+  DOCUMENTOS_DELETE: ["documento", "rol", "copropiedad"],
+  DOCUMENTOS_UPDATE_VISIBILITY: ["documento", "rol", "copropiedad"],
 };

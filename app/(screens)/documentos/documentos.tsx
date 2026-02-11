@@ -16,7 +16,6 @@ import DocumentosSkeleton from "@/components/siscoweb/admin/Documentos/Documento
 import { useProject } from "@/contexts/ProjectContext";
 import { documentoService } from "@/services/documentoService";
 import { documentoCacheService } from "@/services/cache/documentoCacheService";
-
 import { eventBus, EVENTS } from "@/utils/eventBus";
 import { Documento } from "@/types/Documento";
 
@@ -53,6 +52,7 @@ export default function DocumentosScreen() {
               categoria: "General",
               nombre_archivo: doc.nombre_archivo,
               enCache,
+              visibleCop: doc.visible_cop === 1,
             };
           })
         );
@@ -145,42 +145,43 @@ export default function DocumentosScreen() {
               Documentos ({documentos.length})
             </Text>
             {documentos.map((doc) => (
-              <TouchableOpacity
-                key={doc.id}
-                style={styles.documentoItem}
-                onPress={() => handleDescargarDocumento(doc)}
-                activeOpacity={0.7}
-              >
-                <Ionicons
-                  name="document-text-outline"
-                  size={24}
-                  color={THEME.colors.primary}
-                />
-                <View style={styles.documentoInfo}>
-                  <Text style={styles.documentoNombre} numberOfLines={2}>
-                    {doc.nombre}
-                  </Text>
-                  <Text style={styles.documentoMeta}>
-                    {doc.tipo} • {doc.tamaño}
-                  </Text>
-                </View>
-                <View style={styles.iconContainer}>
-                  {downloadingId === doc.id ? (
-                    <ActivityIndicator
-                      size="small"
-                      color={THEME.colors.primary}
-                    />
-                  ) : !doc.enCache ? (
-                    <Ionicons
-                      name="download-outline"
-                      size={20}
-                      color={THEME.colors.primary}
-                    />
-                  ) : (
-                    <View style={styles.iconPlaceholder} />
-                  )}
-                </View>
-              </TouchableOpacity>
+              <View key={doc.id} style={styles.documentoWrapper}>
+                <TouchableOpacity
+                  style={styles.documentoItem}
+                  onPress={() => handleDescargarDocumento(doc)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name="document-text"
+                    size={24}
+                    color={THEME.colors.primary}
+                  />
+                  <View style={styles.documentoInfo}>
+                    <Text style={styles.documentoNombre} numberOfLines={1}>
+                      {doc.nombre}
+                    </Text>
+                    <Text style={styles.documentoMeta}>
+                      {doc.tipo} • {doc.tamaño} • {doc.fecha}
+                    </Text>
+                  </View>
+                  <View style={styles.iconContainer}>
+                    {downloadingId === doc.id ? (
+                      <ActivityIndicator
+                        size="small"
+                        color={THEME.colors.primary}
+                      />
+                    ) : (
+                      !doc.enCache && (
+                        <Ionicons
+                          name="download-outline"
+                          size={20}
+                          color={THEME.colors.primary}
+                        />
+                      )
+                    )}
+                  </View>
+                </TouchableOpacity>
+              </View>
             ))}
           </View>
         )}
@@ -209,6 +210,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: THEME.spacing.md,
+    paddingHorizontal: THEME.spacing.sm,
     paddingBottom: THEME.spacing.xl * 3,
   },
   emptyState: {
@@ -231,15 +233,20 @@ const styles = StyleSheet.create({
     marginBottom: THEME.spacing.sm,
     paddingHorizontal: THEME.spacing.xs,
   },
+  documentoWrapper: {
+    marginHorizontal: THEME.spacing.xs,
+    marginBottom: THEME.spacing.sm,
+    borderRadius: THEME.borderRadius.md,
+    overflow: "hidden",
+  },
   documentoItem: {
     flexDirection: "row",
     alignItems: "center",
     padding: THEME.spacing.md,
     backgroundColor: THEME.colors.surface,
     borderRadius: THEME.borderRadius.md,
-    marginBottom: THEME.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   documentoInfo: {
     flex: 1,
@@ -248,6 +255,7 @@ const styles = StyleSheet.create({
   },
   documentoNombre: {
     fontSize: THEME.fontSize.md,
+    fontWeight: "600",
     color: THEME.colors.text.primary,
   },
   documentoMeta: {
@@ -260,9 +268,5 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: "center",
     justifyContent: "center",
-  },
-  iconPlaceholder: {
-    width: 20,
-    height: 20,
   },
 });

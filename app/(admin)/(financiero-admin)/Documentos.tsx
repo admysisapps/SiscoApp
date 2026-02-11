@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Modal,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as DocumentPicker from "expo-document-picker";
@@ -41,6 +42,11 @@ export default function Documentos() {
   const [deleting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Estados para modal de visibilidad
+  const [showVisibilityModal, setShowVisibilityModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [visibleCopropietarios, setVisibleCopropietarios] = useState(true);
+
   const cargarDocumentos = useCallback(async () => {
     try {
       setLoading(true);
@@ -67,6 +73,7 @@ export default function Documentos() {
               categoria: "General",
               nombre_archivo: doc.nombre_archivo,
               enCache,
+              visibleCop: doc.visible_cop === 1,
             };
           })
         );
@@ -109,28 +116,45 @@ export default function Documentos() {
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const file = result.assets[0];
-        setUploading(true);
+        // Guardar archivo y mostrar modal
+        setSelectedFile(file);
+        setVisibleCopropietarios(true); // Por defecto visible
+        setShowVisibilityModal(true);
+      }
+    } catch (error) {
+      console.error("Error seleccionando documento:", error);
+    }
+  };
 
-        // Subir a S3 y guardar en DB
-        const uploadResult = await documentoService.subirDocumento(
-          selectedProject.nit,
-          {
-            uri: file.uri,
-            name: file.name,
-            type: file.mimeType,
-          }
-        );
+  const confirmarSubida = async () => {
+    if (!selectedProject?.nit || !selectedFile) return;
 
-        setUploading(false);
+    try {
+      setShowVisibilityModal(false);
+      setUploading(true);
 
-        if (uploadResult.success && uploadResult.documento) {
-          // Recargar lista desde DB
-          cargarDocumentos();
-        }
+      // Subir a S3 y guardar en DB con visibilidad
+      const uploadResult = await documentoService.subirDocumento(
+        selectedProject.nit,
+        {
+          uri: selectedFile.uri,
+          name: selectedFile.name,
+          type: selectedFile.mimeType,
+        },
+        visibleCopropietarios
+      );
+
+      setUploading(false);
+
+      if (uploadResult.success && uploadResult.documento) {
+        // Recargar lista desde DB
+        cargarDocumentos();
       }
     } catch (error) {
       console.error("Error subiendo documento:", error);
       setUploading(false);
+    } finally {
+      setSelectedFile(null);
     }
   };
 
@@ -216,6 +240,46 @@ export default function Documentos() {
     }
   };
 
+  const handleToggleVisibilidad = async (doc: Documento) => {
+    try {
+      // Actualizar UI optimísticamente
+      setDocumentos((prev) =>
+        prev.map((d) =>
+          d.id === doc.id ? { ...d, visibleCop: !d.visibleCop } : d
+        )
+      );
+
+      // Llamar al servicio para actualizar en BD
+      const result = await documentoService.actualizarVisibilidad(
+        doc.id,
+        !doc.visibleCop
+      );
+
+      if (!result.success) {
+        // Revertir cambio si falla la actualización
+        setDocumentos((prev) =>
+          prev.map((d) =>
+            d.id === doc.id ? { ...d, visibleCop: doc.visibleCop } : d
+          )
+        );
+        setErrorMessage(
+          result.error || "Error al cambiar visibilidad del documento"
+        );
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error("Error cambiando visibilidad:", error);
+      // Revertir cambio en caso de error
+      setDocumentos((prev) =>
+        prev.map((d) =>
+          d.id === doc.id ? { ...d, visibleCop: doc.visibleCop } : d
+        )
+      );
+      setErrorMessage("Error al cambiar visibilidad del documento");
+      setShowErrorModal(true);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScreenHeader
@@ -246,20 +310,58 @@ export default function Documentos() {
             </View>
           ) : (
             <View style={styles.documentosContainer}>
-              <Text style={styles.documentosTitulo}>
-                Documentos ({documentos.length})
-              </Text>
-              {documentos.map((doc) => (
-                <DocumentoItem
-                  key={doc.id}
-                  documento={doc}
-                  onDescargar={() => handleDescargarDocumento(doc)}
-                  onEliminar={() => handleEliminarDocumento(doc.id)}
-                  openItemId={openItemId}
-                  isDownloading={downloadingId === doc.id}
-                  shouldDelete={deletingId === doc.id}
-                />
-              ))}
+              {/* Documentos Públicos */}
+              {documentos.filter((d) => d.visibleCop).length > 0 && (
+                <>
+                  <Text style={styles.documentosTitulo}>
+                    Documentos Públicos (
+                    {documentos.filter((d) => d.visibleCop).length})
+                  </Text>
+                  {documentos
+                    .filter((d) => d.visibleCop)
+                    .map((doc) => (
+                      <DocumentoItem
+                        key={doc.id}
+                        documento={doc}
+                        onDescargar={() => handleDescargarDocumento(doc)}
+                        onEliminar={() => handleEliminarDocumento(doc.id)}
+                        onToggleVisibilidad={() => handleToggleVisibilidad(doc)}
+                        openItemId={openItemId}
+                        isDownloading={downloadingId === doc.id}
+                        shouldDelete={deletingId === doc.id}
+                      />
+                    ))}
+                </>
+              )}
+
+              {/* Documentos Privados (Solo Administración) */}
+              {documentos.filter((d) => !d.visibleCop).length > 0 && (
+                <>
+                  <Text
+                    style={[
+                      styles.documentosTitulo,
+                      styles.documentosTituloPrivado,
+                    ]}
+                  >
+                    Solo Administración (
+                    {documentos.filter((d) => !d.visibleCop).length})
+                  </Text>
+                  {documentos
+                    .filter((d) => !d.visibleCop)
+                    .map((doc) => (
+                      <DocumentoItem
+                        key={doc.id}
+                        documento={doc}
+                        onDescargar={() => handleDescargarDocumento(doc)}
+                        onEliminar={() => handleEliminarDocumento(doc.id)}
+                        onToggleVisibilidad={() => handleToggleVisibilidad(doc)}
+                        openItemId={openItemId}
+                        isDownloading={downloadingId === doc.id}
+                        shouldDelete={deletingId === doc.id}
+                      />
+                    ))}
+                </>
+              )}
             </View>
           )}
         </ScrollView>
@@ -278,8 +380,8 @@ export default function Documentos() {
             {uploading ? (
               <ActivityIndicator size="small" color={THEME.colors.primary} />
             ) : (
-              <Ionicons
-                name="cloud-upload-outline"
+              <MaterialCommunityIcons
+                name="file-document-plus-outline"
                 size={22}
                 color={THEME.colors.primary}
               />
@@ -311,6 +413,64 @@ export default function Documentos() {
           onConfirm={() => setShowErrorModal(false)}
           onCancel={() => setShowErrorModal(false)}
         />
+
+        {/* Modal de visibilidad */}
+        <Modal
+          visible={showVisibilityModal}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Ionicons
+                name="document-text"
+                size={48}
+                color={THEME.colors.primary}
+              />
+              <Text style={styles.modalTitle}>Subir Documento</Text>
+              <Text style={styles.modalFileName}>{selectedFile?.name}</Text>
+              <Text style={styles.modalFileSize}>
+                {selectedFile?.size
+                  ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`
+                  : ""}
+              </Text>
+
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => setVisibleCopropietarios(!visibleCopropietarios)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={visibleCopropietarios ? "checkbox" : "square-outline"}
+                  size={24}
+                  color={THEME.colors.primary}
+                />
+                <Text style={styles.checkboxLabel}>
+                  Visible para copropietarios
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.modalButtonSecondary]}
+                  onPress={() => {
+                    setShowVisibilityModal(false);
+                    setSelectedFile(null);
+                  }}
+                >
+                  <Text style={styles.modalButtonTextSecondary}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.modalButtonPrimary]}
+                  onPress={confirmarSubida}
+                >
+                  <Text style={styles.modalButtonText}>Subir</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </View>
   );
@@ -384,5 +544,82 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.primary,
     marginBottom: THEME.spacing.sm,
     paddingHorizontal: THEME.spacing.lg,
+  },
+  documentosTituloPrivado: {
+    marginTop: THEME.spacing.lg,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: THEME.colors.modalOverlay,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+  },
+  modalContent: {
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.borderRadius.xl,
+    padding: THEME.spacing.lg,
+    alignItems: "center",
+    width: "90%",
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: THEME.fontSize.xl,
+    fontWeight: "700",
+    color: THEME.colors.text.heading,
+    marginTop: THEME.spacing.md,
+    marginBottom: THEME.spacing.sm,
+  },
+  modalFileName: {
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.primary,
+    textAlign: "center",
+    marginBottom: THEME.spacing.xs,
+    fontWeight: "600",
+  },
+  modalFileSize: {
+    fontSize: THEME.fontSize.sm,
+    color: THEME.colors.text.secondary,
+    marginBottom: THEME.spacing.lg,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: THEME.spacing.sm,
+    marginBottom: THEME.spacing.lg,
+    paddingVertical: THEME.spacing.sm,
+  },
+  checkboxLabel: {
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.primary,
+    fontWeight: "500",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: THEME.spacing.sm,
+    width: "100%",
+  },
+  modalButton: {
+    paddingVertical: THEME.spacing.md,
+    borderRadius: THEME.borderRadius.md,
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalButtonSecondary: {
+    backgroundColor: THEME.colors.surfaceLight,
+  },
+  modalButtonPrimary: {
+    backgroundColor: THEME.colors.primary,
+  },
+  modalButtonText: {
+    color: THEME.colors.text.inverse,
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
+  },
+  modalButtonTextSecondary: {
+    color: THEME.colors.text.secondary,
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
   },
 });

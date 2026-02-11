@@ -25,17 +25,19 @@ interface DocumentoItemProps {
   documento: Documento;
   onDescargar: () => void;
   onEliminar: () => void;
+  onToggleVisibilidad: () => void;
   openItemId: SharedValue<string | null>;
   isDownloading?: boolean;
   shouldDelete?: boolean;
 }
 
-const SWIPE_THRESHOLD = -80;
+const SWIPE_THRESHOLD = -160;
 
 export const DocumentoItem: React.FC<DocumentoItemProps> = ({
   documento,
   onDescargar,
   onEliminar,
+  onToggleVisibilidad,
   openItemId,
   isDownloading = false,
   shouldDelete = false,
@@ -121,11 +123,26 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.deleteBackground}>
-        <Animated.View
-          style={[styles.deleteButtonContainer, deleteButtonStyle]}
-        >
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+      <View style={styles.actionsBackground}>
+        <Animated.View style={[styles.actionsContainer, deleteButtonStyle]}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.toggleButton]}
+            onPress={onToggleVisibilidad}
+          >
+            <Ionicons
+              name={
+                documento.visibleCop
+                  ? "lock-open-outline"
+                  : "lock-closed-outline"
+              }
+              size={24}
+              color="#fff"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={handleDelete}
+          >
             <Ionicons name="trash-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
@@ -138,7 +155,7 @@ export const DocumentoItem: React.FC<DocumentoItemProps> = ({
             activeOpacity={0.7}
           >
             <Ionicons
-              name="document-text-outline"
+              name={documento.visibleCop ? "document-text" : "document-lock"}
               size={24}
               color={THEME.colors.primary}
             />
@@ -174,25 +191,30 @@ const styles = StyleSheet.create({
   wrapper: {
     marginHorizontal: THEME.spacing.md,
     marginBottom: THEME.spacing.sm,
-    backgroundColor: "#f44336",
     borderRadius: THEME.borderRadius.md,
     overflow: "hidden",
   },
-  deleteBackground: {
+  actionsBackground: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    backgroundColor: THEME.colors.primary,
   },
-  deleteButtonContainer: {
-    width: 80,
+  actionsContainer: {
+    flexDirection: "row",
     height: "100%",
+  },
+  actionButton: {
+    width: 80,
     justifyContent: "center",
     alignItems: "center",
   },
+  toggleButton: {
+    backgroundColor: THEME.colors.primary,
+  },
   deleteButton: {
-    paddingHorizontal: 20,
-    height: "100%",
-    justifyContent: "center",
+    backgroundColor: "#f44336",
   },
   container: {
     flexDirection: "row",
@@ -200,6 +222,8 @@ const styles = StyleSheet.create({
     padding: THEME.spacing.md,
     backgroundColor: THEME.colors.surface,
     borderRadius: THEME.borderRadius.md,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   touchable: {
     flexDirection: "row",

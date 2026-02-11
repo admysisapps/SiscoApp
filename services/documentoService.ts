@@ -10,7 +10,8 @@ export const documentoService = {
   // Sube documento completo (S3 + DB)
   async subirDocumento(
     proyectoNit: string,
-    file: { uri: string; name: string; type?: string }
+    file: { uri: string; name: string; type?: string },
+    visibleCopropietarios: boolean = true
   ): Promise<SubirDocumentoResult> {
     try {
       // 1. Subir archivo a S3
@@ -38,6 +39,7 @@ export const documentoService = {
           nombre_archivo: s3Result.fileName,
           nombre_original: s3Result.originalName,
           tamaño: s3Result.fileSize,
+          visible_copropietarios: visibleCopropietarios,
         },
         "DOCUMENTOS_CREATE"
       );
@@ -161,6 +163,38 @@ export const documentoService = {
       return {
         success: false,
         error: "Error al eliminar documento",
+      };
+    }
+  },
+
+  // Actualiza visibilidad de un documento
+  async actualizarVisibilidad(
+    documentoId: string,
+    visibleCopropietarios: boolean
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const result = await apiService.makeRequestWithContextType(
+        "/documentos/actualizar-visibilidad",
+        {
+          documento_id: documentoId,
+          visible_copropietarios: visibleCopropietarios,
+        },
+        "DOCUMENTOS_UPDATE_VISIBILITY"
+      );
+
+      if (!result.success) {
+        return {
+          success: false,
+          error: result.error || "Error al actualizar visibilidad",
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error actualizando visibilidad:", error);
+      return {
+        success: false,
+        error: "Error al actualizar visibilidad",
       };
     }
   },
