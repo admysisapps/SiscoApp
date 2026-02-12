@@ -10,8 +10,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: "1.0.0",
   orientation: "portrait",
   icon: IS_PREVIEW
-    ? "./assets/images/iconAzul.png"
-    : "./assets/images/iconBlanco.png",
+    ? "./assets/images/iconBlanco.png"
+    : "./assets/images/iconAzul.png",
   scheme: "siscoapp",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
@@ -38,9 +38,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       foregroundImage: IS_PREVIEW
-        ? "./assets/images/adaptive-iconAzul.png"
-        : "./assets/images/adaptive-iconBlanco.png",
-      backgroundColor: IS_PREVIEW ? "#ffffff" : "#0d6cf7",
+        ? "./assets/images/adaptive-iconBlanco.png"
+        : "./assets/images/adaptive-iconAzul.png",
+      backgroundColor: IS_PREVIEW ? "#0d6cf7" : "#ffffff",
     },
     edgeToEdgeEnabled: true,
     googleServicesFile: IS_PREVIEW
