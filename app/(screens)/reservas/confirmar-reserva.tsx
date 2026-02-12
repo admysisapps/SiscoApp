@@ -4,8 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
   TextInput,
   KeyboardAvoidingView,
   Platform,
@@ -19,6 +17,7 @@ import Toast from "@/components/Toast";
 import { reservaService } from "@/services/reservaService";
 import { THEME } from "@/constants/theme";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+import { Button } from "@/components/reacticx/button";
 
 // Función para calcular hora fin basada en hora inicio y duración
 const calcularHoraFin = (
@@ -303,22 +302,19 @@ export default function ConfirmarReservaScreen() {
 
         {/* Botón confirmar */}
         <View style={styles.bottomContainer}>
-          <TouchableOpacity
-            style={styles.confirmarButton}
+          <Button
+            isLoading={loading}
             onPress={confirmarReserva}
-            disabled={loading}
+            loadingText="Confirmando..."
+            loadingTextColor="#fff"
+            backgroundColor={THEME.colors.success}
+            loadingTextBackgroundColor={THEME.colors.success}
+            height={56}
+            borderRadius={12}
+            style={{ width: "100%" }}
           >
-            {loading ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <>
-                <Text style={styles.confirmarButtonText}>
-                  Confirmar Reserva
-                </Text>
-                <Ionicons name="checkmark-circle" size={20} color="white" />
-              </>
-            )}
-          </TouchableOpacity>
+            <Text style={styles.confirmarButtonText}>Confirmar Reserva</Text>
+          </Button>
         </View>
       </KeyboardAvoidingView>
 
@@ -424,20 +420,7 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.surface,
     borderTopWidth: 1,
     borderTopColor: THEME.colors.border,
-  },
-  confirmarButton: {
-    flexDirection: "row",
-    backgroundColor: THEME.colors.success,
-    borderRadius: 12,
-    padding: 16,
     alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    shadowColor: THEME.colors.success,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
   },
   confirmarButtonText: {
     color: THEME.colors.text.inverse,

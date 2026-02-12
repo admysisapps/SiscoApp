@@ -34,11 +34,13 @@ import {
   ConfiguracionEspacio,
 } from "@/types/Espacio";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+import { Button } from "@/components/reacticx/button";
 
 export default function CrearEspacioScreen() {
   const { id } = useLocalSearchParams();
   const isEditMode = !!id;
   const { showLoading, hideLoading } = useLoading();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<FormDataEspacio>({
     nombre: "",
@@ -439,9 +441,7 @@ export default function CrearEspacioScreen() {
     }
 
     try {
-      showLoading(
-        isEditMode ? "Guardando cambios..." : "Creando zona común..."
-      );
+      setLoading(true);
       let imagenS3Key = null;
 
       // Eliminar imagen de S3 si fue marcada para eliminar
@@ -552,7 +552,7 @@ export default function CrearEspacioScreen() {
         "error"
       );
     } finally {
-      hideLoading();
+      setLoading(false);
     }
   };
 
@@ -1273,15 +1273,21 @@ export default function CrearEspacioScreen() {
 
         {/* Botón Crear */}
         <View style={styles.createButtonContainer}>
-          <TouchableOpacity
-            style={[styles.createButton]}
+          <Button
+            isLoading={loading}
             onPress={handleSubmit}
+            loadingText="Guardando..."
+            loadingTextColor="#fff"
+            backgroundColor={THEME.colors.success}
+            loadingTextBackgroundColor={THEME.colors.success}
+            height={56}
+            borderRadius={12}
+            style={{ width: "100%" }}
           >
-            <Ionicons name="add-circle" size={24} color="white" />
             <Text style={styles.createButtonText}>
               {isEditMode ? "Guardar Cambios" : "Crear Zona Común"}
             </Text>
-          </TouchableOpacity>
+          </Button>
         </View>
       </ScrollView>
 
@@ -1536,19 +1542,7 @@ const styles = StyleSheet.create({
   createButtonContainer: {
     paddingHorizontal: THEME.spacing.md,
     paddingVertical: THEME.spacing.lg,
-  },
-  createButton: {
-    flexDirection: "row",
-    backgroundColor: THEME.colors.success,
-    borderRadius: 12,
-    padding: THEME.spacing.lg,
     alignItems: "center",
-    justifyContent: "center",
-    gap: THEME.spacing.sm,
-  },
-  createButtonDisabled: {
-    backgroundColor: THEME.colors.text.muted,
-    opacity: 0.6,
   },
   createButtonText: {
     color: THEME.colors.text.inverse,

@@ -24,6 +24,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { ImageGallery } from "@/components/shared/ImageGallery";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+import { Button } from "@/components/reacticx/button";
 
 export default function CreatePQRScreen() {
   const { selectedProject } = useProject();
@@ -443,21 +444,19 @@ export default function CreatePQRScreen() {
 
         {/* Botón submit fijo abajo */}
         <View style={styles.fixedBottom}>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              loading && styles.submitButtonDisabled,
-            ]}
+          <Button
+            isLoading={loading}
             onPress={handleSubmit}
-            disabled={loading}
-            activeOpacity={0.8}
+            loadingText="Enviando..."
+            loadingTextColor="#fff"
+            backgroundColor={THEME.colors.indigo}
+            loadingTextBackgroundColor={THEME.colors.indigo}
+            height={56}
+            borderRadius={12}
+            style={{ width: "100%" }}
           >
-            {loading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.submitText}>Enviar PQR</Text>
-            )}
-          </TouchableOpacity>
+            <Text style={styles.submitText}>Enviar PQR</Text>
+          </Button>
         </View>
       </KeyboardAvoidingView>
 
@@ -674,15 +673,7 @@ const styles = StyleSheet.create({
     paddingBottom: THEME.spacing.md,
     borderTopWidth: 1,
     borderTopColor: THEME.colors.border,
-  },
-  submitButton: {
-    backgroundColor: THEME.colors.indigo,
-    paddingVertical: THEME.spacing.md,
-    borderRadius: THEME.borderRadius.md,
     alignItems: "center",
-  },
-  submitButtonDisabled: {
-    backgroundColor: THEME.colors.text.muted,
   },
   submitText: {
     color: "white",

@@ -18,7 +18,6 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { THEME, COLORS } from "@/constants/theme";
-import { useLoading } from "@/contexts/LoadingContext";
 import { s3Service } from "@/services/s3Service";
 import { useProject } from "@/contexts/ProjectContext";
 import { CreateAvisoRequest } from "@/types/Avisos";
@@ -27,6 +26,7 @@ import { router } from "expo-router";
 import { avisosService } from "@/services/avisoService";
 import Toast from "@/components/Toast";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+import { Button } from "@/components/reacticx/button";
 
 interface SelectedFile {
   uri: string;
@@ -66,7 +66,7 @@ export default function CrearAvisoScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
-  const { showLoading, hideLoading } = useLoading();
+  const [loading, setLoading] = useState(false);
   const { selectedProject } = useProject();
   const [toast, setToast] = useState({
     visible: false,
@@ -136,7 +136,7 @@ export default function CrearAvisoScreen() {
 
   const handleSave = async () => {
     if (validateForm()) {
-      showLoading("Enviando comunicado...");
+      setLoading(true);
 
       try {
         let archivos_nombres: string | undefined = undefined;
@@ -182,7 +182,7 @@ export default function CrearAvisoScreen() {
           );
         }
       } finally {
-        hideLoading();
+        setLoading(false);
       }
     }
   };
@@ -518,15 +518,19 @@ export default function CrearAvisoScreen() {
 
           {/* Botón al final del formulario */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
+            <Button
+              isLoading={loading}
               onPress={handleSave}
-              style={[
-                styles.saveButton,
-                { backgroundColor: getAvisoColor(formData.prioridad) },
-              ]}
+              loadingText="Enviando..."
+              loadingTextColor="#fff"
+              backgroundColor={getAvisoColor(formData.prioridad)}
+              loadingTextBackgroundColor={getAvisoColor(formData.prioridad)}
+              height={56}
+              borderRadius={12}
+              style={{ width: "100%" }}
             >
               <Text style={styles.saveButtonText}>Enviar Comunicado</Text>
-            </TouchableOpacity>
+            </Button>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -552,15 +556,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 16,
     paddingVertical: 24,
-  },
-  saveButton: {
-    paddingVertical: 16,
-    borderRadius: 12,
     alignItems: "center",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
   },
   saveButtonText: {
     color: THEME.colors.text.inverse,

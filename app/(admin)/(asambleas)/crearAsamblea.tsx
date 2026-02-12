@@ -14,10 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { THEME } from "@/constants/theme";
 import { asambleaService } from "@/services/asambleaService";
-import LoadingOverlay from "@/components/LoadingOverlay";
 import Toast from "@/components/Toast";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import { Button } from "@/components/reacticx/button";
 
 dayjs.locale("es");
 
@@ -225,8 +225,6 @@ export default function CrearAsambleaScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
-      <LoadingOverlay visible={loading} message="Creando asamblea..." />
-
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -523,26 +521,21 @@ export default function CrearAsambleaScreen() {
         </View>
 
         {/* Botón */}
-        <TouchableOpacity
-          style={[styles.createButton, loading && styles.createButtonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.createButtonText}>Creando...</Text>
-            </View>
-          ) : (
-            <>
-              <Ionicons
-                name="checkmark-circle"
-                size={22}
-                color={THEME.colors.text.inverse}
-              />
-              <Text style={styles.createButtonText}>Crear Asamblea</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <Button
+            isLoading={loading}
+            onPress={handleSubmit}
+            loadingText="Creando..."
+            loadingTextColor="#fff"
+            backgroundColor={THEME.colors.primary}
+            loadingTextBackgroundColor={THEME.colors.primary}
+            height={56}
+            borderRadius={14}
+            style={{ width: "100%" }}
+          >
+            <Text style={styles.createButtonText}>Crear Asamblea</Text>
+          </Button>
+        </View>
 
         <View style={{ height: 80 }} />
       </ScrollView>
@@ -717,33 +710,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   createButton: {
-    backgroundColor: THEME.colors.primary,
-    borderRadius: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
     marginTop: 32,
-    shadowColor: THEME.colors.primary,
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
   },
-  createButtonDisabled: {
-    opacity: 0.7,
+  buttonContainer: {
+    marginTop: 32,
+    alignItems: "center",
   },
   createButtonText: {
     color: THEME.colors.text.inverse,
     fontSize: 16,
     fontWeight: "700",
-    marginLeft: 8,
     letterSpacing: 0.2,
-  },
-  loadingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   pickerButton: {
     flexDirection: "row",
