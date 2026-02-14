@@ -79,7 +79,7 @@ export const cuentasPagoService = {
       return await apiService.makeRequestWithContextType(
         "/metodos-pago/version",
         {},
-        "PAYMENT_METHODS_LIST"
+        "PAYMENT_METHODS_VERSION"
       );
     } catch {
       return { success: false, error: "Error al verificar versiones" };

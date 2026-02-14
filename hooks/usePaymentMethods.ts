@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { CuentaPago } from "@/types/CuentaPago";
 import { cuentasPagoService } from "@/services/cuentasPagoService";
 import { PaymentCache } from "@/utils/paymentCache";
+import { apiService } from "@/services/apiService";
 
 export const usePaymentMethods = () => {
   const [showModal, setShowModal] = useState(false);
@@ -16,21 +17,30 @@ export const usePaymentMethods = () => {
         if (showLoading) setLoading(true);
         setError(null);
 
+        const context = await apiService.getUserContext();
+        const copropiedad = context?.copropiedad;
+
+        if (!copropiedad) {
+          setError("No se pudo obtener el contexto del proyecto");
+          if (showLoading) setLoading(false);
+          return;
+        }
+
         let serverVersion: string | null = null;
 
         if (!forceRefresh) {
-          // Verificar versión del servidor
           const versionResponse =
             await cuentasPagoService.checkPaymentVersions();
 
           if (versionResponse.success && versionResponse.payments_version) {
             serverVersion = versionResponse.payments_version;
             const needsUpdate = await PaymentCache.needsUpdate(
-              versionResponse.payments_version
+              versionResponse.payments_version,
+              copropiedad
             );
 
             if (!needsUpdate) {
-              const cachedData = await PaymentCache.get();
+              const cachedData = await PaymentCache.get(copropiedad);
               if (cachedData) {
                 setCuentas(cachedData);
                 if (showLoading) setLoading(false);
@@ -41,37 +51,38 @@ export const usePaymentMethods = () => {
             versionResponse.success &&
             versionResponse.payments_version === null
           ) {
-            // payments_version: null = NO hay cuentas configuradas
-            await PaymentCache.clear();
+            await PaymentCache.clear(copropiedad);
             setCuentas([]);
             if (showLoading) setLoading(false);
             return;
           }
         }
 
-        // Cargar datos frescos del servidor
         const response = await cuentasPagoService.obtenerCuentasPago();
 
         if (response.success) {
           setCuentas(response.cuentas || []);
 
-          // Guardar en cache solo si tenemos versión
           if (serverVersion) {
-            await PaymentCache.save(response.cuentas, serverVersion);
+            await PaymentCache.save(
+              response.cuentas,
+              serverVersion,
+              copropiedad
+            );
           } else if (!forceRefresh) {
-            // Solo hacer request si no tenemos la versión y no es forceRefresh
             const versionResponse =
               await cuentasPagoService.checkPaymentVersions();
             if (versionResponse.success && versionResponse.payments_version) {
               await PaymentCache.save(
                 response.cuentas,
-                versionResponse.payments_version
+                versionResponse.payments_version,
+                copropiedad
               );
             } else if (
               versionResponse.success &&
               versionResponse.payments_version === null
             ) {
-              await PaymentCache.clear();
+              await PaymentCache.clear(copropiedad);
             }
           }
         } else {
@@ -90,16 +101,21 @@ export const usePaymentMethods = () => {
   );
 
   const openPaymentMethods = useCallback(async () => {
-    // Intentar cargar cache primero para mostrar datos inmediatamente
-    const cachedData = await PaymentCache.get();
+    const context = await apiService.getUserContext();
+    const copropiedad = context?.copropiedad;
+
+    if (!copropiedad) {
+      setError("No se pudo obtener el contexto del proyecto");
+      setShowModal(true);
+      return;
+    }
+
+    const cachedData = await PaymentCache.get(copropiedad);
     if (cachedData && cachedData.length > 0) {
-      // Hay cache: abrir con datos SIN loading
       setCuentas(cachedData);
       setShowModal(true);
-      // Actualizar en background sin mostrar loading
       loadCuentas(false, false).catch(() => {});
     } else {
-      // No hay cache: mostrar loading del servidor
       setLoading(true);
       setShowModal(true);
       await loadCuentas(false, true);
@@ -107,9 +123,6 @@ export const usePaymentMethods = () => {
   }, [loadCuentas]);
 
   const closePaymentMethods = useCallback(() => setShowModal(false), []);
-
-  // Removido useEffect que cargaba cuentas automáticamente
-  // Las cuentas se cargan solo cuando el usuario abre el modal
 
   return {
     showModal,

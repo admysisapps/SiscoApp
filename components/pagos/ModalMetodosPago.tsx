@@ -67,8 +67,10 @@ export default function PaymentMethodsModal({
     setToast({ visible: false, message: "", type: "success" });
   };
 
+  const wasVisible = useRef(false);
+
   useEffect(() => {
-    if (visible) {
+    if (visible && !wasVisible.current) {
       translateY.setValue(height);
       backdropOpacity.setValue(0);
       Animated.parallel([
@@ -85,7 +87,9 @@ export default function PaymentMethodsModal({
         }),
       ]).start();
     }
-  }, [visible, backdropOpacity, translateY]);
+
+    wasVisible.current = visible;
+  }, [visible, translateY, backdropOpacity]);
 
   useEffect(() => {
     if (!visible) return;

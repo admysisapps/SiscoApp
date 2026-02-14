@@ -8,37 +8,53 @@ interface PaymentCacheData {
 }
 
 export const PaymentCache = {
-  async save(data: CuentaPago[], version: string) {
+  getCacheKey(copropiedad: string): string {
+    return `paymentCache_${copropiedad}`;
+  },
+
+  async save(data: CuentaPago[], version: string, copropiedad: string) {
     const cache: PaymentCacheData = {
       data,
       version,
       savedAt: Date.now(),
     };
-    await AsyncStorage.setItem("paymentCache", JSON.stringify(cache));
+    await AsyncStorage.setItem(
+      this.getCacheKey(copropiedad),
+      JSON.stringify(cache)
+    );
   },
 
-  async get(): Promise<CuentaPago[] | null> {
-    const cached = await AsyncStorage.getItem("paymentCache");
+  async get(copropiedad: string): Promise<CuentaPago[] | null> {
+    const cached = await AsyncStorage.getItem(this.getCacheKey(copropiedad));
     if (!cached) return null;
 
     const cache: PaymentCacheData = JSON.parse(cached);
     return cache.data;
   },
 
-  async getVersion(): Promise<string | null> {
-    const cached = await AsyncStorage.getItem("paymentCache");
+  async getVersion(copropiedad: string): Promise<string | null> {
+    const cached = await AsyncStorage.getItem(this.getCacheKey(copropiedad));
     if (!cached) return null;
 
     const cache: PaymentCacheData = JSON.parse(cached);
     return cache.version;
   },
 
-  async needsUpdate(serverVersion: string): Promise<boolean> {
-    const cachedVersion = await this.getVersion();
+  async needsUpdate(
+    serverVersion: string,
+    copropiedad: string
+  ): Promise<boolean> {
+    const cachedVersion = await this.getVersion(copropiedad);
     return !cachedVersion || cachedVersion !== serverVersion;
   },
 
-  async clear() {
-    await AsyncStorage.removeItem("paymentCache");
+  async clear(copropiedad: string) {
+    await AsyncStorage.removeItem(this.getCacheKey(copropiedad));
+  },
+
+  async clearAll() {
+    const keys = await AsyncStorage.getAllKeys();
+    const paymentKeys = keys.filter((key) => key.startsWith("paymentCache_"));
+    await AsyncStorage.multiRemove(paymentKeys);
   },
 };

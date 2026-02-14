@@ -177,8 +177,6 @@ export default function UnirseProyectoModal({
       const response = await projectService.unirseAProyecto(codigoInvitacion);
 
       if (response.success) {
-        console.log("Usuario unido exitosamente al proyecto");
-
         // Recargar proyectos y navegar (mantiene loading activo)
         await reloadProjects();
         router.replace("/project-selector");
@@ -190,13 +188,6 @@ export default function UnirseProyectoModal({
             const proyectoNit = projectInfo?.nit;
             const proyectoNombre = projectInfo?.nombre;
 
-            console.log(
-              " Registrando notificaciones para:",
-              documento,
-              "en proyecto:",
-              proyectoNombre
-            );
-
             if (documento && proyectoNit) {
               // Configurar FCM si no existe
               if (!notificationService.getToken()) {
@@ -204,14 +195,9 @@ export default function UnirseProyectoModal({
               }
 
               // Registrar en el nuevo proyecto
-              const registered =
-                await notificationService.registerTokenForNewProject(
-                  documento,
-                  proyectoNit
-                );
-              console.log(
-                " Resultado notificaciones:",
-                registered ? "ÉXITO" : "FALLÓ"
+              await notificationService.registerTokenForNewProject(
+                documento,
+                proyectoNit
               );
 
               // Enviar notificación de bienvenida al nuevo proyecto

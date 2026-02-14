@@ -166,14 +166,16 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
             >
               Unidad {apt.numero}
             </Text>
-            <Text
-              style={[
-                styles.apartmentOptionSubtitle,
-                isSelected && styles.apartmentOptionSubtitleSelected,
-              ]}
-            >
-              Bloque {apt.bloque}
-            </Text>
+            {apt.bloque && (
+              <Text
+                style={[
+                  styles.apartmentOptionSubtitle,
+                  isSelected && styles.apartmentOptionSubtitleSelected,
+                ]}
+              >
+                Bloque {apt.bloque}
+              </Text>
+            )}
           </View>
         </TouchableOpacity>
       );
@@ -239,11 +241,11 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
                 ? `Unidad ${selectedApartment.numero}`
                 : "Sin asignar"}
             </Text>
-            <Text style={styles.apartmentBlock}>
-              {selectedApartment
-                ? `Bloque ${selectedApartment.bloque}`
-                : "No disponible"}
-            </Text>
+            {selectedApartment?.bloque && (
+              <Text style={styles.apartmentBlock}>
+                Bloque {selectedApartment.bloque}
+              </Text>
+            )}
           </View>
         </View>
 

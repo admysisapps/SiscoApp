@@ -104,6 +104,7 @@ export const CONTEXT_TYPES = {
   // Módulo Métodos de Pago
   PAYMENT_METHODS_ADMIN: ["documento", "rol", "copropiedad"], // Crear método de pago (solo admin)
   PAYMENT_METHODS_LIST: ["documento", "copropiedad"], // Listar métodos de pago
+  PAYMENT_METHODS_VERSION: ["copropiedad"],
 
   // Módulo Propietarios
   PROPIETARIOS_ADMIN: ["documento", "rol", "copropiedad"],
