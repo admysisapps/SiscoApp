@@ -215,6 +215,7 @@ export default function PaymentMethodsModal({
       <View style={styles.overlay}>
         <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
           <TouchableOpacity
+            testID="button-cerrar-modal-pagos"
             style={styles.backdropTouch}
             activeOpacity={1}
             onPress={handleClose}

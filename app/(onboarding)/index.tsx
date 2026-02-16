@@ -83,13 +83,18 @@ export default function OnboardingWelcome() {
           {/* Botones */}
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
+              testID="button-crear-cuenta"
               style={styles.signupButton}
               onPress={handleSignUp}
             >
               <Text style={styles.signupButtonText}>Crear Cuenta</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <TouchableOpacity
+              testID="button-ya-tengo-cuenta"
+              style={styles.loginButton}
+              onPress={handleLogin}
+            >
               <Text style={styles.loginButtonText}>Ya tengo cuenta</Text>
             </TouchableOpacity>
           </View>

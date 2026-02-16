@@ -36,6 +36,7 @@ const ProjectCard = React.memo(
     return (
       <View style={styles.projectCard}>
         <TouchableOpacity
+          testID={index === 0 ? "button-select-first-project" : undefined}
           onPress={() => onProjectSelected(item)}
           activeOpacity={1}
         >

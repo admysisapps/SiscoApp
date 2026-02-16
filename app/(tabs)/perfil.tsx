@@ -43,6 +43,7 @@ const MenuItem = memo(
     onPress: () => void;
   }) => (
     <TouchableOpacity
+      testID={item.id === "logout" ? "button-cerrar-sesion" : undefined}
       style={[styles.menuItem, isLast && styles.lastMenuItem]}
       onPress={onPress}
       activeOpacity={0.7}

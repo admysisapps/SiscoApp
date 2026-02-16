@@ -1,5 +1,17 @@
 [
   {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "button-ya-tengo-cuenta"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 2000
+  },
+  {
     "eventType": "VIEW_TEXT_CHANGED",
     "replacementText": "12345678",
     "elementDescriptors": [
@@ -7,6 +19,10 @@
         "resourceId": "input-username"
       }
     ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 500
   },
   {
     "eventType": "VIEW_TEXT_CHANGED",
@@ -18,12 +34,8 @@
     ]
   },
   {
-    "eventType": "VIEW_CLICKED",
-    "elementDescriptors": [
-      {
-        "resourceId": "button-login"
-      }
-    ]
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 500
   },
   {
     "eventType": "VIEW_CLICKED",
@@ -32,5 +44,145 @@
         "resourceId": "button-login"
       }
     ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 3000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "button-select-first-project"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 3000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "tab-pqr"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 1000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "button-crear-pqr"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 2000
+  },
+  {
+    "eventType": "VIEW_TEXT_CHANGED",
+    "replacementText": "Problema con el ascensor del edificio",
+    "elementDescriptors": [
+      {
+        "resourceId": "input-pqr-asunto"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 500
+  },
+  {
+    "eventType": "VIEW_TEXT_CHANGED",
+    "replacementText": "El ascensor del edificio no funciona desde hace 3 días. Está detenido en el piso 5 y no responde. Necesitamos que envíen un técnico urgente.",
+    "elementDescriptors": [
+      {
+        "resourceId": "input-pqr-descripcion"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 1000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "button-enviar-pqr"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 2000
+  },
+  {
+    "eventType": "PRESSED_BACK"
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 1000
+  },
+  {
+    "eventType": "PRESSED_BACK"
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 1000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "button-metodos-pago"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 2000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "button-cerrar-modal-pagos"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 1000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "tab-perfil"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 1000
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "elementDescriptors": [
+      {
+        "resourceId": "button-cerrar-sesion"
+      }
+    ]
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "delayTime": 2000
   }
 ]

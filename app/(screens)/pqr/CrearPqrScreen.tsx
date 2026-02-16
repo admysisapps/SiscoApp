@@ -241,6 +241,7 @@ export default function CreatePQRScreen() {
         >
           <Text style={styles.label}>Asunto *</Text>
           <TextInput
+            testID="input-pqr-asunto"
             placeholder="Ej: Solicitud de mantenimiento"
             placeholderTextColor={THEME.colors.text.muted}
             value={formData.asunto}
@@ -271,6 +272,7 @@ export default function CreatePQRScreen() {
 
           <Text style={styles.label}>Descripción *</Text>
           <TextInput
+            testID="input-pqr-descripcion"
             placeholder={
               formData.asunto.trim() && !formData.descripcion.trim()
                 ? `${formData.asunto}. Continúa describiendo el problema...`
@@ -444,19 +446,21 @@ export default function CreatePQRScreen() {
 
         {/* Botón submit fijo abajo */}
         <View style={styles.fixedBottom}>
-          <Button
-            isLoading={loading}
-            onPress={handleSubmit}
-            loadingText="Enviando..."
-            loadingTextColor="#fff"
-            backgroundColor={THEME.colors.indigo}
-            loadingTextBackgroundColor={THEME.colors.indigo}
-            height={56}
-            borderRadius={12}
-            style={{ width: "100%" }}
-          >
-            <Text style={styles.submitText}>Enviar PQR</Text>
-          </Button>
+          <View testID="button-enviar-pqr" style={{ width: "100%" }}>
+            <Button
+              isLoading={loading}
+              onPress={handleSubmit}
+              loadingText="Enviando..."
+              loadingTextColor="#fff"
+              backgroundColor={THEME.colors.indigo}
+              loadingTextBackgroundColor={THEME.colors.indigo}
+              height={56}
+              borderRadius={12}
+              style={{ width: "100%" }}
+            >
+              <Text style={styles.submitText}>Enviar PQR</Text>
+            </Button>
+          </View>
         </View>
       </KeyboardAvoidingView>
 

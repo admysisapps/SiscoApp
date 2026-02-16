@@ -23,7 +23,11 @@ export const PqrMainCards: React.FC = () => {
     <View style={styles.container}>
       {/* Card Crear PQR - Solo para usuarios */}
       {!isAdmin && (
-        <TouchableOpacity style={styles.card} onPress={handleCreatePQR}>
+        <TouchableOpacity
+          testID="button-crear-pqr"
+          style={styles.card}
+          onPress={handleCreatePQR}
+        >
           <View style={styles.iconContainer}>
             <Ionicons name="add-circle" size={26} color="#4F46E5" />
           </View>

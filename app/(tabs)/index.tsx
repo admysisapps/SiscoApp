@@ -37,6 +37,7 @@ interface InternalTabProps {
 const InternalTab: React.FC<InternalTabProps> = React.memo(
   ({ icon, iconType = "ionicons", onPress, color, isActive }) => (
     <TouchableOpacity
+      testID={icon === "document-text" ? "tab-pqr" : undefined}
       style={styles.internalTab}
       onPress={onPress}
       activeOpacity={0.8}

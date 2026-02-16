@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { THEME } from "@/constants/theme";
+import { usePaymentMethods } from "@/hooks/usePaymentMethods";
+import PaymentMethodsModal from "@/components/pagos/ModalMetodosPago";
 
 interface QuickAction {
   id: string;
@@ -15,6 +17,15 @@ interface QuickAction {
 
 const AccionesRapidas = React.memo(function AccionesRapidas() {
   const router = useRouter();
+  const {
+    showModal,
+    openPaymentMethods,
+    closePaymentMethods,
+    cuentas,
+    loading,
+    error,
+    refreshCuentas,
+  } = usePaymentMethods();
 
   const quickActions: QuickAction[] = [
     {
@@ -35,53 +46,65 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
     },
     {
       id: "3",
-      title: "Mis Reservas",
-      subtitle: "Ver reservas activas",
-      icon: "time",
+      title: "Comunicados",
+      subtitle: "Ver avisos importantes",
+      icon: "megaphone",
       color: "#F59E0B",
-      onPress: () => router.push("/(screens)/reservas/mis-reservas"),
+      onPress: () => router.push("/(screens)/avisos/AvisosScreen"),
     },
     {
       id: "4",
-      title: "Mis PQRs",
-      subtitle: "Ver solicitudes",
-      icon: "list",
+      title: "Métodos de Pago",
+      subtitle: "Ver información de pago",
+      icon: "card",
       color: "#10B981",
-      onPress: () => router.push("/(screens)/pqr/PqrListaScreen"),
+      onPress: () => openPaymentMethods(),
     },
   ];
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Acciones Rápidas</Text>
+    <>
+      <View style={styles.wrapper}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Acciones Rápidas</Text>
 
-        <View style={styles.actionsGrid}>
-          {quickActions.map((action) => (
-            <TouchableOpacity
-              key={action.id}
-              style={styles.actionCard}
-              onPress={action.onPress}
-              activeOpacity={0.7}
-            >
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: `${action.color}20` },
-                ]}
+          <View style={styles.actionsGrid}>
+            {quickActions.map((action) => (
+              <TouchableOpacity
+                key={action.id}
+                testID={action.id === "4" ? "button-metodos-pago" : undefined}
+                style={styles.actionCard}
+                onPress={action.onPress}
+                activeOpacity={0.7}
               >
-                <Ionicons name={action.icon} size={24} color={action.color} />
-              </View>
-              <View style={styles.actionContent}>
-                <Text style={styles.actionTitle}>{action.title}</Text>
-                <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-            </TouchableOpacity>
-          ))}
+                <View
+                  style={[
+                    styles.iconContainer,
+                    { backgroundColor: `${action.color}20` },
+                  ]}
+                >
+                  <Ionicons name={action.icon} size={24} color={action.color} />
+                </View>
+                <View style={styles.actionContent}>
+                  <Text style={styles.actionTitle}>{action.title}</Text>
+                  <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
-    </View>
+
+      <PaymentMethodsModal
+        visible={showModal}
+        onClose={closePaymentMethods}
+        cuentas={cuentas}
+        loading={loading}
+        error={error}
+        onRefresh={() => refreshCuentas(true, true)}
+      />
+    </>
   );
 });
 

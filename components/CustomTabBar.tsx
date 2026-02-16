@@ -148,6 +148,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({
         return (
           <TouchableOpacity
             key={route.key}
+            testID={route.name === "perfil" ? "tab-perfil" : undefined}
             style={styles.tab}
             onPress={onPress}
             activeOpacity={0.8}
