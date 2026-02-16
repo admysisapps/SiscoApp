@@ -148,16 +148,37 @@ export default function PersonalInfo() {
 
   const handleSavePersonalData = async () => {
     if (!hasPersonalDataChanges || !user?.documento) return;
+
+    const trimmedNombre = nombre.trim();
+    const trimmedApellido = apellido.trim();
+
+    // Validar que no estén vacíos
+    if (!trimmedNombre) {
+      setToast({
+        visible: true,
+        message: "El nombre no puede estar vacío",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!trimmedApellido) {
+      setToast({
+        visible: true,
+        message: "El apellido no puede estar vacío",
+        type: "error",
+      });
+      return;
+    }
+
     Keyboard.dismiss();
     setIsSaving(true);
     try {
       const response = await apiService.updateUserInfo(user.documento, {
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
+        nombre: trimmedNombre,
+        apellido: trimmedApellido,
       });
       if (response.success) {
-        const trimmedNombre = nombre.trim();
-        const trimmedApellido = apellido.trim();
         setNombre(trimmedNombre);
         setApellido(trimmedApellido);
         setUser({ ...user, nombre: trimmedNombre, apellido: trimmedApellido });
