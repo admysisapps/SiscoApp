@@ -285,7 +285,7 @@ export default function Documentos() {
       <ScreenHeader
         title="Documentos"
         showBackButton
-        onBackPress={() => router.back()}
+        onBackPress={() => router.push("/(admin)/(financiero-admin)/")}
       />
 
       <View style={styles.content}>
