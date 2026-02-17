@@ -3,7 +3,7 @@ export interface DocumentoDB {
   id: number;
   nombre_archivo: string;
   nombre_original: string;
-  tamaño: number;
+  tamano: number;
   subido_por: string;
   fecha_creacion: string;
   visible_cop: number; // 1 = visible para todos, 0 = solo admin
@@ -28,7 +28,7 @@ export interface SubirDocumentoResult {
   documento?: {
     nombre_archivo: string;
     nombre_original: string;
-    tamaño: number;
+    tamano: number;
   };
   error?: string;
 }

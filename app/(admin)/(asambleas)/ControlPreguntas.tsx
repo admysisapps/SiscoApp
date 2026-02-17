@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -44,6 +44,11 @@ export default function ControlPreguntas() {
       inicioLocal: number;
     };
   }>({});
+  const preguntasActivadasRef = useRef(preguntasActivadas);
+
+  useEffect(() => {
+    preguntasActivadasRef.current = preguntasActivadas;
+  }, [preguntasActivadas]);
 
   const showToast = (
     message: string,
@@ -108,7 +113,10 @@ export default function ControlPreguntas() {
           .flatMap((v: Votacion) => v.preguntas || [])
           .find((p: any) => p.estado === "en_curso");
 
-        if (preguntaActiva && !preguntasActivadas[preguntaActiva.id]) {
+        if (
+          preguntaActiva &&
+          !preguntasActivadasRef.current[preguntaActiva.id]
+        ) {
           try {
             const preguntaResponse =
               await votacionesService.obtenerPreguntaActivaAsamblea(
@@ -124,8 +132,8 @@ export default function ControlPreguntas() {
                 },
               }));
             }
-          } catch {
-            // Error silencioso al obtener pregunta activa
+          } catch (error) {
+            console.error("Error al obtener pregunta activa:", error);
           }
         }
       } else {
@@ -139,7 +147,7 @@ export default function ControlPreguntas() {
     } finally {
       setLoading(false);
     }
-  }, [asambleaId, preguntasActivadas]);
+  }, [asambleaId]);
 
   useEffect(() => {
     cargarVotaciones();
@@ -230,7 +238,7 @@ export default function ControlPreguntas() {
           });
 
           showToast("Pregunta finalizada exitosamente", "success");
-          cargarVotaciones();
+          await cargarVotaciones();
         } else {
           showToast(
             response.error || "No se pudo finalizar la pregunta",
@@ -264,7 +272,7 @@ export default function ControlPreguntas() {
           });
 
           showToast("Pregunta cancelada exitosamente", "success");
-          cargarVotaciones();
+          await cargarVotaciones();
         } else {
           showToast(
             response.error || "No se pudo cancelar la pregunta",

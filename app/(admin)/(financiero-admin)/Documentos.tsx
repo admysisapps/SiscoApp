@@ -68,7 +68,7 @@ export default function Documentos() {
               nombre: doc.nombre_original,
               tipo:
                 doc.nombre_original.split(".").pop()?.toUpperCase() || "FILE",
-              tamaño: `${(doc.tamaño / 1024 / 1024).toFixed(2)} MB`,
+              tamaño: `${(doc.tamano / 1024 / 1024).toFixed(2)} MB`,
               fecha: new Date(doc.fecha_creacion).toLocaleDateString("es-ES"),
               categoria: "General",
               nombre_archivo: doc.nombre_archivo,

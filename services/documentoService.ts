@@ -57,7 +57,7 @@ export const documentoService = {
         documento: {
           nombre_archivo: s3Result.fileName,
           nombre_original: s3Result.originalName,
-          tamaño: s3Result.fileSize,
+          tamano: s3Result.fileSize,
         },
       };
     } catch (error) {

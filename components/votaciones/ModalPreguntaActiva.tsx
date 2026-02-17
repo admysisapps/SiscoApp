@@ -182,7 +182,7 @@ export const ModalPreguntaActiva: React.FC<ModalPreguntaActivaProps> = ({
             styles.container,
             {
               transform: [{ translateY: slideAnim }],
-              paddingBottom: Math.max(insets.bottom, 20),
+              paddingBottom: insets.bottom + 10,
             },
           ]}
         >
@@ -236,11 +236,13 @@ export const ModalPreguntaActiva: React.FC<ModalPreguntaActivaProps> = ({
 
             <ScrollView
               style={styles.opcionesContainer}
-              contentContainerStyle={[
-                styles.opcionesContent,
-                { paddingBottom: insets.bottom || 20 },
-              ]}
+              contentContainerStyle={{
+                paddingTop: 8,
+                gap: 12,
+                paddingBottom: 40,
+              }}
               showsVerticalScrollIndicator={true}
+              scrollEventThrottle={16}
             >
               {pregunta?.opciones.map((opcion) => (
                 <OpcionItem
@@ -277,8 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: height * 0.8,
-    paddingBottom: 20,
+    maxHeight: height * 0.9,
   },
   handle: {
     width: 40,
@@ -309,7 +310,10 @@ const styles = StyleSheet.create({
     color: "#0F172A",
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+    flexShrink: 1,
   },
   pregunta: {
     fontSize: 17,
@@ -319,11 +323,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   opcionesContainer: {
-    maxHeight: height * 0.5,
-  },
-  opcionesContent: {
-    gap: 12,
-    paddingTop: 8,
+    flexGrow: 0,
+    flexShrink: 1,
   },
   yaVotoContainer: {
     flexDirection: "row",

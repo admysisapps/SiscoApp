@@ -13,7 +13,9 @@ export const TimerView = React.memo(
     const [timeLeft, setTimeLeft] = useState(initialSeconds);
 
     useEffect(() => {
-      if (isFinalizada || timeLeft <= 0) return;
+      if (isFinalizada || initialSeconds <= 0) return;
+
+      setTimeLeft(initialSeconds - 1);
 
       const interval = setInterval(() => {
         setTimeLeft((prev) => {
@@ -27,7 +29,7 @@ export const TimerView = React.memo(
       }, 1000);
 
       return () => clearInterval(interval);
-    }, [isFinalizada, onTimeUp, timeLeft]);
+    }, [initialSeconds, isFinalizada, onTimeUp]);
 
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;

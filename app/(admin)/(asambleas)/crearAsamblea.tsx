@@ -144,8 +144,8 @@ export default function CrearAsambleaScreen() {
     }
 
     const tiempo = parseInt(formData.tiempo_pregunta);
-    if (isNaN(tiempo) || tiempo < 1 || tiempo > 15) {
-      newErrors.tiempo_pregunta = "Tiempo debe estar entre 1 y 15 minutos";
+    if (isNaN(tiempo) || tiempo < 1 || tiempo > 10) {
+      newErrors.tiempo_pregunta = "Tiempo debe estar entre 1 y 10  minutos";
     }
 
     setErrors(newErrors);
@@ -515,7 +515,7 @@ export default function CrearAsambleaScreen() {
                 size={14}
                 color={THEME.colors.primary}
               />
-              <Text style={styles.helperText}>Entre 1 y 15 minutos</Text>
+              <Text style={styles.helperText}>Entre 1 y 10 minutos</Text>
             </View>
           </View>
         </View>
