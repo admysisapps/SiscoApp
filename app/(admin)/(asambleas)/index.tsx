@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,6 @@ import ScreenHeader from "@/components/shared/ScreenHeader";
 export default function AsambleasScreen() {
   const { asambleas, cargarAsambleas, cargando } = useAsambleas();
   const [refreshing, setRefreshing] = useState(false);
-  const hasLoadedRef = useRef(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -44,21 +43,10 @@ export default function AsambleasScreen() {
     [asambleas]
   );
 
-  // Carga inicial
-  useEffect(() => {
-    if (!hasLoadedRef.current) {
-      cargarAsambleas();
-      hasLoadedRef.current = true;
-    }
-  }, [cargarAsambleas]);
-
-  // Actualizar cuando la pantalla recibe focus (regresa de otra pantalla)
+  // Cargar asambleas al montar y al volver a la pantalla
   useFocusEffect(
     useCallback(() => {
-      if (hasLoadedRef.current) {
-        // Solo actualizar si ya se cargó inicialmente
-        cargarAsambleas();
-      }
+      cargarAsambleas();
     }, [cargarAsambleas])
   );
 
@@ -72,10 +60,7 @@ export default function AsambleasScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={THEME.colors.primary}
-            colors={[THEME.colors.primary, THEME.colors.primaryLight]}
-            progressBackgroundColor={THEME.colors.surface}
-            titleColor={THEME.colors.text.secondary}
+            colors={[THEME.colors.primary]}
           />
         }
         style={styles.content}

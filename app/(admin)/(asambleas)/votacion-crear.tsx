@@ -28,7 +28,6 @@ const VotacionCrearScreen: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [votacionData, setVotacionData] = useState<Partial<Votacion>>({
     asamblea_id: asambleaId || 0,
-    estado: "programada",
   });
   const [preguntas, setPreguntas] = useState<PreguntaFormData[]>([]);
   const [showExitModal, setShowExitModal] = useState(false);
@@ -86,10 +85,10 @@ const VotacionCrearScreen: React.FC = () => {
   const handleBack = () => {
     if (currentStep === 2 && preguntas.length > 0) {
       setShowExitModal(true);
-    } else if (currentStep === 1) {
-      router.back();
-    } else {
+    } else if (currentStep === 2) {
       setCurrentStep(1);
+    } else {
+      router.back();
     }
   };
 

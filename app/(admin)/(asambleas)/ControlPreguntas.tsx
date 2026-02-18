@@ -252,6 +252,11 @@ export default function ControlPreguntas() {
     [cargarVotaciones]
   );
 
+  const finalizarPreguntaRef = useRef(finalizarPregunta);
+  useEffect(() => {
+    finalizarPreguntaRef.current = finalizarPregunta;
+  }, [finalizarPregunta]);
+
   const cancelarPregunta = useCallback(
     async (preguntaId: number, force = false) => {
       if (!force) {
@@ -286,17 +291,13 @@ export default function ControlPreguntas() {
     [cargarVotaciones]
   );
 
-  const verResultados = useCallback((preguntaId: number) => {
-    setMenuVisible(null);
-    showToast("Función de resultados próximamente", "warning");
-  }, []);
-
   const CountdownTimer = React.memo(function CountdownTimer({
     preguntaId,
   }: {
     preguntaId: number;
   }) {
     const activacion = preguntasActivadas[preguntaId];
+    const finalizadoRef = useRef(false);
 
     const [timeLeft, setTimeLeft] = useState(() => {
       if (!activacion) return 0;
@@ -306,6 +307,7 @@ export default function ControlPreguntas() {
 
     useEffect(() => {
       if (!activacion) return;
+      finalizadoRef.current = false;
 
       const calculateTimeLeft = () => {
         const transcurrido = (Date.now() - activacion.inicioLocal) / 1000;
@@ -315,8 +317,9 @@ export default function ControlPreguntas() {
         );
         setTimeLeft(diff);
 
-        if (diff === 0) {
-          finalizarPregunta(preguntaId);
+        if (diff === 0 && !finalizadoRef.current) {
+          finalizadoRef.current = true;
+          finalizarPreguntaRef.current(preguntaId);
         }
       };
 
@@ -528,20 +531,6 @@ export default function ControlPreguntas() {
                   </TouchableOpacity>
                 </>
               )}
-
-              {item.estado === "finalizada" && (
-                <TouchableOpacity
-                  style={[styles.menuItem, styles.menuItemLast]}
-                  onPress={() => verResultados(item.id)}
-                >
-                  <Ionicons
-                    name="bar-chart-outline"
-                    size={22}
-                    color="#3B82F6"
-                  />
-                  <Text style={styles.menuItemText}>Ver Resultados</Text>
-                </TouchableOpacity>
-              )}
             </View>
           )}
         </View>
@@ -552,7 +541,6 @@ export default function ControlPreguntas() {
       activarPregunta,
       cancelarPregunta,
       finalizarPregunta,
-      verResultados,
       CountdownTimer,
       esApoderado,
       asambleaId,

@@ -104,12 +104,7 @@ export default function ListaPreguntasApoderado() {
           <Text style={styles.votacionDesc}>{item.descripcion}</Text>
         ) : null}
         <FlatList
-          data={
-            item.preguntas?.map((p) => ({
-              ...p,
-              votacion_id: item.id,
-            })) as PreguntaVotacion[]
-          }
+          data={item.preguntas as PreguntaVotacion[]}
           renderItem={renderPregunta}
           keyExtractor={(pregunta) => pregunta.id.toString()}
         />

@@ -355,88 +355,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: THEME.spacing.xl * 2,
   },
-  statusCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-    borderLeftWidth: 4,
-    borderLeftColor: THEME.colors.success,
-  },
-  statusHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: THEME.spacing.sm,
-  },
-  statusTitle: {
-    fontSize: THEME.fontSize.md,
-    fontWeight: "600",
-    color: THEME.colors.success,
-    marginLeft: THEME.spacing.sm,
-  },
-  statusSubtitle: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.secondary,
-  },
-  connectionIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: THEME.spacing.sm,
-  },
-  onlineIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: THEME.colors.success,
-    marginRight: THEME.spacing.xs,
-  },
-  onlineText: {
-    fontSize: THEME.fontSize.xs,
-    color: THEME.colors.success,
-    fontWeight: "500",
-  },
-  summaryCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-  },
   cardTitle: {
     fontSize: THEME.fontSize.md,
     fontWeight: "600",
     color: THEME.colors.text.primary,
     marginBottom: THEME.spacing.md,
-  },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: THEME.spacing.sm,
-  },
-  summaryLabel: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.secondary,
-  },
-  summaryValue: {
-    fontSize: THEME.fontSize.sm,
-    fontWeight: "600",
-    color: THEME.colors.primary,
-  },
-  apartamentosContainer: {
-    marginTop: THEME.spacing.sm,
-    paddingTop: THEME.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: THEME.colors.border,
-  },
-  apartamentosLabel: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.secondary,
-    marginBottom: THEME.spacing.xs,
-  },
-  apartamentosText: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.primary,
-    fontWeight: "500",
   },
   actionsCard: {
     backgroundColor: THEME.colors.surface,

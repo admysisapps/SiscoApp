@@ -36,7 +36,6 @@ const ParticipantesListaScreen: React.FC = () => {
   const flatListRef = useRef<FlatList>(null);
 
   const stats = {
-    total: participantes.length,
     presentes: participantes.filter((p) => p.presente).length,
     ausentes: participantes.filter((p) => !p.presente).length,
   };

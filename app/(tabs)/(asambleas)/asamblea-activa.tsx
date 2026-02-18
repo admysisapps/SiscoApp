@@ -458,47 +458,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: THEME.spacing.xl * 2,
   },
-  statusCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-    borderLeftWidth: 4,
-    borderLeftColor: THEME.colors.success,
-  },
-  statusHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: THEME.spacing.sm,
-  },
-  statusTitle: {
-    fontSize: THEME.fontSize.md,
-    fontWeight: "600",
-    color: THEME.colors.success,
-    marginLeft: THEME.spacing.sm,
-  },
-  statusSubtitle: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.secondary,
-  },
-  connectionIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: THEME.spacing.sm,
-  },
-  onlineIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: THEME.colors.success,
-    marginRight: THEME.spacing.xs,
-  },
-  onlineText: {
-    fontSize: THEME.fontSize.xs,
-    color: THEME.colors.success,
-    fontWeight: "500",
-  },
-
   actionsCard: {
     backgroundColor: THEME.colors.surface,
     borderRadius: THEME.borderRadius.lg,
@@ -519,9 +478,6 @@ const styles = StyleSheet.create({
     fontSize: THEME.fontSize.lg,
     color: THEME.colors.text.primary,
     marginLeft: THEME.spacing.md,
-  },
-  observerActionText: {
-    color: THEME.colors.text.secondary,
   },
   cardTitle: {
     fontSize: THEME.fontSize.md,

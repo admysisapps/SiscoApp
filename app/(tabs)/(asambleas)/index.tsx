@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,6 @@ import ScreenHeader from "@/components/shared/ScreenHeader";
 export default function AsambleasScreen() {
   const { asambleas, cargarAsambleas, cargando } = useAsambleas();
   const [refreshing, setRefreshing] = useState(false);
-  const hasLoadedRef = useRef(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -30,10 +29,7 @@ export default function AsambleasScreen() {
   }, []);
 
   useEffect(() => {
-    if (!hasLoadedRef.current) {
-      cargarAsambleas();
-      hasLoadedRef.current = true;
-    }
+    cargarAsambleas();
   }, [cargarAsambleas]);
 
   return (
@@ -45,10 +41,7 @@ export default function AsambleasScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={THEME.colors.primary}
-            colors={[THEME.colors.primary, THEME.colors.primaryLight]}
-            progressBackgroundColor={THEME.colors.surface}
-            titleColor={THEME.colors.text.secondary}
+            colors={[THEME.colors.primary]}
           />
         }
         style={styles.content}
@@ -96,7 +89,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-    borderWidth: 0,
   },
   content: {
     flex: 1,

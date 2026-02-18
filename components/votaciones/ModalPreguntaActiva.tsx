@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: THEME.colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: height * 0.9,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: "#E2E8F0",
+    backgroundColor: THEME.colors.border,
     borderRadius: 2,
     alignSelf: "center",
     marginTop: 12,
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
+    borderBottomColor: THEME.colors.border,
   },
   headerLeft: {
     flexDirection: "row",
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#0F172A",
+    color: THEME.colors.text.heading,
   },
   content: {
     paddingHorizontal: 20,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   pregunta: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#0F172A",
+    color: THEME.colors.text.heading,
     lineHeight: 24,
     marginBottom: 20,
   },
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   yaVotoContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#10B98120",
+    backgroundColor: THEME.colors.successLight,
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
@@ -338,23 +338,23 @@ const styles = StyleSheet.create({
   yaVotoText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#10B981",
+    color: THEME.colors.success,
   },
   preguntaFinalizadaContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FEF3C7",
+    backgroundColor: THEME.colors.warningLight,
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
     gap: 8,
     borderWidth: 1,
-    borderColor: "#F59E0B",
+    borderColor: THEME.colors.warning,
   },
   preguntaFinalizadaText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#D97706",
+    color: THEME.colors.text.warningDark,
   },
   errorContainer: {
     flexDirection: "row",
@@ -365,12 +365,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     gap: 8,
     borderWidth: 1,
-    borderColor: "#EF4444",
+    borderColor: THEME.colors.error,
   },
   errorText: {
     flex: 1,
     fontSize: 14,
     fontWeight: "600",
-    color: "#DC2626",
+    color: THEME.colors.error,
   },
 });
