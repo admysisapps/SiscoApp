@@ -13,7 +13,7 @@ import LottieView from "lottie-react-native";
 import { THEME } from "@/constants/theme";
 
 const { width: screenWidth } = Dimensions.get("window");
-const chartWidth = screenWidth - THEME.spacing.lg * 4;
+const chartWidth = screenWidth - THEME.spacing.lg;
 
 interface ResultadoOpcion {
   id: number | string;
@@ -65,31 +65,40 @@ export const ResultadosVotacion: React.FC<ResultadosVotacionProps> = ({
     (sum, r) => sum + (Number(r.total_votos) || 0),
     0
   );
+
+  // Calcular coeficiente solo de los que votaron (sin "No Votaron")
+  const coeficienteVotaron = resultados
+    .filter((r) => r.opcion_texto !== "No Votaron")
+    .reduce(
+      (sum, r) => sum + (parseFloat(String(r.total_coeficiente)) || 0),
+      0
+    );
+
   const totalCoeficiente = resultados.reduce(
     (sum, r) => sum + (parseFloat(String(r.total_coeficiente)) || 0),
     0
   );
 
   const renderGraficoBarras = () => {
-    // Separar abstención de las demás opciones
-    const abstencion = resultados.find((r) => r.opcion_texto === "Abstención");
+    // Separar "No Votaron" de las demás opciones
+    const noVotaron = resultados.find((r) => r.opcion_texto === "No Votaron");
     const opcionesVoto = resultados.filter(
-      (r) => r.opcion_texto !== "Abstención"
+      (r) => r.opcion_texto !== "No Votaron"
     );
 
-    // Tomar top 5 de opciones de voto + abstención siempre
+    // Tomar top 5 de opciones de voto + "No Votaron" siempre
     const top5Opciones = [...opcionesVoto]
       .sort((a, b) => Number(b.total_coeficiente) - Number(a.total_coeficiente))
       .slice(0, 5);
 
-    const top6Resultados = abstencion
-      ? [...top5Opciones, abstencion]
+    const top6Resultados = noVotaron
+      ? [...top5Opciones, noVotaron]
       : top5Opciones;
 
     const colorMap = new Map(
       resultados.map((r, idx) => [
         r.opcion_texto,
-        r.opcion_texto === "Abstención" ? "#94a3b8" : generarColor(idx),
+        r.opcion_texto === "No Votaron" ? "#94a3b8" : generarColor(idx),
       ])
     );
 
@@ -140,17 +149,17 @@ export const ResultadosVotacion: React.FC<ResultadosVotacionProps> = ({
             const coef = parseFloat(String(resultado.total_coeficiente)) || 0;
             const porcentaje =
               totalCoeficiente > 0 ? (coef / totalCoeficiente) * 100 : 0;
-            const esAbstencion = resultado.opcion_texto === "Abstención";
+            const esNoVotaron = resultado.opcion_texto === "No Votaron";
             return (
               <View
-                key={resultado.id || `abs-${index}`}
+                key={resultado.id || `no-voto-${index}`}
                 style={styles.leyendaItem}
               >
                 <View
                   style={[
                     styles.leyendaColor,
                     {
-                      backgroundColor: esAbstencion
+                      backgroundColor: esNoVotaron
                         ? "#94a3b8"
                         : generarColor(index),
                     },
@@ -186,10 +195,10 @@ export const ResultadosVotacion: React.FC<ResultadosVotacionProps> = ({
 
   const renderGraficoTorta = () => {
     const pieData = resultados.map((resultado, index) => {
-      const esAbstencion = resultado.opcion_texto === "Abstención";
+      const esNoVotaron = resultado.opcion_texto === "No Votaron";
       return {
         value: parseFloat(String(resultado.total_coeficiente)) || 0,
-        color: esAbstencion ? "#94a3b8" : generarColor(index),
+        color: esNoVotaron ? "#94a3b8" : generarColor(index),
         focused: opcionEnfocada?.id === resultado.id,
         onPress: () => {
           Animated.sequence([
@@ -231,18 +240,18 @@ export const ResultadosVotacion: React.FC<ResultadosVotacionProps> = ({
             const coef = parseFloat(String(resultado.total_coeficiente)) || 0;
             const porcentaje =
               totalCoeficiente > 0 ? (coef / totalCoeficiente) * 100 : 0;
-            const esAbstencion = resultado.opcion_texto === "Abstención";
+            const esNoVotaron = resultado.opcion_texto === "No Votaron";
 
             return (
               <View
-                key={resultado.id || `abs-${index}`}
+                key={resultado.id || `no-voto-${index}`}
                 style={styles.leyendaItem}
               >
                 <View
                   style={[
                     styles.leyendaColor,
                     {
-                      backgroundColor: esAbstencion
+                      backgroundColor: esNoVotaron
                         ? "#94a3b8"
                         : generarColor(index),
                     },
@@ -337,9 +346,9 @@ export const ResultadosVotacion: React.FC<ResultadosVotacionProps> = ({
           <Text style={styles.resumenValor}>{totalVotos}</Text>
         </View>
         <View style={styles.resumenItem}>
-          <Text style={styles.resumenLabel}>Coeficiente Total</Text>
+          <Text style={styles.resumenLabel}>Participación</Text>
           <Text style={styles.resumenValor}>
-            {((totalCoeficiente || 0) * 100).toFixed(2)}%
+            {((coeficienteVotaron || 0) * 100).toFixed(2)}%
           </Text>
         </View>
       </View>
