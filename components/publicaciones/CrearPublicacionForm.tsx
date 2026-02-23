@@ -16,14 +16,14 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   CreatePublicacionRequest,
   TipoPublicacion,
-} from "../../types/publicaciones";
-import { publicacionesService } from "../../services/publicacionesService";
-import { s3Service } from "../../services/s3Service";
+} from "@/types/publicaciones";
+import { publicacionesService } from "@/services/publicacionesService";
+import { s3Service } from "@/services/s3Service";
 import * as ImagePicker from "expo-image-picker";
-import { useProject } from "../../contexts/ProjectContext";
-import { THEME, COLORS } from "../../constants/theme";
-import Toast from "../Toast";
-import ScreenHeader from "../shared/ScreenHeader";
+import { useProject } from "@/contexts/ProjectContext";
+import { THEME, COLORS } from "@/constants/theme";
+import Toast from "@/components/Toast";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 
 const { width } = Dimensions.get("window");
 

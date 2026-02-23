@@ -131,13 +131,6 @@ export default function CrearAsambleaScreen() {
       newErrors.lugar = "Lugar es requerido";
     }
 
-    if (
-      (formData.modalidad === "virtual" || formData.modalidad === "mixta") &&
-      !formData.enlace_virtual.trim()
-    ) {
-      newErrors.enlace_virtual = "Enlace virtual es requerido";
-    }
-
     const quorum = parseFloat(formData.quorum_requerido);
     if (isNaN(quorum) || quorum <= 0 || quorum > 100) {
       newErrors.quorum_requerido = "Quórum debe estar entre 1 y 100";
@@ -437,7 +430,7 @@ export default function CrearAsambleaScreen() {
         {(formData.modalidad === "virtual" ||
           formData.modalidad === "mixta") && (
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Enlace Virtual *</Text>
+            <Text style={styles.label}>Enlace Virtual</Text>
             <TextInput
               style={[styles.input, errors.enlace_virtual && styles.inputError]}
               value={formData.enlace_virtual}

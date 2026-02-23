@@ -366,7 +366,7 @@ export default function MisReservasScreen() {
         </View>
       </Animated.View>
 
-      {/* Contador y Lista Unificados */}
+      {/* Lista de Reservas */}
       <Animated.ScrollView
         style={styles.content}
         contentContainerStyle={[
@@ -388,95 +388,81 @@ export default function MisReservasScreen() {
           />
         }
       >
-        <View style={styles.unifiedContainer}>
-          <View style={styles.countCard}>
-            <Text style={styles.countText}>
-              {activeFilter === "Todas"
-                ? `${reservas.length} de ${pagination.total_registros} ${pagination.total_registros === 1 ? "resultado" : "resultados"}`
-                : `${filteredReservas.length} ${filteredReservas.length === 1 ? "resultado" : "resultados"} (filtrado de ${reservas.length})`}
-            </Text>
-            {pagination.total_paginas > 1 && activeFilter === "Todas" && (
-              <Text style={styles.paginationText}>
-                Página {pagination.pagina_actual} de {pagination.total_paginas}
-              </Text>
-            )}
+        {loading && !refreshing ? (
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color={THEME.colors.success} />
+            <Text style={styles.loadingText}>Cargando reservas...</Text>
           </View>
-          {loading && !refreshing ? (
-            <View style={styles.centerContainer}>
-              <ActivityIndicator size="large" color={THEME.colors.success} />
-              <Text style={styles.loadingText}>Cargando reservas...</Text>
-            </View>
-          ) : error ? (
-            <View style={styles.centerContainer}>
-              <Ionicons
-                name="alert-circle"
-                size={48}
-                color={THEME.colors.error}
-              />
-              <Text style={styles.errorText}>{error}</Text>
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={() => cargarReservasCallback()}
-              >
-                <Text style={styles.retryButtonText}>Reintentar</Text>
-              </TouchableOpacity>
-            </View>
-          ) : filteredReservas.length === 0 && !refreshing ? (
-            <View style={styles.centerContainer}>
-              <Ionicons
-                name="calendar-outline"
-                size={48}
-                color={THEME.colors.text.secondary}
-              />
-              <Text style={styles.emptyText}>No hay reservas</Text>
-              <Text style={styles.emptySubtext}>
-                {activeFilter === "Todas"
-                  ? isAdmin
-                    ? "No hay reservas en el sistema"
-                    : "Aún no has hecho ninguna reserva. ¡Crea tu primera reserva!"
-                  : `No tienes reservas ${activeFilter.toLowerCase()}`}
-              </Text>
-            </View>
-          ) : (
-            <>
-              {filteredReservas.map((reserva) =>
-                isAdmin ? (
-                  <ReservaCardAdmin
-                    key={reserva.id}
-                    reserva={reserva}
-                    onPress={handleReservaPress}
-                    styles={styles}
-                  />
-                ) : (
-                  <ReservaCardPropietario
-                    key={reserva.id}
-                    reserva={reserva}
-                    onPress={handleReservaPress}
-                    onCancel={handleCancelarReserva}
-                    styles={styles}
-                  />
-                )
-              )}
+        ) : error ? (
+          <View style={styles.centerContainer}>
+            <Ionicons
+              name="alert-circle"
+              size={48}
+              color={THEME.colors.error}
+            />
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => cargarReservasCallback()}
+            >
+              <Text style={styles.retryButtonText}>Reintentar</Text>
+            </TouchableOpacity>
+          </View>
+        ) : filteredReservas.length === 0 && !refreshing ? (
+          <View style={styles.centerContainer}>
+            <Ionicons
+              name="calendar-outline"
+              size={48}
+              color={THEME.colors.text.secondary}
+            />
+            <Text style={styles.emptyText}>No hay reservas</Text>
+            <Text style={styles.emptySubtext}>
+              {activeFilter === "Todas"
+                ? isAdmin
+                  ? "No hay reservas en el sistema"
+                  : "Aún no has hecho ninguna reserva. ¡Crea tu primera reserva!"
+                : `No tienes reservas ${activeFilter.toLowerCase()}`}
+            </Text>
+          </View>
+        ) : (
+          <>
+            {filteredReservas.map((reserva) =>
+              isAdmin ? (
+                <ReservaCardAdmin
+                  key={reserva.id}
+                  reserva={reserva}
+                  onPress={handleReservaPress}
+                  styles={styles}
+                />
+              ) : (
+                <ReservaCardPropietario
+                  key={reserva.id}
+                  reserva={reserva}
+                  onPress={handleReservaPress}
+                  onCancel={handleCancelarReserva}
+                  styles={styles}
+                />
+              )
+            )}
 
-              {/* Botón Cargar Más - Solo visible sin filtros */}
-              {activeFilter === "Todas" &&
-                pagination.pagina_actual < pagination.total_paginas &&
-                !refreshing && (
-                  <TouchableOpacity
-                    style={styles.loadMoreButton}
-                    onPress={cargarMasReservas}
-                    disabled={loadingMore}
-                  >
-                    {loadingMore ? (
-                      <ActivityIndicator size="small" color="white" />
-                    ) : (
-                      <Text style={styles.loadMoreText}>Ver más reservas</Text>
-                    )}
-                  </TouchableOpacity>
-                )}
-            </>
-          )}
-        </View>
+            {/* Botón Cargar Más - Solo visible sin filtros */}
+            {activeFilter === "Todas" &&
+              pagination.pagina_actual < pagination.total_paginas &&
+              !refreshing && (
+                <TouchableOpacity
+                  style={styles.loadMoreButton}
+                  onPress={cargarMasReservas}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text style={styles.loadMoreText}>Ver más reservas</Text>
+                  )}
+                </TouchableOpacity>
+              )}
+          </>
+        )}
       </Animated.ScrollView>
 
       <CancelReservationModal
@@ -594,29 +580,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 160,
   },
-  unifiedContainer: {
-    backgroundColor: THEME.colors.surface,
-    marginHorizontal: 16,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    overflow: "hidden",
-  },
-  countCard: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.surfaceLight,
-  },
-  countText: {
-    fontSize: 14,
-    color: THEME.colors.text.secondary,
-    fontWeight: "500",
-  },
-
   centerContainer: {
     flex: 1,
     justifyContent: "center",
@@ -659,12 +622,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 40,
   },
-  paginationText: {
-    fontSize: 12,
-    color: THEME.colors.text.muted,
-    marginTop: 4,
-    fontWeight: "400",
-  },
   loadMoreButton: {
     backgroundColor: THEME.colors.success,
     borderRadius: 12,
@@ -689,7 +646,7 @@ const styles = StyleSheet.create({
   reservaCard: {
     backgroundColor: THEME.colors.surface,
     borderRadius: 12,
-    marginHorizontal: 8,
+    marginHorizontal: 16,
     marginVertical: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
