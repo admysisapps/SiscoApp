@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,12 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
 import { asambleaService } from "@/services/asambleaService";
 import Toast from "@/components/Toast";
@@ -65,6 +67,24 @@ export default function CrearAsambleaScreen() {
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
+  const [behavior, setBehavior] = useState<"padding" | "height" | undefined>(
+    Platform.OS === "ios" ? "padding" : "height"
+  );
+
+  useEffect(() => {
+    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setBehavior(Platform.OS === "ios" ? "padding" : "height");
+    });
+
+    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setBehavior(undefined);
+    });
+
+    return () => {
+      keyboardShowListener.remove();
+      keyboardHideListener.remove();
+    };
+  }, []);
 
   const showToast = (
     message: string,
@@ -213,11 +233,7 @@ export default function CrearAsambleaScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-    >
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -233,305 +249,343 @@ export default function CrearAsambleaScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Título */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Título *</Text>
-          <TextInput
-            style={[styles.input, errors.titulo && styles.inputError]}
-            value={formData.titulo}
-            onChangeText={(text) => handleInputChange("titulo", text)}
-            placeholder="Ej: Asamblea Ordinaria 2025"
-            placeholderTextColor={THEME.colors.text.muted}
-            maxLength={100}
-          />
-          {errors.titulo && (
-            <Text style={styles.errorText}>{errors.titulo}</Text>
-          )}
-        </View>
-
-        {/* Descripción */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Descripción</Text>
-          <TextInput
-            style={[styles.textArea, errors.descripcion && styles.inputError]}
-            value={formData.descripcion}
-            onChangeText={(text) => handleInputChange("descripcion", text)}
-            placeholder="Descripción de la asamblea..."
-            placeholderTextColor={THEME.colors.text.muted}
-            multiline
-            numberOfLines={3}
-            maxLength={250}
-          />
-        </View>
-
-        {/* Tipo */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Tipo de Asamblea </Text>
-          <View style={styles.segmentedControl}>
-            {[
-              { value: "ordinaria", label: "Ordinaria", icon: "calendar" },
-              {
-                value: "extraordinaria",
-                label: "Extraordinaria",
-                icon: "flash",
-              },
-            ].map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.segmentButton,
-                  formData.tipo_asamblea === option.value &&
-                    styles.segmentButtonActive,
-                ]}
-                onPress={() =>
-                  handleInputChange("tipo_asamblea", option.value as any)
-                }
-              >
-                <Ionicons
-                  name={option.icon as any}
-                  size={18}
-                  color={
-                    formData.tipo_asamblea === option.value
-                      ? THEME.colors.text.inverse
-                      : THEME.colors.text.secondary
-                  }
-                />
-                <Text
-                  style={[
-                    styles.segmentButtonText,
-                    formData.tipo_asamblea === option.value &&
-                      styles.segmentButtonTextActive,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Fecha y Hora */}
-        <View style={styles.rowContainer}>
-          <View style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}>
-            <Text style={styles.label}>Fecha *</Text>
-            <TouchableOpacity
-              style={[styles.pickerButton, errors.fecha && styles.inputError]}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={styles.pickerText}>
-                {dayjs(formData.fecha).format("DD/MM/YYYY")}
-              </Text>
-            </TouchableOpacity>
-            {errors.fecha && (
-              <Text style={styles.errorText}>{errors.fecha}</Text>
-            )}
-            <View style={styles.helperContainer}>
-              <Ionicons
-                name="information-circle"
-                size={16}
-                color={THEME.colors.primary}
+      <KeyboardAvoidingView style={styles.keyboardView} behavior={behavior}>
+        <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Título */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Título *</Text>
+              <TextInput
+                style={[styles.input, errors.titulo && styles.inputError]}
+                value={formData.titulo}
+                onChangeText={(text) => handleInputChange("titulo", text)}
+                placeholder="Ej: Asamblea Ordinaria 2025"
+                placeholderTextColor={THEME.colors.text.muted}
+                maxLength={100}
               />
-              <Text style={styles.helperText}>
-                {formData.tipo_asamblea === "ordinaria"
-                  ? `Mínimo ${DIAS_MINIMOS_ANTELACION} días de anticipación`
-                  : "Sin restricción de días"}
-              </Text>
+              {errors.titulo && (
+                <Text style={styles.errorText}>{errors.titulo}</Text>
+              )}
             </View>
-          </View>
 
-          <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
-            <Text style={styles.label}>Hora *</Text>
-            <TouchableOpacity
-              style={[styles.pickerButton, errors.hora && styles.inputError]}
-              onPress={() => setShowTimePicker(true)}
-            >
-              <Ionicons name="time" size={20} color={THEME.colors.primary} />
-              <Text style={styles.pickerText}>
-                {dayjs(formData.hora).format("HH:mm")}
-              </Text>
-            </TouchableOpacity>
-            {errors.hora && <Text style={styles.errorText}>{errors.hora}</Text>}
-            {formData.tipo_asamblea === "extraordinaria" && (
-              <View style={styles.helperContainer}>
-                <Ionicons
-                  name="information-circle"
-                  size={16}
-                  color={THEME.colors.primary}
+            {/* Descripción */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Descripción</Text>
+              <TextInput
+                style={[
+                  styles.textArea,
+                  errors.descripcion && styles.inputError,
+                ]}
+                value={formData.descripcion}
+                onChangeText={(text) => handleInputChange("descripcion", text)}
+                placeholder="Descripción de la asamblea..."
+                placeholderTextColor={THEME.colors.text.muted}
+                multiline
+                numberOfLines={3}
+                maxLength={250}
+              />
+            </View>
+
+            {/* Tipo */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Tipo de Asamblea </Text>
+              <View style={styles.segmentedControl}>
+                {[
+                  { value: "ordinaria", label: "Ordinaria", icon: "calendar" },
+                  {
+                    value: "extraordinaria",
+                    label: "Extraordinaria",
+                    icon: "flash",
+                  },
+                ].map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.segmentButton,
+                      formData.tipo_asamblea === option.value &&
+                        styles.segmentButtonActive,
+                    ]}
+                    onPress={() =>
+                      handleInputChange("tipo_asamblea", option.value as any)
+                    }
+                  >
+                    <Ionicons
+                      name={option.icon as any}
+                      size={18}
+                      color={
+                        formData.tipo_asamblea === option.value
+                          ? THEME.colors.text.inverse
+                          : THEME.colors.text.secondary
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.segmentButtonText,
+                        formData.tipo_asamblea === option.value &&
+                          styles.segmentButtonTextActive,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Fecha y Hora */}
+            <View style={styles.rowContainer}>
+              <View
+                style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}
+              >
+                <Text style={styles.label}>Fecha *</Text>
+                <TouchableOpacity
+                  style={[
+                    styles.pickerButton,
+                    errors.fecha && styles.inputError,
+                  ]}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text style={styles.pickerText}>
+                    {dayjs(formData.fecha).format("DD/MM/YYYY")}
+                  </Text>
+                </TouchableOpacity>
+                {errors.fecha && (
+                  <Text style={styles.errorText}>{errors.fecha}</Text>
+                )}
+                <View style={styles.helperContainer}>
+                  <Ionicons
+                    name="information-circle"
+                    size={16}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={styles.helperText}>
+                    {formData.tipo_asamblea === "ordinaria"
+                      ? `Mínimo ${DIAS_MINIMOS_ANTELACION} días de anticipación`
+                      : "Sin restricción de días"}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
+                <Text style={styles.label}>Hora *</Text>
+                <TouchableOpacity
+                  style={[
+                    styles.pickerButton,
+                    errors.hora && styles.inputError,
+                  ]}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Ionicons
+                    name="time"
+                    size={20}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={styles.pickerText}>
+                    {dayjs(formData.hora).format("HH:mm")}
+                  </Text>
+                </TouchableOpacity>
+                {errors.hora && (
+                  <Text style={styles.errorText}>{errors.hora}</Text>
+                )}
+                {formData.tipo_asamblea === "extraordinaria" && (
+                  <View style={styles.helperContainer}>
+                    <Ionicons
+                      name="information-circle"
+                      size={16}
+                      color={THEME.colors.primary}
+                    />
+                    <Text style={styles.helperText}>
+                      Mínimo 1 hora de anticipación
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Lugar */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Lugar *</Text>
+              <TextInput
+                style={[styles.input, errors.lugar && styles.inputError]}
+                value={formData.lugar}
+                onChangeText={(text) => handleInputChange("lugar", text)}
+                placeholder="Ej: Salón Comunal"
+                placeholderTextColor={THEME.colors.text.muted}
+                maxLength={100}
+              />
+              {errors.lugar && (
+                <Text style={styles.errorText}>{errors.lugar}</Text>
+              )}
+            </View>
+
+            {/* Modalidad */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Modalidad *</Text>
+              <View style={styles.segmentedControl}>
+                {[
+                  { value: "presencial", label: "Presencial" },
+                  { value: "virtual", label: "Virtual", icon: "videocam" },
+                  { value: "mixta", label: "Mixta", icon: "layers" },
+                ].map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.segmentButton,
+                      formData.modalidad === option.value &&
+                        styles.segmentButtonActive,
+                    ]}
+                    onPress={() =>
+                      handleInputChange("modalidad", option.value as any)
+                    }
+                  >
+                    {option.icon && (
+                      <Ionicons
+                        name={option.icon as any}
+                        size={18}
+                        color={
+                          formData.modalidad === option.value
+                            ? THEME.colors.text.inverse
+                            : THEME.colors.text.secondary
+                        }
+                      />
+                    )}
+                    <Text
+                      style={[
+                        styles.segmentButtonText,
+                        formData.modalidad === option.value &&
+                          styles.segmentButtonTextActive,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Enlace Virtual */}
+            {(formData.modalidad === "virtual" ||
+              formData.modalidad === "mixta") && (
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>Enlace Virtual</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.enlace_virtual && styles.inputError,
+                  ]}
+                  value={formData.enlace_virtual}
+                  onChangeText={(text) =>
+                    handleInputChange("enlace_virtual", text)
+                  }
+                  placeholder="https://meet.google.com/..."
+                  placeholderTextColor={THEME.colors.text.muted}
+                  maxLength={255}
+                  keyboardType="url"
                 />
-                <Text style={styles.helperText}>
-                  Mínimo 1 hora de anticipación
-                </Text>
+                {errors.enlace_virtual && (
+                  <Text style={styles.errorText}>{errors.enlace_virtual}</Text>
+                )}
               </View>
             )}
-          </View>
-        </View>
 
-        {/* Lugar */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Lugar *</Text>
-          <TextInput
-            style={[styles.input, errors.lugar && styles.inputError]}
-            value={formData.lugar}
-            onChangeText={(text) => handleInputChange("lugar", text)}
-            placeholder="Ej: Salón Comunal"
-            placeholderTextColor={THEME.colors.text.muted}
-            maxLength={100}
-          />
-          {errors.lugar && <Text style={styles.errorText}>{errors.lugar}</Text>}
-        </View>
-
-        {/* Modalidad */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Modalidad *</Text>
-          <View style={styles.segmentedControl}>
-            {[
-              { value: "presencial", label: "Presencial" },
-              { value: "virtual", label: "Virtual", icon: "videocam" },
-              { value: "mixta", label: "Mixta", icon: "layers" },
-            ].map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.segmentButton,
-                  formData.modalidad === option.value &&
-                    styles.segmentButtonActive,
-                ]}
-                onPress={() =>
-                  handleInputChange("modalidad", option.value as any)
-                }
+            {/* Quórum y Tiempo por pregunta */}
+            <View style={styles.rowContainer}>
+              <View
+                style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}
               >
-                {option.icon && (
-                  <Ionicons
-                    name={option.icon as any}
-                    size={18}
-                    color={
-                      formData.modalidad === option.value
-                        ? THEME.colors.text.inverse
-                        : THEME.colors.text.secondary
+                <Text style={styles.label}>Quórum Requerido </Text>
+                <View style={styles.inputWithIcon}>
+                  <TextInput
+                    style={[
+                      styles.inputIcon,
+                      errors.quorum_requerido && styles.inputError,
+                    ]}
+                    value={formData.quorum_requerido}
+                    onChangeText={(text) =>
+                      handleInputChange("quorum_requerido", text)
                     }
+                    placeholder="50"
+                    placeholderTextColor={THEME.colors.text.muted}
+                    keyboardType="numeric"
+                    maxLength={3}
                   />
+                  <Text style={styles.inputSuffix}>%</Text>
+                </View>
+                {errors.quorum_requerido && (
+                  <Text style={styles.errorText}>
+                    {errors.quorum_requerido}
+                  </Text>
                 )}
-                <Text
-                  style={[
-                    styles.segmentButtonText,
-                    formData.modalidad === option.value &&
-                      styles.segmentButtonTextActive,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+                <View style={styles.helperContainer}>
+                  <Ionicons
+                    name="information-circle"
+                    size={14}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={styles.helperText}>
+                    Porcentaje de coeficientes
+                  </Text>
+                </View>
+              </View>
 
-        {/* Enlace Virtual */}
-        {(formData.modalidad === "virtual" ||
-          formData.modalidad === "mixta") && (
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Enlace Virtual</Text>
-            <TextInput
-              style={[styles.input, errors.enlace_virtual && styles.inputError]}
-              value={formData.enlace_virtual}
-              onChangeText={(text) => handleInputChange("enlace_virtual", text)}
-              placeholder="https://meet.google.com/..."
-              placeholderTextColor={THEME.colors.text.muted}
-              maxLength={255}
-              keyboardType="url"
-            />
-            {errors.enlace_virtual && (
-              <Text style={styles.errorText}>{errors.enlace_virtual}</Text>
-            )}
-          </View>
-        )}
-
-        {/* Quórum y Tiempo por pregunta */}
-        <View style={styles.rowContainer}>
-          <View style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}>
-            <Text style={styles.label}>Quórum Requerido </Text>
-            <View style={styles.inputWithIcon}>
-              <TextInput
-                style={[
-                  styles.inputIcon,
-                  errors.quorum_requerido && styles.inputError,
-                ]}
-                value={formData.quorum_requerido}
-                onChangeText={(text) =>
-                  handleInputChange("quorum_requerido", text)
-                }
-                placeholder="50"
-                placeholderTextColor={THEME.colors.text.muted}
-                keyboardType="numeric"
-                maxLength={3}
-              />
-              <Text style={styles.inputSuffix}>%</Text>
+              <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
+                <Text style={styles.label}>Tiempo por pregunta </Text>
+                <View style={styles.inputWithIcon}>
+                  <TextInput
+                    style={[
+                      styles.inputIcon,
+                      errors.tiempo_pregunta && styles.inputError,
+                    ]}
+                    value={formData.tiempo_pregunta}
+                    onChangeText={(text) =>
+                      handleInputChange("tiempo_pregunta", text)
+                    }
+                    placeholder="3"
+                    placeholderTextColor={THEME.colors.text.muted}
+                    keyboardType="numeric"
+                    maxLength={2}
+                  />
+                  <Text style={styles.inputSuffix}>min</Text>
+                </View>
+                {errors.tiempo_pregunta && (
+                  <Text style={styles.errorText}>{errors.tiempo_pregunta}</Text>
+                )}
+                <View style={styles.helperContainer}>
+                  <Ionicons
+                    name="information-circle"
+                    size={14}
+                    color={THEME.colors.primary}
+                  />
+                  <Text style={styles.helperText}>Entre 1 y 10 minutos</Text>
+                </View>
+              </View>
             </View>
-            {errors.quorum_requerido && (
-              <Text style={styles.errorText}>{errors.quorum_requerido}</Text>
-            )}
-            <View style={styles.helperContainer}>
-              <Ionicons
-                name="information-circle"
-                size={14}
-                color={THEME.colors.primary}
-              />
-              <Text style={styles.helperText}>Porcentaje de coeficientes</Text>
-            </View>
-          </View>
 
-          <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
-            <Text style={styles.label}>Tiempo por pregunta </Text>
-            <View style={styles.inputWithIcon}>
-              <TextInput
-                style={[
-                  styles.inputIcon,
-                  errors.tiempo_pregunta && styles.inputError,
-                ]}
-                value={formData.tiempo_pregunta}
-                onChangeText={(text) =>
-                  handleInputChange("tiempo_pregunta", text)
-                }
-                placeholder="3"
-                placeholderTextColor={THEME.colors.text.muted}
-                keyboardType="numeric"
-                maxLength={2}
-              />
-              <Text style={styles.inputSuffix}>min</Text>
+            <View style={styles.buttonContainer}>
+              <Button
+                isLoading={loading}
+                onPress={handleSubmit}
+                loadingText="Creando..."
+                loadingTextColor="#fff"
+                backgroundColor={THEME.colors.primary}
+                loadingTextBackgroundColor={THEME.colors.primary}
+                height={56}
+                borderRadius={12}
+                style={{ width: "100%" }}
+              >
+                <Text style={styles.submitText}>Crear Asamblea</Text>
+              </Button>
             </View>
-            {errors.tiempo_pregunta && (
-              <Text style={styles.errorText}>{errors.tiempo_pregunta}</Text>
-            )}
-            <View style={styles.helperContainer}>
-              <Ionicons
-                name="information-circle"
-                size={14}
-                color={THEME.colors.primary}
-              />
-              <Text style={styles.helperText}>Entre 1 y 10 minutos</Text>
-            </View>
-          </View>
-        </View>
 
-        {/* Botón */}
-        <View style={styles.buttonContainer}>
-          <Button
-            isLoading={loading}
-            onPress={handleSubmit}
-            loadingText="Creando..."
-            loadingTextColor="#fff"
-            backgroundColor={THEME.colors.primary}
-            loadingTextBackgroundColor={THEME.colors.primary}
-            height={56}
-            borderRadius={14}
-            style={{ width: "100%" }}
-          >
-            <Text style={styles.createButtonText}>Crear Asamblea</Text>
-          </Button>
-        </View>
-
-        <View style={{ height: 80 }} />
-      </ScrollView>
+            <View style={{ height: 40 }} />
+          </ScrollView>
+        </LinearGradient>
+      </KeyboardAvoidingView>
 
       <Toast
         visible={toast.visible}
@@ -565,14 +619,14 @@ export default function CrearAsambleaScreen() {
           onChange={handleTimeChange}
         />
       )}
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: "#FAFAFA",
   },
   header: {
     flexDirection: "row",
@@ -580,10 +634,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: "#FAFAFA",
     borderBottomWidth: 1,
     borderBottomColor: THEME.colors.border,
   },
+  keyboardView: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    paddingBottom: 40,
+  },
+
   backButton: {
     width: 40,
     height: 40,
@@ -600,10 +669,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: THEME.colors.text.heading,
   },
-  content: {
-    flex: 1,
-    padding: 24,
-  },
   fieldContainer: {
     marginBottom: 20,
   },
@@ -614,38 +679,37 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderWidth: 0,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     color: THEME.colors.text.heading,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: "#FFFFFF",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   textArea: {
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
+    borderWidth: 0,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     color: THEME.colors.text.heading,
-    backgroundColor: THEME.colors.surface,
-    minHeight: 120,
+    backgroundColor: "#FFFFFF",
+    minHeight: 100,
     textAlignVertical: "top",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   inputError: {
+    borderWidth: 2,
     borderColor: THEME.colors.error,
   },
   errorText: {
@@ -706,30 +770,23 @@ const styles = StyleSheet.create({
     marginTop: 32,
   },
   buttonContainer: {
-    marginTop: 32,
+    marginTop: 24,
     alignItems: "center",
-  },
-  createButtonText: {
-    color: THEME.colors.text.inverse,
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 0.2,
   },
   pickerButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: THEME.colors.border,
+    borderWidth: 0,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: "#FFFFFF",
     gap: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   pickerText: {
     fontSize: THEME.fontSize.md,
@@ -739,15 +796,14 @@ const styles = StyleSheet.create({
   inputWithIcon: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: THEME.colors.border,
+    borderWidth: 0,
     borderRadius: 12,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: "#FFFFFF",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   inputIcon: {
     flex: 1,
@@ -762,5 +818,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: THEME.colors.text.secondary,
+  },
+  submitText: {
+    color: "white",
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
   },
 });

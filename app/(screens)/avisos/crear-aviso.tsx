@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Platform,
   Image,
   Alert,
+  Keyboard,
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,6 +18,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { THEME, COLORS } from "@/constants/theme";
 import { s3Service } from "@/services/s3Service";
 import { useProject } from "@/contexts/ProjectContext";
@@ -73,6 +75,24 @@ export default function CrearAvisoScreen() {
     message: "",
     type: "success" as "success" | "error" | "warning",
   });
+  const [behavior, setBehavior] = useState<"padding" | "height" | undefined>(
+    Platform.OS === "ios" ? "padding" : "height"
+  );
+
+  useEffect(() => {
+    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setBehavior(Platform.OS === "ios" ? "padding" : "height");
+    });
+
+    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setBehavior(undefined);
+    });
+
+    return () => {
+      keyboardShowListener.remove();
+      keyboardHideListener.remove();
+    };
+  }, []);
 
   const showToast = (
     message: string,
@@ -295,244 +315,262 @@ export default function CrearAvisoScreen() {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Crear Comunicado" />
 
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Tipo de Aviso */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tipo de Comunicado</Text>
-            <View style={styles.optionsGrid}>
-              {tiposAviso.map((tipo) => {
-                const isSelected = formData.tipo === tipo.value;
-                const color = getAvisoColor(
-                  isSelected ? formData.prioridad : "baja"
-                );
-                return (
-                  <TouchableOpacity
-                    key={tipo.value}
-                    style={[
-                      styles.optionCard,
-                      isSelected && styles.selectedOption,
-                      isSelected && { borderColor: color },
-                    ]}
-                    onPress={() =>
-                      setFormData({ ...formData, tipo: tipo.value as any })
-                    }
-                  >
-                    <Ionicons
-                      name={
-                        getAvisoIcon(
-                          tipo.value
-                        ) as keyof typeof Ionicons.glyphMap
-                      }
-                      size={20}
-                      color={isSelected ? color : THEME.colors.text.secondary}
-                    />
-                    <Text style={[styles.optionText, isSelected && { color }]}>
-                      {tipo.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          {/* Prioridad */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Prioridad</Text>
-            <View style={styles.priorityOptions}>
-              {prioridades.map((prioridad) => {
-                const isSelected = formData.prioridad === prioridad.value;
-                const color = getAvisoColor(prioridad.value);
-                return (
-                  <TouchableOpacity
-                    key={prioridad.value}
-                    style={[
-                      styles.priorityOption,
-                      isSelected && {
-                        backgroundColor: color,
-                      },
-                    ]}
-                    onPress={() =>
-                      setFormData({
-                        ...formData,
-                        prioridad: prioridad.value as any,
-                      })
-                    }
-                  >
-                    <Text
+      <KeyboardAvoidingView style={styles.flex} behavior={behavior}>
+        <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Tipo de Aviso */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Tipo de Comunicado</Text>
+              <View style={styles.optionsGrid}>
+                {tiposAviso.map((tipo) => {
+                  const isSelected = formData.tipo === tipo.value;
+                  const color = getAvisoColor(
+                    isSelected ? formData.prioridad : "baja"
+                  );
+                  return (
+                    <TouchableOpacity
+                      key={tipo.value}
                       style={[
-                        styles.priorityText,
-                        isSelected && styles.priorityTextSelected,
+                        styles.optionCard,
+                        isSelected && styles.selectedOption,
+                        isSelected && { borderColor: color },
                       ]}
+                      onPress={() =>
+                        setFormData({ ...formData, tipo: tipo.value as any })
+                      }
                     >
-                      {prioridad.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      <Ionicons
+                        name={
+                          getAvisoIcon(
+                            tipo.value
+                          ) as keyof typeof Ionicons.glyphMap
+                        }
+                        size={20}
+                        color={isSelected ? color : THEME.colors.text.secondary}
+                      />
+                      <Text
+                        style={[styles.optionText, isSelected && { color }]}
+                      >
+                        {tipo.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-          </View>
 
-          {/* Título */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Título *</Text>
-            <TextInput
-              style={[styles.input, errors.titulo && styles.inputError]}
-              placeholder="Ej: Corte de agua programado"
-              placeholderTextColor={COLORS.text.muted}
-              value={formData.titulo}
-              onChangeText={(text) => {
-                setFormData({ ...formData, titulo: text });
-                validateField("titulo", text);
-              }}
-            />
-            {errors.titulo && (
-              <Text style={styles.errorText}>{errors.titulo}</Text>
-            )}
-          </View>
+            {/* Prioridad */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Prioridad</Text>
+              <View style={styles.priorityOptions}>
+                {prioridades.map((prioridad) => {
+                  const isSelected = formData.prioridad === prioridad.value;
+                  const color = getAvisoColor(prioridad.value);
+                  return (
+                    <TouchableOpacity
+                      key={prioridad.value}
+                      style={[
+                        styles.priorityOption,
+                        isSelected && {
+                          backgroundColor: color,
+                        },
+                      ]}
+                      onPress={() =>
+                        setFormData({
+                          ...formData,
+                          prioridad: prioridad.value as any,
+                        })
+                      }
+                    >
+                      <Text
+                        style={[
+                          styles.priorityText,
+                          isSelected && styles.priorityTextSelected,
+                        ]}
+                      >
+                        {prioridad.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
 
-          {/* Descripción */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Descripción *</Text>
-            <TextInput
-              style={[styles.textArea, errors.descripcion && styles.inputError]}
-              placeholder="Describe los detalles del comunicado..."
-              placeholderTextColor={COLORS.text.muted}
-              value={formData.descripcion}
-              onChangeText={(text) => {
-                setFormData({ ...formData, descripcion: text });
-                validateField("descripcion", text);
-              }}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-            {errors.descripcion && (
-              <Text style={styles.errorText}>{errors.descripcion}</Text>
-            )}
-          </View>
-
-          {/* Fecha del Evento */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Fecha del Evento (Opcional)</Text>
-
-            <TouchableOpacity
-              style={styles.datePickerButton}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text
-                style={[
-                  styles.datePickerText,
-                  !selectedDate && styles.datePickerPlaceholder,
-                ]}
-              >
-                {formatDateDisplay(selectedDate)}
-              </Text>
-              {selectedDate && (
-                <TouchableOpacity
-                  onPress={clearDate}
-                  style={styles.clearDateButton}
-                >
-                  <Ionicons
-                    name="close-circle"
-                    size={20}
-                    color={THEME.colors.text.secondary}
-                  />
-                </TouchableOpacity>
-              )}
-            </TouchableOpacity>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate || new Date()}
-                mode="date"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={handleDateChange}
-                minimumDate={new Date()}
+            {/* Título */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Título *</Text>
+              <TextInput
+                style={[styles.input, errors.titulo && styles.inputError]}
+                placeholder="Ej: Corte de agua programado"
+                placeholderTextColor={COLORS.text.muted}
+                value={formData.titulo}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, titulo: text });
+                  validateField("titulo", text);
+                }}
               />
-            )}
+              {errors.titulo && (
+                <Text style={styles.errorText}>{errors.titulo}</Text>
+              )}
+            </View>
 
-            <Text style={styles.helpText}>
-              Fecha en que ocurrirá el evento (ej: corte de agua, asamblea)
-            </Text>
-          </View>
+            {/* Descripción */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Descripción *</Text>
+              <TextInput
+                style={[
+                  styles.textArea,
+                  errors.descripcion && styles.inputError,
+                ]}
+                placeholder="Describe los detalles del comunicado..."
+                placeholderTextColor={COLORS.text.muted}
+                value={formData.descripcion}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, descripcion: text });
+                  validateField("descripcion", text);
+                }}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              {errors.descripcion && (
+                <Text style={styles.errorText}>{errors.descripcion}</Text>
+              )}
+            </View>
 
-          {/* Archivos */}
-          <View style={styles.section}>
-            <Text style={styles.label}>Archivos (Opcional)</Text>
-
-            <View style={styles.fileButtonsRow}>
-              <TouchableOpacity style={styles.fileButton} onPress={selectImage}>
-                <Ionicons name="image" size={20} color={THEME.colors.primary} />
-                <Text style={styles.fileButtonText}>Imagen</Text>
-              </TouchableOpacity>
+            {/* Fecha del Evento */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Fecha del Evento (Opcional)</Text>
 
               <TouchableOpacity
-                style={styles.fileButton}
-                onPress={selectDocument}
+                style={styles.datePickerButton}
+                onPress={() => setShowDatePicker(true)}
               >
-                <Ionicons
-                  name="document"
-                  size={20}
-                  color={THEME.colors.primary}
-                />
-                <Text style={styles.fileButtonText}>Documento</Text>
+                <Text
+                  style={[
+                    styles.datePickerText,
+                    !selectedDate && styles.datePickerPlaceholder,
+                  ]}
+                >
+                  {formatDateDisplay(selectedDate)}
+                </Text>
+                {selectedDate && (
+                  <TouchableOpacity
+                    onPress={clearDate}
+                    style={styles.clearDateButton}
+                  >
+                    <Ionicons
+                      name="close-circle"
+                      size={20}
+                      color={THEME.colors.text.secondary}
+                    />
+                  </TouchableOpacity>
+                )}
               </TouchableOpacity>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={selectedDate || new Date()}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={handleDateChange}
+                  minimumDate={new Date()}
+                />
+              )}
+
+              <Text style={styles.helpText}>
+                Fecha en que ocurrirá el evento (ej: corte de agua, asamblea)
+              </Text>
             </View>
 
-            {selectedFiles.map((file, index) => (
-              <Animated.View
-                key={file.id || index}
-                entering={FadeIn.duration(300)}
-                exiting={FadeOut.duration(200)}
-                style={styles.fileItem}
-              >
-                {file.type?.startsWith("image/") ? (
-                  <Image
-                    source={{ uri: file.uri }}
-                    style={styles.filePreview}
+            {/* Archivos */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Archivos (Opcional)</Text>
+
+              <View style={styles.fileButtonsRow}>
+                <TouchableOpacity
+                  style={styles.fileButton}
+                  onPress={selectImage}
+                >
+                  <Ionicons
+                    name="image"
+                    size={20}
+                    color={THEME.colors.primary}
                   />
-                ) : (
+                  <Text style={styles.fileButtonText}>Imagen</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.fileButton}
+                  onPress={selectDocument}
+                >
                   <Ionicons
                     name="document"
-                    size={24}
-                    color={THEME.colors.text.secondary}
+                    size={20}
+                    color={THEME.colors.primary}
                   />
-                )}
-                <Text style={styles.fileName} numberOfLines={1}>
-                  {file.name}
-                </Text>
-                <TouchableOpacity onPress={() => removeFile(index)}>
-                  <Ionicons name="trash" size={20} color={THEME.colors.error} />
+                  <Text style={styles.fileButtonText}>Documento</Text>
                 </TouchableOpacity>
-              </Animated.View>
-            ))}
-          </View>
+              </View>
 
-          {/* Botón al final del formulario */}
-          <View style={styles.buttonContainer}>
-            <Button
-              isLoading={loading}
-              onPress={handleSave}
-              loadingText="Enviando..."
-              loadingTextColor="#fff"
-              backgroundColor={getAvisoColor(formData.prioridad)}
-              loadingTextBackgroundColor={getAvisoColor(formData.prioridad)}
-              height={56}
-              borderRadius={12}
-              style={{ width: "100%" }}
-            >
-              <Text style={styles.saveButtonText}>Enviar Comunicado</Text>
-            </Button>
+              {selectedFiles.map((file, index) => (
+                <Animated.View
+                  key={file.id || index}
+                  entering={FadeIn.duration(300)}
+                  exiting={FadeOut.duration(200)}
+                  style={styles.fileItem}
+                >
+                  {file.type?.startsWith("image/") ? (
+                    <Image
+                      source={{ uri: file.uri }}
+                      style={styles.filePreview}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="document"
+                      size={24}
+                      color={THEME.colors.text.secondary}
+                    />
+                  )}
+                  <Text style={styles.fileName} numberOfLines={1}>
+                    {file.name}
+                  </Text>
+                  <TouchableOpacity onPress={() => removeFile(index)}>
+                    <Ionicons
+                      name="trash"
+                      size={20}
+                      color={THEME.colors.error}
+                    />
+                  </TouchableOpacity>
+                </Animated.View>
+              ))}
+            </View>
+          </ScrollView>
+
+          {/* Botón submit fijo abajo */}
+          <View style={styles.fixedBottom}>
+            <View style={{ width: "100%" }}>
+              <Button
+                isLoading={loading}
+                onPress={handleSave}
+                loadingText="Enviando..."
+                loadingTextColor="#fff"
+                backgroundColor={getAvisoColor(formData.prioridad)}
+                loadingTextBackgroundColor={getAvisoColor(formData.prioridad)}
+                height={56}
+                borderRadius={12}
+                style={{ width: "100%" }}
+              >
+                <Text style={styles.submitText}>Enviar Comunicado</Text>
+              </Button>
+            </View>
           </View>
-        </ScrollView>
+        </LinearGradient>
       </KeyboardAvoidingView>
 
       <Toast
@@ -548,71 +586,91 @@ export default function CrearAvisoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.background,
+    backgroundColor: "#FAFAFA",
   },
   flex: {
     flex: 1,
+    backgroundColor: "transparent",
+  },
+  gradient: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
   },
   buttonContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: THEME.spacing.lg,
     alignItems: "center",
   },
   saveButtonText: {
     color: THEME.colors.text.inverse,
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
   },
   scrollContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    paddingBottom: 20,
   },
   section: {
-    marginTop: 16,
+    marginBottom: THEME.spacing.lg,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: THEME.colors.text.primary,
-    marginBottom: 12,
+    color: THEME.colors.text.heading,
+    marginBottom: 8,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: THEME.colors.text.primary,
+    fontSize: 16,
+    fontWeight: "600",
+    color: THEME.colors.text.heading,
     marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 14,
-    backgroundColor: THEME.colors.surface,
+    borderWidth: 0,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.heading,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   textArea: {
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 14,
-    backgroundColor: THEME.colors.surface,
+    borderWidth: 0,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.heading,
+    backgroundColor: "#FFFFFF",
     minHeight: 100,
+    textAlignVertical: "top",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   inputError: {
+    borderWidth: 2,
     borderColor: THEME.colors.error,
   },
   errorText: {
     color: THEME.colors.error,
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 14,
+    marginTop: 6,
   },
   helpText: {
     color: THEME.colors.text.secondary,
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: THEME.fontSize.xs,
+    marginTop: THEME.spacing.xs,
   },
   optionsGrid: {
     flexDirection: "row",
@@ -622,20 +680,26 @@ const styles = StyleSheet.create({
   optionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.surface,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 0,
+    borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
     gap: 6,
     minWidth: "30%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   selectedOption: {
     borderWidth: 2,
+    shadowOpacity: 0.15,
+    elevation: 5,
   },
   optionText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "500",
     color: THEME.colors.text.secondary,
   },
@@ -645,13 +709,18 @@ const styles = StyleSheet.create({
   },
   priorityOption: {
     flex: 1,
-    backgroundColor: THEME.colors.surfaceLight,
-    borderRadius: 8,
-    paddingVertical: 12,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingVertical: 14,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   priorityText: {
-    fontSize: 14,
+    fontSize: THEME.fontSize.sm,
     fontWeight: "500",
     color: THEME.colors.text.secondary,
   },
@@ -662,17 +731,21 @@ const styles = StyleSheet.create({
   datePickerButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    backgroundColor: THEME.colors.surface,
-    gap: 8,
+    borderWidth: 0,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: "#FFFFFF",
+    gap: THEME.spacing.xs,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   datePickerText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: THEME.fontSize.md,
     color: THEME.colors.text.primary,
     textTransform: "capitalize",
   },
@@ -691,29 +764,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: THEME.colors.primary,
-    backgroundColor: THEME.colors.surface,
-    gap: 6,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 0,
+    backgroundColor: "#FFFFFF",
+    gap: THEME.spacing.xs,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   fileButtonText: {
     color: THEME.colors.primary,
-    fontSize: 14,
+    fontSize: THEME.fontSize.md,
     fontWeight: "500",
   },
   fileItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: THEME.colors.surface,
-    marginBottom: 8,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
+    paddingHorizontal: 16,
+    paddingVertical: THEME.spacing.sm,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    marginBottom: THEME.spacing.xs,
+    gap: THEME.spacing.xs,
+    borderWidth: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   filePreview: {
     width: 32,
@@ -722,7 +803,24 @@ const styles = StyleSheet.create({
   },
   fileName: {
     flex: 1,
-    fontSize: 14,
+    fontSize: THEME.fontSize.md,
     color: THEME.colors.text.primary,
+  },
+  fixedBottom: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+    paddingTop: THEME.spacing.sm,
+    paddingBottom: THEME.spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+    alignItems: "center",
+  },
+  submitText: {
+    color: "white",
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
   },
 });

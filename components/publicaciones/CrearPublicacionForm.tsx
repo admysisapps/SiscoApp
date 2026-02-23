@@ -12,7 +12,9 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   CreatePublicacionRequest,
   TipoPublicacion,
@@ -48,6 +50,7 @@ interface CrearAnuncioFormProps {
 
 export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
   const { selectedProject } = useProject();
+  const insets = useSafeAreaInsets();
   const [categoria, setCategoria] = useState<TipoPublicacion>("inmuebles");
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -219,8 +222,15 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.formContainer}>
+        <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: 20 + insets.bottom },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Categoría */}
             <View style={styles.fieldGroup}>
               <Text style={styles.label}>Categoría</Text>
@@ -361,7 +371,7 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={styles.input}
+                  style={styles.inputPhone}
                   placeholder="Número de teléfono"
                   value={telefono}
                   onChangeText={setTelefono}
@@ -371,32 +381,37 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
                 />
               </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.publishButton, loading && styles.buttonDisabled]}
-          onPress={crearPublicacion}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color={THEME.colors.text.inverse} />
-          ) : (
-            <>
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={20}
-                color={THEME.colors.text.inverse}
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.publishButtonText}>Publicar Anuncio</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
+            {/* Botón Publicar */}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.publishButton, loading && styles.buttonDisabled]}
+                onPress={crearPublicacion}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={THEME.colors.text.inverse}
+                  />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={20}
+                      color={THEME.colors.text.inverse}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text style={styles.publishButtonText}>
+                      Publicar Anuncio
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </LinearGradient>
+      </KeyboardAvoidingView>
 
       <Toast
         visible={toast.visible}
@@ -411,27 +426,29 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: "#FAFAFA",
   },
   keyboardView: {
+    flex: 1,
+  },
+  gradient: {
     flex: 1,
   },
   content: {
     flex: 1,
   },
-  formContainer: {
-    paddingHorizontal: THEME.spacing.lg,
-    paddingTop: THEME.spacing.md,
-    paddingBottom: THEME.spacing.md,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   fieldGroup: {
     marginBottom: THEME.spacing.lg,
   },
   label: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
     color: THEME.colors.text.heading,
-    marginBottom: THEME.spacing.sm,
+    marginBottom: 8,
   },
   categoriaTabs: {
     flexDirection: "row",
@@ -439,14 +456,21 @@ const styles = StyleSheet.create({
   },
   categoriaTab: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: THEME.spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 12,
-    backgroundColor: THEME.colors.surfaceLight,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   categoriaTabActiva: {
     backgroundColor: THEME.colors.primary,
+    shadowOpacity: 0.2,
+    elevation: 5,
   },
   categoriaTabText: {
     fontSize: 14,
@@ -459,37 +483,57 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.input.background,
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    paddingHorizontal: THEME.spacing.md,
+    paddingHorizontal: 16,
     minHeight: 52,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   inputIcon: {
     marginRight: THEME.spacing.sm,
   },
   input: {
     flex: 1,
-    backgroundColor: THEME.colors.input.background,
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.md,
-    fontSize: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: THEME.fontSize.md,
     color: THEME.colors.text.heading,
     minHeight: 52,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  inputPhone: {
+    flex: 1,
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.heading,
   },
   textArea: {
     minHeight: 100,
     textAlignVertical: "top",
-    paddingTop: THEME.spacing.md,
+    paddingTop: 14,
   },
   precioInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.input.background,
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    paddingHorizontal: THEME.spacing.md,
+    paddingHorizontal: 16,
     marginBottom: THEME.spacing.md,
     minHeight: 52,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   dollarSign: {
     fontSize: 18,
@@ -499,8 +543,8 @@ const styles = StyleSheet.create({
   },
   precioInput: {
     flex: 1,
-    paddingVertical: THEME.spacing.md,
-    fontSize: 15,
+    paddingVertical: 14,
+    fontSize: THEME.fontSize.md,
     color: THEME.colors.text.heading,
   },
   precioWarning: {
@@ -568,17 +612,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: THEME.colors.surfaceLight,
   },
-  addFotoText: {
-    fontSize: 11,
-    color: THEME.colors.text.secondary,
-    marginTop: 4,
-  },
-  footer: {
-    padding: THEME.spacing.lg,
-    paddingBottom: 55,
-    backgroundColor: THEME.colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: THEME.colors.border,
+  buttonContainer: {
+    marginTop: 24,
   },
   publishButton: {
     backgroundColor: THEME.colors.primary,
@@ -587,6 +622,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: THEME.colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   publishButtonText: {
     color: THEME.colors.text.inverse,

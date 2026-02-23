@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
 import { CuentaPago } from "@/types/CuentaPago";
 import { TIPOS_CUENTA, TIPOS_CON_NUMERO } from "@/constants/pagos";
@@ -119,7 +120,10 @@ export default function CreateAccountModal({
     };
 
     onSave(newAccount);
-    onClose();
+    // Pequeño delay para que la animación de cierre se vea suave
+    setTimeout(() => {
+      onClose();
+    }, 100);
   };
 
   const handleClose = () => {
@@ -201,6 +205,7 @@ export default function CreateAccountModal({
     <Modal
       visible={visible}
       animationType="slide"
+      presentationStyle="pageSheet"
       onRequestClose={handleClose}
       statusBarTranslucent
     >
@@ -223,181 +228,205 @@ export default function CreateAccountModal({
             <View style={styles.placeholder} />
           </View>
 
-          <ScrollView
-            style={styles.content}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
+          <LinearGradient
+            colors={["#FAFAFA", "#F5F5F5"]}
+            style={styles.gradient}
           >
-            {/* Nombre del Banco */}
-            <View style={styles.field}>
-              <Text style={styles.label}>Nombre del Banco/Proveedor *</Text>
-              <TextInput
-                style={[styles.input, errors.nombre_banco && styles.inputError]}
-                value={formData.nombre_banco}
-                onChangeText={(text) => handleFieldChange("nombre_banco", text)}
-                placeholder="Bancolombia, Nequi, Wompi"
-                placeholderTextColor={THEME.colors.text.muted}
-              />
-              {errors.nombre_banco && (
-                <Text style={styles.errorText}>{errors.nombre_banco}</Text>
-              )}
-            </View>
-
-            {/* Tipo de Cuenta */}
-            <View style={styles.field}>
-              <Text style={styles.label}>Tipo de Cuenta *</Text>
-              <View style={styles.typeGrid}>
-                {TIPOS_CUENTA.map((tipo) => (
-                  <TouchableOpacity
-                    key={tipo.value}
-                    style={[
-                      styles.typeButton,
-                      formData.tipo_cuenta === tipo.value &&
-                        styles.typeButtonActive,
-                    ]}
-                    onPress={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        tipo_cuenta: tipo.value,
-                      }))
-                    }
-                  >
-                    <Ionicons
-                      name={tipo.icon}
-                      size={20}
-                      color={
-                        formData.tipo_cuenta === tipo.value
-                          ? "white"
-                          : THEME.colors.text.secondary
-                      }
-                    />
-                    <Text
-                      style={[
-                        styles.typeText,
-                        formData.tipo_cuenta === tipo.value &&
-                          styles.typeTextActive,
-                      ]}
-                    >
-                      {tipo.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Titular */}
-            <View style={styles.field}>
-              <Text style={styles.label}>Titular de la Cuenta *</Text>
-              <TextInput
-                style={[styles.input, errors.titular && styles.inputError]}
-                value={formData.titular}
-                onChangeText={(text) => handleFieldChange("titular", text)}
-                placeholder="Nombre del titular"
-                placeholderTextColor={THEME.colors.text.muted}
-              />
-              {errors.titular && (
-                <Text style={styles.errorText}>{errors.titular}</Text>
-              )}
-            </View>
-
-            {/* Número de Cuenta (condicional) */}
-            {showNumberField && (
+            <ScrollView
+              style={styles.content}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              {/* Nombre del Banco */}
               <View style={styles.field}>
-                <Text style={styles.label}>
-                  {formData.tipo_cuenta === "billeteras_digitales"
-                    ? "Número de Teléfono *"
-                    : "Número de Cuenta *"}
-                </Text>
+                <Text style={styles.label}>Nombre del Banco/Proveedor *</Text>
                 <TextInput
                   style={[
                     styles.input,
-                    errors.numero_cuenta && styles.inputError,
+                    errors.nombre_banco && styles.inputError,
                   ]}
-                  value={formData.numero_cuenta}
+                  value={formData.nombre_banco}
                   onChangeText={(text) =>
-                    handleFieldChange("numero_cuenta", text)
+                    handleFieldChange("nombre_banco", text)
                   }
+                  placeholder="Bancolombia, Nequi, Wompi"
                   placeholderTextColor={THEME.colors.text.muted}
-                  keyboardType="numeric"
                 />
-                {errors.numero_cuenta && (
-                  <Text style={styles.errorText}>{errors.numero_cuenta}</Text>
+                {errors.nombre_banco && (
+                  <Text style={styles.errorText}>{errors.nombre_banco}</Text>
                 )}
               </View>
-            )}
 
-            {/* Enlace de Pago (siempre visible) */}
-            <View style={styles.field}>
-              <Text style={styles.label}>Enlace de Pago</Text>
-              <TextInput
-                style={[styles.input, errors.enlace_pago && styles.inputError]}
-                value={formData.enlace_pago}
-                onChangeText={(text) => handleFieldChange("enlace_pago", text)}
-                placeholderTextColor={THEME.colors.text.muted}
-                keyboardType="url"
-              />
-              {errors.enlace_pago && (
-                <Text style={styles.errorText}>{errors.enlace_pago}</Text>
+              {/* Tipo de Cuenta */}
+              <View style={styles.field}>
+                <Text style={styles.label}>Tipo de Cuenta *</Text>
+                <View style={styles.typeGrid}>
+                  {TIPOS_CUENTA.map((tipo) => (
+                    <TouchableOpacity
+                      key={tipo.value}
+                      style={[
+                        styles.typeButton,
+                        formData.tipo_cuenta === tipo.value &&
+                          styles.typeButtonActive,
+                      ]}
+                      onPress={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          tipo_cuenta: tipo.value,
+                        }))
+                      }
+                    >
+                      <Ionicons
+                        name={tipo.icon}
+                        size={20}
+                        color={
+                          formData.tipo_cuenta === tipo.value
+                            ? "white"
+                            : THEME.colors.text.secondary
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.typeText,
+                          formData.tipo_cuenta === tipo.value &&
+                            styles.typeTextActive,
+                        ]}
+                      >
+                        {tipo.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Titular */}
+              <View style={styles.field}>
+                <Text style={styles.label}>Titular de la Cuenta *</Text>
+                <TextInput
+                  style={[styles.input, errors.titular && styles.inputError]}
+                  value={formData.titular}
+                  onChangeText={(text) => handleFieldChange("titular", text)}
+                  placeholder="Nombre del titular"
+                  placeholderTextColor={THEME.colors.text.muted}
+                />
+                {errors.titular && (
+                  <Text style={styles.errorText}>{errors.titular}</Text>
+                )}
+              </View>
+
+              {/* Número de Cuenta (condicional) */}
+              {showNumberField && (
+                <View style={styles.field}>
+                  <Text style={styles.label}>
+                    {formData.tipo_cuenta === "billeteras_digitales"
+                      ? "Número de Teléfono *"
+                      : "Número de Cuenta *"}
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      errors.numero_cuenta && styles.inputError,
+                    ]}
+                    value={formData.numero_cuenta}
+                    onChangeText={(text) =>
+                      handleFieldChange("numero_cuenta", text)
+                    }
+                    placeholderTextColor={THEME.colors.text.muted}
+                    keyboardType="numeric"
+                  />
+                  {errors.numero_cuenta && (
+                    <Text style={styles.errorText}>{errors.numero_cuenta}</Text>
+                  )}
+                </View>
               )}
-            </View>
 
-            {/* Descripción */}
-            <View style={styles.field}>
-              <Text style={styles.label}>Instrucciones de Pago *</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  styles.textArea,
-                  errors.descripcion && styles.inputError,
-                ]}
-                value={formData.descripcion}
-                onChangeText={(text) => handleFieldChange("descripcion", text)}
-                placeholder="Instrucciones claras para realizar el pago"
-                placeholderTextColor={THEME.colors.text.muted}
-                multiline
-                numberOfLines={3}
-              />
-              {errors.descripcion && (
-                <Text style={styles.errorText}>{errors.descripcion}</Text>
-              )}
-            </View>
+              {/* Enlace de Pago (siempre visible) */}
+              <View style={styles.field}>
+                <Text style={styles.label}>Enlace de Pago</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.enlace_pago && styles.inputError,
+                  ]}
+                  value={formData.enlace_pago}
+                  onChangeText={(text) =>
+                    handleFieldChange("enlace_pago", text)
+                  }
+                  placeholderTextColor={THEME.colors.text.muted}
+                  keyboardType="url"
+                />
+                {errors.enlace_pago && (
+                  <Text style={styles.errorText}>{errors.enlace_pago}</Text>
+                )}
+              </View>
 
-            {/* Información Adicional */}
-            <View style={styles.field}>
-              <Text style={styles.label}>Información Adicional</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.informacion_adicional}
-                onChangeText={(text) =>
-                  handleFieldChange("informacion_adicional", text)
-                }
-                placeholder="Restricciones, horarios, notas especiales..."
-                placeholderTextColor={THEME.colors.text.muted}
-                multiline
-                numberOfLines={2}
-              />
-            </View>
-          </ScrollView>
+              {/* Descripción */}
+              <View style={styles.field}>
+                <Text style={styles.label}>Instrucciones de Pago *</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.textArea,
+                    errors.descripcion && styles.inputError,
+                  ]}
+                  value={formData.descripcion}
+                  onChangeText={(text) =>
+                    handleFieldChange("descripcion", text)
+                  }
+                  placeholder="Instrucciones claras para realizar el pago"
+                  placeholderTextColor={THEME.colors.text.muted}
+                  multiline
+                  numberOfLines={3}
+                />
+                {errors.descripcion && (
+                  <Text style={styles.errorText}>{errors.descripcion}</Text>
+                )}
+              </View>
 
-          <View style={styles.actions}>
-            <TouchableOpacity style={styles.cancelButton} onPress={handleClose}>
-              <Text style={styles.cancelText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-              onPress={handleSave}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Text style={styles.saveText}>
-                  {isEditMode ? "Actualizar" : "Guardar"}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
+              {/* Información Adicional */}
+              <View style={styles.field}>
+                <Text style={styles.label}>Información Adicional</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={formData.informacion_adicional}
+                  onChangeText={(text) =>
+                    handleFieldChange("informacion_adicional", text)
+                  }
+                  placeholder="Restricciones, horarios, notas especiales..."
+                  placeholderTextColor={THEME.colors.text.muted}
+                  multiline
+                  numberOfLines={2}
+                />
+              </View>
+
+              {/* Botones dentro del scroll */}
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={handleClose}
+                >
+                  <Text style={styles.cancelText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.saveButton,
+                    loading && styles.saveButtonDisabled,
+                  ]}
+                  onPress={handleSave}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text style={styles.saveText}>
+                      {isEditMode ? "Actualizar" : "Guardar"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </LinearGradient>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>
@@ -407,7 +436,7 @@ export default function CreateAccountModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: "#FAFAFA",
   },
   keyboardView: {
     flex: 1,
@@ -418,6 +447,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: THEME.colors.border,
   },
@@ -434,34 +464,42 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 32,
   },
+  gradient: {
+    flex: 1,
+  },
   content: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    paddingBottom: 20,
   },
   field: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
-    color: THEME.colors.text.primary,
+    color: THEME.colors.text.heading,
     marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: THEME.colors.text.primary,
-    backgroundColor: THEME.colors.surface,
+    borderWidth: 0,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: THEME.fontSize.md,
+    color: THEME.colors.text.heading,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   textArea: {
-    height: 80,
+    minHeight: 100,
     textAlignVertical: "top",
   },
   typeGrid: {
@@ -473,39 +511,44 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    backgroundColor: THEME.colors.surface,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 0,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
     gap: 6,
   },
   typeButtonActive: {
     backgroundColor: THEME.colors.success,
-    borderColor: THEME.colors.success,
+    shadowOpacity: 0.2,
+    elevation: 4,
   },
   typeText: {
-    fontSize: 12,
+    fontSize: 13,
     color: THEME.colors.text.secondary,
     fontWeight: "500",
   },
   typeTextActive: {
     color: "white",
+    fontWeight: "600",
   },
   actions: {
     flexDirection: "row",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: THEME.colors.border,
+    marginTop: 24,
     gap: 12,
   },
   cancelButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: THEME.colors.surfaceLight,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   cancelText: {
     fontSize: 16,
@@ -514,10 +557,15 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
     backgroundColor: THEME.colors.success,
     alignItems: "center",
+    shadowColor: THEME.colors.success,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   saveText: {
     fontSize: 16,
@@ -532,8 +580,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   errorText: {
-    fontSize: 12,
+    fontSize: 14,
     color: THEME.colors.error,
-    marginTop: 4,
+    marginTop: 6,
   },
 });

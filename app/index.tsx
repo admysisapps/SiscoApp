@@ -3,13 +3,13 @@ import React from "react";
 import { Redirect } from "expo-router";
 
 
-const PANTALLA_DEV = "/(screens)/NoConnection";
+const PANTALLA_DEV = "/(screens)/test-form-styles";
 
 export default function Index() {
   //Ir directo a la pantalla de desarrollo
   return <Redirect href={PANTALLA_DEV} />;
-  }
-  
+}
+
   */
 
 import React, { useEffect, useState } from "react";
