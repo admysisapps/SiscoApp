@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -132,10 +133,10 @@ export default function DocumentosScreen() {
           <DocumentosSkeleton />
         ) : documentos.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons
-              name="document-text-outline"
-              size={64}
-              color={THEME.colors.text.muted}
+            <Image
+              source={require("@/assets/images/Documentos.webp")}
+              style={styles.emptyImage}
+              resizeMode="contain"
             />
             <Text style={styles.emptyText}>No hay documentos</Text>
           </View>
@@ -218,10 +219,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: THEME.spacing.xl * 2,
   },
+  emptyImage: {
+    width: 280,
+    height: 280,
+  },
   emptyText: {
-    fontSize: THEME.fontSize.md,
-    color: THEME.colors.text.muted,
-    marginTop: THEME.spacing.md,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#64748B",
+    textAlign: "center",
   },
   documentosContainer: {
     marginTop: THEME.spacing.sm,

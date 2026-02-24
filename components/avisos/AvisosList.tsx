@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
@@ -170,7 +171,11 @@ export default function AvisosList({
             </View>
           ) : (
             <View style={styles.emptyContainer}>
-              <Ionicons name="megaphone-outline" size={80} color="#CBD5E1" />
+              <Image
+                source={require("@/assets/images/Comunicados.webp")}
+                style={styles.emptyImage}
+                resizeMode="contain"
+              />
               <Text style={styles.emptyTitle}>No hay comunicados</Text>
               <Text style={styles.emptyDescription}>
                 Aún no se han publicado comunicados
@@ -224,16 +229,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 60,
   },
+  emptyImage: {
+    width: 400,
+    height: 400,
+  },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: "#64748B",
-    marginTop: 16,
-    marginBottom: 8,
+    textAlign: "center",
   },
   emptyDescription: {
-    fontSize: 15,
-    color: "#94A3B8",
+    marginTop: 8,
+    fontSize: 14,
+    color: "#64748B",
     textAlign: "center",
   },
 });

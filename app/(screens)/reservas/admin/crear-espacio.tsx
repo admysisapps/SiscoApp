@@ -906,7 +906,7 @@ export default function CrearEspacioScreen() {
                     />
                     <Text style={styles.hint}>
                       {configuracion.tipo_reserva === "por_minutos"
-                        ? "Mín: 30 min"
+                        ? "Mín: 15 min"
                         : "Fijo: 60 min (1 hora)"}
                     </Text>
                     {errors.tiempo_minimo && (
@@ -1089,9 +1089,10 @@ export default function CrearEspacioScreen() {
                 <TextInput
                   style={[styles.input, errors.costo && styles.inputError]}
                   value={formData.costo}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, costo: text })
-                  }
+                  onChangeText={(text) => {
+                    const cleaned = text.replace(/[^0-9]/g, "");
+                    setFormData({ ...formData, costo: cleaned });
+                  }}
                   placeholder="250"
                   placeholderTextColor={THEME.colors.text.muted}
                   keyboardType="number-pad"
@@ -1126,9 +1127,10 @@ export default function CrearEspacioScreen() {
                 <TextInput
                   style={[styles.input, errors.costo && styles.inputError]}
                   value={formData.costo}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, costo: text })
-                  }
+                  onChangeText={(text) => {
+                    const cleaned = text.replace(/[^0-9]/g, "");
+                    setFormData({ ...formData, costo: cleaned });
+                  }}
                   placeholder="15000"
                   placeholderTextColor={THEME.colors.text.muted}
                   keyboardType="number-pad"
@@ -1162,9 +1164,10 @@ export default function CrearEspacioScreen() {
                 <TextInput
                   style={[styles.input, errors.costo && styles.inputError]}
                   value={formData.costo}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, costo: text })
-                  }
+                  onChangeText={(text) => {
+                    const cleaned = text.replace(/[^0-9]/g, "");
+                    setFormData({ ...formData, costo: cleaned });
+                  }}
                   placeholder="50000"
                   placeholderTextColor={THEME.colors.text.muted}
                   keyboardType="number-pad"

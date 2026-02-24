@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { publicacionesService } from "@/services/publicacionesService";
 import { Publicacion, EstadoPublicacion } from "@/types/publicaciones";
@@ -79,6 +80,9 @@ export default function MisPublicaciones() {
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
+  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>(
+    {}
+  );
 
   const cargarMisPublicaciones = useCallback(async () => {
     setIsLoading(true);
@@ -124,6 +128,7 @@ export default function MisPublicaciones() {
 
   const cambiarEstado = useCallback(
     async (publicacionId: number, nuevoEstado: EstadoPublicacion) => {
+      setLoadingStates((prev) => ({ ...prev, [publicacionId]: true }));
       try {
         const response = await publicacionesService.cambiarEstadoPublicacion(
           publicacionId,
@@ -147,6 +152,8 @@ export default function MisPublicaciones() {
           message: "No se pudo cambiar el estado",
           type: "error",
         });
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, [publicacionId]: false }));
       }
     },
     []
@@ -183,6 +190,19 @@ export default function MisPublicaciones() {
         return "Expirada";
       default:
         return estado;
+    }
+  };
+
+  const getTipoIcon = (tipo: string) => {
+    switch (tipo) {
+      case "inmuebles":
+        return "home-outline";
+      case "servicios":
+        return "construct-outline";
+      case "productos":
+        return "cube-outline";
+      default:
+        return "pricetag-outline";
     }
   };
 
@@ -255,24 +275,46 @@ export default function MisPublicaciones() {
               </View>
             </View>
 
+            {/* Precio destacado */}
+            {publicacion.precio > 0 && (
+              <Text style={styles.priceText}>
+                $
+                {publicacion.precio
+                  .toString()
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+              </Text>
+            )}
+
+            {/* Metadata con iconos */}
             <View style={styles.metaRow}>
-              <Text style={styles.tipoText}>{publicacion.tipo}</Text>
-              {publicacion.precio > 0 && (
-                <Text style={styles.priceText}>
-                  $
-                  {publicacion.precio
-                    .toString()
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+              <View style={styles.metaItem}>
+                <Ionicons
+                  name={getTipoIcon(publicacion.tipo) as any}
+                  size={12}
+                  color={THEME.colors.text.muted}
+                />
+                <Text style={styles.tipoText}>{publicacion.tipo}</Text>
+              </View>
+              <View style={styles.metaItem}>
+                <Ionicons
+                  name="calendar-outline"
+                  size={12}
+                  color={THEME.colors.text.muted}
+                />
+                <Text style={styles.dateText}>
+                  {new Date(publicacion.fecha_creacion).toLocaleDateString()}
                 </Text>
-              )}
+              </View>
             </View>
 
-            <View style={styles.dateRow}>
-              <Text style={styles.dateText}>
-                {new Date(publicacion.fecha_creacion).toLocaleDateString()}
-              </Text>
-              <Text style={styles.dateText}>
-                Exp:{" "}
+            <View style={styles.expirationRow}>
+              <Ionicons
+                name="time-outline"
+                size={12}
+                color={THEME.colors.warning}
+              />
+              <Text style={styles.expirationText}>
+                Expira:{" "}
                 {new Date(publicacion.fecha_expiracion).toLocaleDateString()}
               </Text>
             </View>
@@ -332,9 +374,16 @@ export default function MisPublicaciones() {
               <TouchableOpacity
                 style={[styles.compactButton, styles.pauseButton]}
                 onPress={() => cambiarEstado(publicacion.id, "pausada")}
+                disabled={loadingStates[publicacion.id]}
               >
-                <Ionicons name="pause" size={14} color="white" />
-                <Text style={styles.compactButtonText}>Pausar</Text>
+                {loadingStates[publicacion.id] ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <>
+                    <Ionicons name="pause" size={14} color="white" />
+                    <Text style={styles.compactButtonText}>Pausar</Text>
+                  </>
+                )}
               </TouchableOpacity>
             )}
 
@@ -342,9 +391,16 @@ export default function MisPublicaciones() {
               <TouchableOpacity
                 style={[styles.compactButton, styles.activateButton]}
                 onPress={() => cambiarEstado(publicacion.id, "activa")}
+                disabled={loadingStates[publicacion.id]}
               >
-                <Ionicons name="play" size={14} color="white" />
-                <Text style={styles.compactButtonText}>Activar</Text>
+                {loadingStates[publicacion.id] ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <>
+                    <Ionicons name="play" size={14} color="white" />
+                    <Text style={styles.compactButtonText}>Activar</Text>
+                  </>
+                )}
               </TouchableOpacity>
             )}
 
@@ -353,16 +409,23 @@ export default function MisPublicaciones() {
               <TouchableOpacity
                 style={[styles.compactButton, styles.finalizeButton]}
                 onPress={() => cambiarEstado(publicacion.id, "finalizada")}
+                disabled={loadingStates[publicacion.id]}
               >
-                <Ionicons name="checkmark-done" size={14} color="white" />
-                <Text style={styles.compactButtonText}>Finalizar</Text>
+                {loadingStates[publicacion.id] ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <>
+                    <Ionicons name="checkmark-done" size={14} color="white" />
+                    <Text style={styles.compactButtonText}>Finalizar</Text>
+                  </>
+                )}
               </TouchableOpacity>
             )}
           </View>
         )}
       </View>
     ),
-    [cambiarEstado, expandedReasons]
+    [cambiarEstado, expandedReasons, loadingStates]
   );
 
   const keyExtractor = useCallback(
@@ -482,18 +545,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  metaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
   tipoText: {
-    fontSize: 12,
+    fontSize: 11,
     color: THEME.colors.text.secondary,
     fontWeight: "500",
     textTransform: "capitalize",
   },
   priceText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: THEME.colors.success,
+    marginBottom: 8,
   },
   dateRow: {
     flexDirection: "row",
@@ -503,6 +572,17 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 11,
     color: THEME.colors.text.muted,
+  },
+  expirationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 4,
+  },
+  expirationText: {
+    fontSize: 11,
+    color: THEME.colors.warning,
+    fontWeight: "500",
   },
   blockedBanner: {
     flexDirection: "row",

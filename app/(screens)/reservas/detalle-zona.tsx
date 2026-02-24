@@ -111,6 +111,49 @@ export default function DetalleZonaScreen() {
     return `${horario.hora_inicio} - ${horario.hora_fin}`;
   };
 
+  const getTipoReservaTexto = (tipoReserva: string) => {
+    switch (tipoReserva) {
+      case "por_minutos":
+        return "Reserva por minutos";
+      case "por_horas":
+        return "Reserva por horas";
+      case "bloque_fijo":
+        return "Reserva por bloques de tiempo";
+      case "gratuito":
+        return "Reserva gratuita";
+      default:
+        return "Reserva por bloques de tiempo";
+    }
+  };
+
+  const getUnidadPrecio = (tipoReserva: string) => {
+    switch (tipoReserva) {
+      case "por_minutos":
+        return "/min";
+      case "por_horas":
+        return "/h";
+      case "bloque_fijo":
+        return "/bloque";
+      default:
+        return "/h";
+    }
+  };
+
+  const getTiempoReservaTexto = () => {
+    if (zona.tipo_reserva === "bloque_fijo" && zona.duracion_bloque) {
+      const horas = Math.floor(zona.duracion_bloque / 60);
+      const minutos = zona.duracion_bloque % 60;
+      if (horas > 0 && minutos > 0) {
+        return `Bloques de ${horas}h ${minutos}min`;
+      } else if (horas > 0) {
+        return `Bloques de ${horas}h`;
+      } else {
+        return `Bloques de ${minutos}min`;
+      }
+    }
+    return `Mínimo ${zona.tiempo_minimo_reserva} min - Máximo ${zona.tiempo_maximo_reserva} min`;
+  };
+
   // Mostrar skeleton mientras carga
   if (loading && !zona) {
     return (
@@ -259,7 +302,8 @@ export default function DetalleZonaScreen() {
                   </Text>
                   {horario.precio_especial && (
                     <Text style={styles.precioEspecial}>
-                      ${horario.precio_especial.toLocaleString()}/h
+                      ${horario.precio_especial.toLocaleString()}
+                      {getUnidadPrecio(zona.tipo_reserva)}
                     </Text>
                   )}
                 </View>
@@ -284,10 +328,7 @@ export default function DetalleZonaScreen() {
                 size={16}
                 color={THEME.colors.text.secondary}
               />
-              <Text style={styles.infoText}>
-                Mínimo {zona.tiempo_minimo_reserva} min - Máximo{" "}
-                {zona.tiempo_maximo_reserva} min
-              </Text>
+              <Text style={styles.infoText}>{getTiempoReservaTexto()}</Text>
             </View>
             <View style={styles.infoRow}>
               <Ionicons
@@ -295,7 +336,9 @@ export default function DetalleZonaScreen() {
                 size={16}
                 color={THEME.colors.text.secondary}
               />
-              <Text style={styles.infoText}>Reserva por bloques de tiempo</Text>
+              <Text style={styles.infoText}>
+                {getTipoReservaTexto(zona.tipo_reserva)}
+              </Text>
             </View>
             <View style={styles.infoRow}>
               <AntDesign

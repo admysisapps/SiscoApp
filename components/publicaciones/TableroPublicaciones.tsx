@@ -375,7 +375,11 @@ export default function TableroPublicaciones() {
             {/* Empty State */}
             {!isLoading && publicaciones.length === 0 && (
               <View style={styles.emptyContainer}>
-                <Ionicons name="megaphone-outline" size={80} color="#CBD5E1" />
+                <Image
+                  source={require("@/assets/images/Publicaciones.webp")}
+                  style={styles.emptyImage}
+                  resizeMode="contain"
+                />
                 <Text style={styles.emptyTitle}>No hay publicaciones</Text>
                 <Text style={styles.emptyDescription}>
                   Sé el primero en publicar algo
@@ -573,17 +577,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 80,
+    paddingHorizontal: 32,
+  },
+  emptyImage: {
+    width: 400,
+    height: 400,
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
-    color: THEME.colors.text.secondary,
-    marginTop: 16,
-    marginBottom: 8,
+    color: "#64748B",
+    textAlign: "center",
   },
   emptyDescription: {
-    fontSize: 15,
-    color: THEME.colors.text.muted,
+    fontSize: 14,
+    color: "#64748B",
     textAlign: "center",
+    marginTop: 8,
   },
 });

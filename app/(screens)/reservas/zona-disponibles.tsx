@@ -6,9 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, Fontisto } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { EspacioCard } from "@/components/reservas/EspacioCard";
 import { THEME } from "@/constants/theme";
@@ -119,13 +120,14 @@ export default function EspaciosDisponiblesScreen() {
               ))
             : inicializado && (
                 <View style={styles.emptyContainer}>
-                  <Fontisto name="horizon-alt" size={150} color="#CBD5E1" />
-                  <Text style={styles.emptyTitle}>
-                    No hay zonas comunes creadas
-                  </Text>
+                  <Image
+                    source={require("@/assets/images/ZonasComunes.webp")}
+                    style={styles.emptyImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.emptyTitle}>No hay zonas comunes</Text>
                   <Text style={styles.emptySubtitle}>
-                    Actualmente no hay Zonas comunes configuradas, Contacta con
-                    la administración para más información.
+                    Actualmente no hay zonas comunes disponibles para reservar
                   </Text>
                 </View>
               )}
@@ -177,20 +179,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 60,
+    paddingHorizontal: 32,
+  },
+  emptyImage: {
+    width: 400,
+    height: 400,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: THEME.colors.text.heading,
-    marginTop: 16,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#64748B",
     textAlign: "center",
   },
   emptySubtitle: {
     fontSize: 14,
-    color: THEME.colors.text.secondary,
+    color: "#64748B",
     marginTop: 8,
     textAlign: "center",
-    paddingHorizontal: 40,
-    lineHeight: 20,
   },
 });

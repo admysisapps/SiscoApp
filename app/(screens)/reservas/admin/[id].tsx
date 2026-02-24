@@ -446,35 +446,33 @@ export default function DetalleReservaAdminScreen() {
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Observaciones</Text>
-            <TextInput
-              style={[
-                styles.observacionesInput,
-                reserva.estado !== "Pendiente" && styles.observacionesDisabled,
-              ]}
-              value={observaciones}
-              onChangeText={setObservaciones}
-              placeholder={
-                reserva.estado === "Pendiente"
-                  ? "Agregar observaciones..."
-                  : "Sin observaciones"
-              }
-              placeholderTextColor="#9CA3AF"
-              multiline
-              numberOfLines={3}
-              editable={reserva.estado === "Pendiente"}
-            />
-            {reserva.estado === "Pendiente" && (
-              <TouchableOpacity
-                style={styles.guardarButton}
-                onPress={handleGuardarObservaciones}
-                disabled={guardandoObservaciones}
-              >
-                {guardandoObservaciones ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Text style={styles.guardarButtonText}>Guardar</Text>
-                )}
-              </TouchableOpacity>
+            {reserva.estado === "Pendiente" ? (
+              <>
+                <TextInput
+                  style={styles.observacionesInput}
+                  value={observaciones}
+                  onChangeText={setObservaciones}
+                  placeholder="Agregar observaciones..."
+                  placeholderTextColor="#9CA3AF"
+                  multiline
+                  numberOfLines={3}
+                />
+                <TouchableOpacity
+                  style={styles.guardarButton}
+                  onPress={handleGuardarObservaciones}
+                  disabled={guardandoObservaciones}
+                >
+                  {guardandoObservaciones ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text style={styles.guardarButtonText}>Guardar</Text>
+                  )}
+                </TouchableOpacity>
+              </>
+            ) : observaciones ? (
+              <Text style={styles.detailValue}>{observaciones}</Text>
+            ) : (
+              <Text style={styles.detailEmptyValue}>Sin observaciones</Text>
             )}
           </View>
 
@@ -785,10 +783,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   detailValue: {
-    fontSize: 16,
+    fontSize: 15,
     color: THEME.colors.text.heading,
-    fontWeight: "600",
+    fontWeight: "400",
     lineHeight: 22,
+  },
+  detailEmptyValue: {
+    fontSize: 14,
+    color: THEME.colors.text.muted,
+    fontStyle: "italic",
   },
   observacionesInput: {
     borderWidth: 1,

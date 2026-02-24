@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
@@ -222,14 +223,14 @@ export default function GestionarEspaciosScreen() {
               ))
             : inicializado && (
                 <View style={styles.emptyContainer}>
-                  <AntDesign
-                    name="rest"
-                    size={84}
-                    color={THEME.colors.text.muted}
+                  <Image
+                    source={require("@/assets/images/ZonasComunes.webp")}
+                    style={styles.emptyImage}
+                    resizeMode="contain"
                   />
                   <Text style={styles.emptyTitle}>No hay zonas comunes</Text>
                   <Text style={styles.emptyText}>
-                    Crea el una zona común para tu copropiedad.
+                    Crea tu primera zona común usando el botón de arriba
                   </Text>
                 </View>
               )}
@@ -334,19 +335,23 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: "center",
     paddingVertical: THEME.spacing.xl * 2,
+    paddingHorizontal: 32,
+  },
+  emptyImage: {
+    width: 400,
+    height: 400,
   },
   emptyTitle: {
-    fontSize: THEME.fontSize.lg,
+    fontSize: 18,
     fontWeight: "600",
-    color: THEME.colors.text.heading,
-    marginTop: THEME.spacing.md,
-    marginBottom: THEME.spacing.xs,
+    color: "#64748B",
+    textAlign: "center",
   },
   emptyText: {
-    fontSize: THEME.fontSize.md,
-    color: THEME.colors.text.secondary,
+    fontSize: 14,
+    color: "#64748B",
     textAlign: "center",
-    marginBottom: THEME.spacing.lg,
+    marginTop: 8,
   },
   createButtonContainer: {
     paddingHorizontal: THEME.spacing.lg,

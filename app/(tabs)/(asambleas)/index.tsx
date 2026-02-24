@@ -5,9 +5,9 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { useAsambleas } from "@/contexts/AsambleaContext";
 import { THEME } from "@/constants/theme";
@@ -58,14 +58,14 @@ export default function AsambleasScreen() {
           </View>
         ) : asambleas.length === 0 ? (
           <View style={styles.centerContainer}>
-            <Ionicons
-              name="calendar-outline"
-              size={64}
-              color={THEME.colors.text.muted}
+            <Image
+              source={require("@/assets/images/Asambleas.webp")}
+              style={styles.emptyImage}
+              resizeMode="contain"
             />
             <Text style={styles.emptyTitle}>No hay asambleas</Text>
             <Text style={styles.emptyText}>
-              No se encontraron asambleas programadas para este proyecto.
+              No se encontraron asambleas programadas para esta copropiedad.
             </Text>
           </View>
         ) : (
@@ -103,16 +103,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 32,
   },
+  emptyImage: {
+    width: 400,
+    height: 400,
+  },
   emptyTitle: {
-    marginTop: THEME.spacing.md,
-    fontSize: THEME.fontSize.lg,
+    fontSize: 18,
     fontWeight: "600",
-    color: THEME.colors.text.primary,
+    color: "#64748B",
+    textAlign: "center",
   },
   emptyText: {
-    marginTop: THEME.spacing.sm,
-    fontSize: THEME.fontSize.md,
-    color: THEME.colors.text.secondary,
+    marginTop: 8,
+    fontSize: 14,
+    color: "#64748B",
     textAlign: "center",
   },
   bottomSpacer: {

@@ -147,6 +147,7 @@ const ListaApoderados: React.FC<ListaApoderadosProps> = ({
         <Text style={styles.apoderadoDetalle}>
           Doc: {maskDocumento(item.documento)}
         </Text>
+        <Text style={styles.apoderadoDetalle}>Correo: {item.correo}</Text>
         <Text style={styles.apoderadoDetalle}>
           Inmuebles: {formatearInmuebles(item.apartamentos_detalle)}
         </Text>

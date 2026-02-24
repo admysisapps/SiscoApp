@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -222,7 +223,11 @@ export default function PQRListScreen() {
           </View>
         ) : filteredPQRs.length === 0 ? (
           <View style={styles.centerContainer}>
-            <Ionicons name="document-outline" size={48} color="#64748B" />
+            <Image
+              source={require("@/assets/images/Qqr.webp")}
+              style={styles.emptyImage}
+              resizeMode="contain"
+            />
             <Text style={styles.emptyText}>No hay solicitudes</Text>
             <Text style={styles.emptySubtext}>
               {activeFilter === "Todos"
@@ -329,8 +334,11 @@ const styles = StyleSheet.create({
     color: "#EF4444",
     textAlign: "center",
   },
+  emptyImage: {
+    width: 350,
+    height: 350,
+  },
   emptyText: {
-    marginTop: 16,
     fontSize: 18,
     fontWeight: "600",
     color: "#64748B",

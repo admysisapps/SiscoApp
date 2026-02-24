@@ -13,6 +13,7 @@ import { apoderadoService } from "@/services/apoderadoService";
 interface Apoderado {
   id: number;
   nombre: string;
+  correo: string;
   apartamentos_detalle: string;
   codigo_usado: number;
 }
@@ -98,6 +99,9 @@ export default function ApoderadosList({ asambleaId }: ApoderadosListProps) {
                   <View style={styles.apoderadoInfo}>
                     <Text style={styles.apoderadoNombre}>
                       {apoderado.nombre}
+                    </Text>
+                    <Text style={styles.apoderadoInmuebles}>
+                      {apoderado.correo}
                     </Text>
                     <Text style={styles.apoderadoInmuebles}>
                       Inmuebles: {apoderado.apartamentos_detalle}
