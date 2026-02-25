@@ -53,23 +53,6 @@ export default function CrearCuentaPagosScreen() {
     Platform.OS === "ios" ? "padding" : "height"
   );
 
-  const hasChanges = useMemo(() => {
-    if (!initialData) return true;
-    const normalize = (val: string | undefined) => (val || "").trim();
-    return (
-      normalize(formData.nombre_banco) !==
-        normalize(initialData.nombre_banco) ||
-      formData.tipo_cuenta !== initialData.tipo_cuenta ||
-      normalize(formData.titular) !== normalize(initialData.titular) ||
-      normalize(formData.numero_cuenta) !==
-        normalize(initialData.numero_cuenta) ||
-      normalize(formData.descripcion) !== normalize(initialData.descripcion) ||
-      normalize(formData.enlace_pago) !== normalize(initialData.enlace_pago) ||
-      normalize(formData.informacion_adicional) !==
-        normalize(initialData.informacion_adicional)
-    );
-  }, [formData, initialData]);
-
   useEffect(() => {
     const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
       setBehavior(Platform.OS === "ios" ? "padding" : "height");
@@ -185,16 +168,7 @@ export default function CrearCuentaPagosScreen() {
 
   const handleClose = () => {
     if (loading) return;
-
-    if (hasChanges) {
-      setToast({
-        visible: true,
-        message: "Tienes cambios sin guardar",
-        type: "warning",
-      });
-    } else {
-      router.back();
-    }
+    router.back();
   };
 
   const showNumberField = requiereNumeroCuenta(formData.tipo_cuenta);
