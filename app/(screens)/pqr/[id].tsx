@@ -795,10 +795,6 @@ const styles = StyleSheet.create({
     color: "#1e293b",
     marginBottom: 2,
   },
-  cardSubtitle: {
-    fontSize: 12,
-    color: "#94a3b8",
-  },
   attachmentCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -834,15 +830,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#64748b",
     marginTop: 2,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 12,
-    color: "#64748b",
   },
   errorContainer: {
     flex: 1,

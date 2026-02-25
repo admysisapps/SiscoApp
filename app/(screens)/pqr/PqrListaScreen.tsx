@@ -318,12 +318,6 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
   },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: "#7C3AED",
-    textAlign: "center",
-  },
   errorText: {
     marginTop: 16,
     fontSize: 16,

@@ -1,21 +1,21 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, THEME } from "@/constants/theme";
 import { CuentaPago } from "@/types/CuentaPago";
-import ModalCrearCuenta from "@/components/pagos/ModalCrearCuenta";
 import { cuentasPagoService } from "@/services/cuentasPagoService";
 import Toast from "@/components/Toast";
+import ConfirmModal from "@/components/asambleas/ConfirmModal";
 import { eventBus, EVENTS } from "@/utils/eventBus";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 
@@ -31,22 +31,31 @@ const getTipoNombre = (tipo: string): string => {
 };
 
 export default function GestionarCuentasScreen() {
+  const router = useRouter();
   const [cuentas, setCuentas] = useState<CuentaPago[]>([]);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
-  const [editingAccount, setEditingAccount] = useState<CuentaPago | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
+  const [confirmModal, setConfirmModal] = useState<{
+    visible: boolean;
+    accountId: number | null;
+  }>({ visible: false, accountId: null });
+
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "warning" = "success"
+  ) => setToast({ visible: true, message, type });
+
+  const hideToast = () =>
+    setToast({ visible: false, message: "", type: "success" });
 
   const handleAddAccount = useCallback(() => {
-    setShowCreateModal(true);
-  }, []);
+    router.push("/pagos/admin/CrearCuentaPagos");
+  }, [router]);
 
   const loadCuentas = useCallback(async () => {
     try {
@@ -64,108 +73,52 @@ export default function GestionarCuentasScreen() {
     }
   }, []);
 
-  const handleSaveAccount = useCallback(
-    async (accountData: Omit<CuentaPago, "id">) => {
-      try {
-        setCreating(true);
-
-        if (isEditMode && editingAccount) {
-          const response = await cuentasPagoService.editarCuentaPago(
-            editingAccount.id,
-            accountData
-          );
-          if (response.success) {
-            setCuentas((prev) =>
-              prev.map((c) =>
-                c.id === editingAccount.id
-                  ? ({ ...accountData, id: c.id } as CuentaPago)
-                  : c
-              )
-            );
-            eventBus.emit(EVENTS.CUENTA_PAGO_UPDATED);
-            setShowCreateModal(false);
-            showToast("Método de pago actualizado correctamente", "success");
-          } else {
-            showToast(
-              response.error || "Error al actualizar método de pago",
-              "error"
-            );
-          }
-        } else {
-          const response =
-            await cuentasPagoService.crearCuentaPago(accountData);
-          if (response.success) {
-            await loadCuentas();
-            eventBus.emit(EVENTS.CUENTA_PAGO_CREATED);
-            setShowCreateModal(false);
-            showToast("Método de pago creado correctamente", "success");
-          } else {
-            showToast(
-              response.error || "Error al crear método de pago",
-              "error"
-            );
-          }
-        }
-      } catch {
-        showToast("Error de conexión", "error");
-      } finally {
-        setCreating(false);
-      }
-    },
-    [isEditMode, editingAccount, loadCuentas]
-  );
-
   const handleEditAccount = useCallback(
     (id: number) => {
       const cuenta = cuentas.find((c) => c.id === id);
       if (cuenta) {
-        setEditingAccount(cuenta);
-        setIsEditMode(true);
-        setShowCreateModal(true);
+        router.push({
+          pathname: "/pagos/admin/CrearCuentaPagos",
+          params: {
+            mode: "edit",
+            data: JSON.stringify(cuenta),
+          },
+        });
       }
     },
-    [cuentas]
+    [cuentas, router]
   );
 
   const handleDeleteAccount = useCallback((id: number) => {
-    const deleteAccount = async () => {
-      try {
-        setDeleting(id);
-        const response = await cuentasPagoService.eliminarCuentaPago(id);
-        if (response.success) {
-          setCuentas((prev) => prev.filter((c) => c.id !== id));
-          eventBus.emit(EVENTS.CUENTA_PAGO_DELETED);
-          showToast("Método de pago eliminado correctamente", "success");
-        } else {
-          showToast(
-            response.error || "Error al eliminar método de pago",
-            "error"
-          );
-        }
-      } catch {
-        showToast("Error de conexión al eliminar método de pago", "error");
-      } finally {
-        setDeleting(null);
+    setConfirmModal({ visible: true, accountId: id });
+  }, []);
+
+  const confirmDelete = async () => {
+    const id = confirmModal.accountId;
+    if (!id) return;
+
+    try {
+      setDeleting(id);
+      setConfirmModal({ visible: false, accountId: null });
+      const response = await cuentasPagoService.eliminarCuentaPago(id);
+      if (response.success) {
+        setCuentas((prev) => prev.filter((c) => c.id !== id));
+        eventBus.emit(EVENTS.CUENTA_PAGO_DELETED);
+        showToast("Método de pago eliminado correctamente", "success");
+      } else {
+        showToast(
+          response.error || "Error al eliminar método de pago",
+          "error"
+        );
       }
-    };
+    } catch {
+      showToast("Error de conexión al eliminar método de pago", "error");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
-    Alert.alert(
-      "Eliminar Cuenta",
-      "¿Estás seguro de que deseas eliminar esta cuenta de pago?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Eliminar", style: "destructive", onPress: deleteAccount },
-      ]
-    );
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    setShowCreateModal(false);
-    setIsEditMode(false);
-    setEditingAccount(null);
-  }, []);
-
-  const getTypeColor = useCallback((tipo: string) => {
+  const getTypeColor = (tipo: string) => {
     switch (tipo) {
       case "ahorros":
       case "corriente":
@@ -179,9 +132,9 @@ export default function GestionarCuentasScreen() {
       default:
         return THEME.colors.text.muted;
     }
-  }, []);
+  };
 
-  const getTypeIcon = useCallback((tipo: string) => {
+  const getTypeIcon = (tipo: string) => {
     switch (tipo) {
       case "ahorros":
       case "corriente":
@@ -195,23 +148,13 @@ export default function GestionarCuentasScreen() {
       default:
         return "card-outline";
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    loadCuentas();
-  }, [loadCuentas]);
-
-  const showToast = (
-    message: string,
-    type: "success" | "error" | "warning" = "success"
-  ) => setToast({ visible: true, message, type });
-
-  const hideToast = () =>
-    setToast({ visible: false, message: "", type: "success" });
-
-  const sortedCuentas = useMemo(() => {
-    return [...cuentas].sort((a, b) => a.id - b.id);
-  }, [cuentas]);
+  useFocusEffect(
+    useCallback(() => {
+      loadCuentas();
+    }, [loadCuentas])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -259,7 +202,7 @@ export default function GestionarCuentasScreen() {
             </Text>
           </View>
         ) : (
-          sortedCuentas.map((cuenta) => (
+          cuentas.map((cuenta) => (
             <View key={cuenta.id} style={styles.accountCard}>
               <View style={styles.accountHeader}>
                 <View style={styles.accountInfo}>
@@ -337,20 +280,21 @@ export default function GestionarCuentasScreen() {
         )}
       </ScrollView>
 
-      <ModalCrearCuenta
-        visible={showCreateModal}
-        onClose={handleCloseModal}
-        onSave={handleSaveAccount}
-        loading={creating}
-        isEditMode={isEditMode}
-        initialData={editingAccount || undefined}
-      />
-
       <Toast
         visible={toast.visible}
         message={toast.message}
         type={toast.type}
         onHide={hideToast}
+      />
+      <ConfirmModal
+        visible={confirmModal.visible}
+        type="confirm"
+        title="Eliminar Cuenta"
+        message="¿Estás seguro de que deseas eliminar esta cuenta de pago?"
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ visible: false, accountId: null })}
       />
     </SafeAreaView>
   );
@@ -470,7 +414,6 @@ const styles = StyleSheet.create({
   editButton: {
     backgroundColor: THEME.colors.primaryLight + "20",
   },
-
   deleteButton: {
     backgroundColor: THEME.colors.error + "20",
   },

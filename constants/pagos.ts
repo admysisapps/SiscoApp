@@ -3,21 +3,32 @@ import { Ionicons } from "@expo/vector-icons";
 
 type IoniconsName = keyof typeof Ionicons.glyphMap;
 
-export const TIPOS_CUENTA = [
-  { value: "ahorros", label: "Ahorros", icon: "card" as IoniconsName },
-  { value: "corriente", label: "Corriente", icon: "card" as IoniconsName },
+type TipoCuenta = {
+  value:
+    | "ahorros"
+    | "corriente"
+    | "billeteras_digitales"
+    | "pasarela"
+    | "fisico";
+  label: string;
+  icon: IoniconsName;
+};
+
+export const TIPOS_CUENTA: readonly TipoCuenta[] = [
+  { value: "ahorros", label: "Ahorros", icon: "card" },
+  { value: "corriente", label: "Corriente", icon: "card" },
   {
     value: "billeteras_digitales",
     label: "Billeteras Digitales",
-    icon: "phone-portrait" as IoniconsName,
+    icon: "phone-portrait",
   },
   {
     value: "pasarela",
     label: "Pasarela de Pago",
-    icon: "wallet" as IoniconsName,
+    icon: "wallet",
   },
-  { value: "fisico", label: "Pago Físico", icon: "storefront" as IoniconsName },
-] as const;
+  { value: "fisico", label: "Pago Físico", icon: "storefront" },
+];
 
 export const TIPOS_CON_NUMERO = [
   "ahorros",
@@ -25,15 +36,22 @@ export const TIPOS_CON_NUMERO = [
   "billeteras_digitales",
 ] as const;
 
+type TipoConNumero = (typeof TIPOS_CON_NUMERO)[number];
+
+export const requiereNumeroCuenta = (tipo: string): tipo is TipoConNumero => {
+  return TIPOS_CON_NUMERO.includes(tipo as TipoConNumero);
+};
+
+const TIPOS_MAP = {
+  ahorros: "Cuenta de Ahorros",
+  corriente: "Cuenta Corriente",
+  billeteras_digitales: "Billetera Digital",
+  pasarela: "Pasarela de Pago",
+  fisico: "Pago en Efectivo",
+} as const;
+
 export const getTipoNombre = (tipo: string): string => {
-  const tipos = {
-    ahorros: "Cuenta de Ahorros",
-    corriente: "Cuenta Corriente",
-    billeteras_digitales: "Billetera Digital",
-    pasarela: "Pasarela de Pago",
-    fisico: "Pago en Efectivo",
-  };
-  return tipos[tipo as keyof typeof tipos] || tipo;
+  return TIPOS_MAP[tipo as keyof typeof TIPOS_MAP] || tipo;
 };
 
 export const handleOpenPaymentLink = (
