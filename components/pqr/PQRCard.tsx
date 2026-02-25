@@ -15,7 +15,7 @@ interface PQR {
   fecha_creacion: string;
   descripcion: string;
   apartamento?: {
-    codigo_apt: string;
+    numero: string;
     bloque: string;
   };
   creador?: {
@@ -63,37 +63,70 @@ const PqrCardComponent: React.FC<PqrCardProps> = ({ item, onPress }) => (
     onPress={() => onPress(item)}
     activeOpacity={0.7}
   >
-    <View style={styles.pqrIcon}>
-      <Ionicons name="document-text-outline" size={24} color="#64748B" />
-    </View>
+    <View style={styles.leftSection}></View>
+
     <View style={styles.pqrContent}>
-      <Text style={styles.pqrTitle} numberOfLines={2}>
-        {item.asunto}
-      </Text>
-      <Text
-        style={[styles.pqrType, { color: getTypeColor(item.tipo_peticion) }]}
-      >
-        {item.tipo_peticion}
-      </Text>
-      <Text style={styles.pqrDate}>{formatDate(item.fecha_creacion)}</Text>
-      {item.apartamento && (
-        <Text style={styles.apartmentText}>
-          {item.apartamento.codigo_apt} - Bloque {item.apartamento.bloque}
+      <View style={styles.headerRow}>
+        <Text style={styles.pqrTitle} numberOfLines={2}>
+          {item.asunto}
         </Text>
-      )}
-    </View>
-    <View style={styles.statusContainer}>
-      <View
-        style={[
-          styles.statusDot,
-          { backgroundColor: getStatusColor(item.estado_pqr) },
-        ]}
-      />
-      <Text
-        style={[styles.statusText, { color: getStatusColor(item.estado_pqr) }]}
-      >
-        {item.estado_pqr}
-      </Text>
+      </View>
+
+      <View style={styles.metaRow}>
+        <View
+          style={[
+            styles.typeBadge,
+            { backgroundColor: getTypeColor(item.tipo_peticion) + "15" },
+          ]}
+        >
+          <Text
+            style={[
+              styles.typeText,
+              { color: getTypeColor(item.tipo_peticion) },
+            ]}
+          >
+            {item.tipo_peticion}
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.statusBadge,
+            { backgroundColor: getStatusColor(item.estado_pqr) + "15" },
+          ]}
+        >
+          <View
+            style={[
+              styles.statusDot,
+              { backgroundColor: getStatusColor(item.estado_pqr) },
+            ]}
+          />
+          <Text
+            style={[
+              styles.statusText,
+              { color: getStatusColor(item.estado_pqr) },
+            ]}
+          >
+            {item.estado_pqr}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.footerRow}>
+        <View style={styles.infoItem}>
+          <Ionicons name="calendar-outline" size={12} color="#94a3b8" />
+          <Text style={styles.infoText}>{formatDate(item.fecha_creacion)}</Text>
+        </View>
+        {item.apartamento && (
+          <View style={styles.infoItem}>
+            <Ionicons name="home-outline" size={12} color="#94a3b8" />
+            <Text style={styles.infoText}>
+              {item.apartamento.bloque
+                ? `Inmueble ${item.apartamento.numero} - Bloque ${item.apartamento.bloque}`
+                : `Inmueble ${item.apartamento.numero}`}
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   </TouchableOpacity>
 );
@@ -107,63 +140,87 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 16,
     marginBottom: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: "#F1F5F9",
+  },
+  leftSection: {
+    marginRight: 12,
   },
   pqrIcon: {
     width: 48,
     height: 48,
-    backgroundColor: "#F1F5F9",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
   },
   pqrContent: {
     flex: 1,
+    gap: 8,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
   pqrTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1E293B",
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  pqrType: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
-    marginBottom: 4,
+    color: "#1E293B",
+    lineHeight: 20,
+    flex: 1,
   },
-  pqrDate: {
-    fontSize: 12,
-    color: "#64748B",
-  },
-  statusContainer: {
+  metaRow: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  typeBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  typeText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    gap: 6,
   },
   statusDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginBottom: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   statusText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "600",
-    textAlign: "center",
   },
-  apartmentText: {
-    fontSize: 11,
-    color: "#94a3b8",
-    marginTop: 2,
+  footerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  infoText: {
+    fontSize: 12,
+    color: "#64748B",
   },
 });

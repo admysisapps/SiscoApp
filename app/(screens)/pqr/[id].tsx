@@ -484,10 +484,9 @@ export default function PQRDetailScreen() {
                   <Text style={styles.cardTitle}>Inmueble</Text>
                 </View>
                 <Text style={styles.cardValue}>
-                  {pqr.apartamento.codigo_apt}
-                </Text>
-                <Text style={styles.cardSubtitle}>
-                  Bloque {pqr.apartamento.bloque}
+                  {pqr.apartamento.bloque
+                    ? `${pqr.apartamento.numero}-${pqr.apartamento.bloque}`
+                    : pqr.apartamento.numero}
                 </Text>
               </View>
             )}
@@ -503,8 +502,9 @@ export default function PQRDetailScreen() {
                   />
                   <Text style={styles.cardTitle}>Propietario</Text>
                 </View>
-                <Text style={styles.cardValue}>{pqr.creador.nombre}</Text>
-                <Text style={styles.cardSubtitle}>{pqr.creador.apellido}</Text>
+                <Text style={styles.cardValue}>
+                  {pqr.creador.nombre} {pqr.creador.apellido}
+                </Text>
               </View>
             )}
           </View>
@@ -550,18 +550,9 @@ export default function PQRDetailScreen() {
 
             {/* Mensajes */}
             <View style={styles.messagesContainer}>
-              {/* Mensaje inicial (PQR) */}
-              <View style={styles.messageUser}>
-                <View style={styles.messageContent}>
-                  <Text style={styles.messageText}>{pqr.descripcion}</Text>
-                  <Text style={styles.messageTime}>
-                    {formatearFecha(pqr.fecha_creacion)}
-                  </Text>
-                </View>
-                <View style={styles.avatarUser}>
-                  <Ionicons name="person" size={16} color="white" />
-                </View>
-              </View>
+              {mensajes.length === 0 && (
+                <Text style={styles.emptyMessagesText}>No hay mensajes</Text>
+              )}
 
               {/* Mensajes del seguimiento */}
               {mensajes.map((mensaje) =>
@@ -596,6 +587,7 @@ export default function PQRDetailScreen() {
             {/* Input para nuevo mensaje */}
             <View style={styles.chatInput}>
               <TextInput
+                key={`input-${pqr.estado_pqr}`}
                 style={[
                   styles.textInput,
                   !puedeResponder() && styles.textInputDisabled,
@@ -632,18 +624,6 @@ export default function PQRDetailScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          {/* Tarjeta informativa */}
-          {!puedeResponder() && (
-            <View style={styles.warningInfoCard}>
-              <View style={styles.warningInfoIcon}>
-                <Ionicons name="lock-closed" size={16} color="#dc2626" />
-              </View>
-              <Text style={styles.warningInfoText}>
-                No se pueden agregar mensajes. Estado:{" "}
-                <Text style={styles.warningInfoBold}>{pqr.estado_pqr}</Text>
-              </Text>
-            </View>
-          )}
           {isAdmin && pqr.estado_pqr === "Pendiente" && (
             <View style={styles.adminInfoCard}>
               <View style={styles.adminInfoIcon}>
@@ -965,7 +945,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: "#e2e8f0",
     borderRadius: 20,
     paddingHorizontal: 16,
@@ -988,6 +968,7 @@ const styles = StyleSheet.create({
   textInputDisabled: {
     backgroundColor: "#f1f5f9",
     borderColor: "#cbd5e1",
+    paddingHorizontal: 16,
   },
   anularButton: {
     flexDirection: "row",
@@ -1048,27 +1029,11 @@ const styles = StyleSheet.create({
   adminInfoBold: {
     fontWeight: "600",
   },
-  warningInfoCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#fef2f2",
-    borderWidth: 1,
-    borderColor: "#fecaca",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  warningInfoIcon: {
-    marginRight: 8,
-    marginTop: 1,
-  },
-  warningInfoText: {
-    flex: 1,
+  emptyMessagesText: {
+    textAlign: "center",
+    color: "#94a3b8",
     fontSize: 13,
-    color: "#991b1b",
-    lineHeight: 18,
-  },
-  warningInfoBold: {
-    fontWeight: "600",
+    fontStyle: "italic",
+    paddingVertical: 12,
   },
 });

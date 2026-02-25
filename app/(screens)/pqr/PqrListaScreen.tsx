@@ -24,7 +24,7 @@ type FilterType =
   | "Pendientes"
   | "En Proceso"
   | "Resueltas"
-  | "Cerradas";
+  | "Anuladas";
 
 export default function PQRListScreen() {
   const { isAdmin } = useRole();
@@ -101,12 +101,8 @@ export default function PQRListScreen() {
         return pqrs.filter((pqr) => pqr.estado_pqr === "En Proceso");
       case "Resueltas":
         return pqrs.filter((pqr) => pqr.estado_pqr === "Resuelto");
-      case "Cerradas":
-        return pqrs.filter(
-          (pqr) =>
-            pqr.estado_pqr === "Cerrado Sin Solución" ||
-            pqr.estado_pqr === "Anulado"
-        );
+      case "Anuladas":
+        return pqrs.filter((pqr) => pqr.estado_pqr === "Anulado");
       default:
         return pqrs;
     }
@@ -156,7 +152,7 @@ export default function PQRListScreen() {
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {(isAdmin
-            ? ["Todos", "Pendientes", "En Proceso", "Resueltas", "Cerradas"]
+            ? ["Todos", "Pendientes", "En Proceso", "Resueltas", "Anuladas"]
             : ["Todos", "Pendientes", "En Proceso", "Resueltas"]
           ).map((filter) => (
             <TouchableOpacity
