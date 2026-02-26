@@ -426,7 +426,7 @@ const AsambleaActivaScreen: React.FC = () => {
                     asistenciaService
                       .salirAsamblea(asambleaId)
                       .catch((error) => {
-                        console.error("[NAVIGATION] Error al salir:", error);
+                        console.error("Error al salir:", error);
                       });
                   }
                 }}

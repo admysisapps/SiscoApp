@@ -14,7 +14,8 @@ interface ReservaItem {
   motivo?: string;
   espacio_nombre: string;
   usuario_nombre?: string;
-  apartamento_codigo?: string;
+  apartamento_numero?: string;
+  apartamento_bloque?: string | null;
 }
 
 interface Props {
@@ -47,7 +48,7 @@ const ReservaCardAdmin = memo(({ reserva, onPress, styles }: Props) => {
     reserva.hora_inicio?.split(":").slice(0, 2).join(":") || "";
   const horaFin = reserva.hora_fin?.split(":").slice(0, 2).join(":") || "";
   const precio = `$${reserva.precio_total.toLocaleString()}`;
-  const tieneInfoUsuario = reserva.usuario_nombre || reserva.apartamento_codigo;
+  const tieneInfoUsuario = reserva.usuario_nombre || reserva.apartamento_numero;
 
   return (
     <TouchableOpacity
@@ -84,11 +85,14 @@ const ReservaCardAdmin = memo(({ reserva, onPress, styles }: Props) => {
                 <Text style={styles.adminText}>{reserva.usuario_nombre}</Text>
               </View>
             )}
-            {reserva.apartamento_codigo && (
+            {reserva.apartamento_numero && (
               <View style={styles.adminDetailRow}>
                 <Ionicons name="home" size={16} color="#10B981" />
                 <Text style={styles.adminText}>
-                  Apt. {reserva.apartamento_codigo}
+                  Inmueble{" "}
+                  {reserva.apartamento_bloque
+                    ? `${reserva.apartamento_numero}-${reserva.apartamento_bloque}`
+                    : reserva.apartamento_numero}
                 </Text>
               </View>
             )}

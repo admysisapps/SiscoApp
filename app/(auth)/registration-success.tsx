@@ -152,7 +152,6 @@ export default function RegistrationSuccess() {
                 onPress={handleGoToLogin}
               >
                 <Text style={styles.primaryButtonText}>Ir al Login</Text>
-                <Ionicons name="arrow-forward" size={20} color="white" />
               </TouchableOpacity>
             </View>
 

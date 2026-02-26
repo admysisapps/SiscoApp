@@ -53,7 +53,6 @@ export default function DocumentosScreen() {
               categoria: "General",
               nombre_archivo: doc.nombre_archivo,
               enCache,
-              visibleCop: doc.visible_cop === 1,
             };
           })
         );

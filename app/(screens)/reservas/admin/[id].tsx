@@ -40,7 +40,8 @@ interface ReservaDetalleAdmin {
   motivo_cancelacion?: string;
   usuario_nombre: string;
   usuario_email: string;
-  apartamento_codigo: string;
+  apartamento_numero: string;
+  apartamento_bloque: string | null;
   telefono?: string;
   duracion_minutos: number;
 }
@@ -535,7 +536,10 @@ export default function DetalleReservaAdminScreen() {
                 <Text style={styles.contactName}>{reserva.usuario_nombre}</Text>
                 <Text style={styles.contactEmail}>{reserva.usuario_email}</Text>
                 <Text style={styles.contactPhone}>
-                  {reserva.apartamento_codigo}
+                  Inmueble{" "}
+                  {reserva.apartamento_bloque
+                    ? `${reserva.apartamento_numero}-${reserva.apartamento_bloque}`
+                    : reserva.apartamento_numero}
                 </Text>
                 {reserva.telefono && (
                   <Text style={styles.contactPhone}>{reserva.telefono}</Text>

@@ -30,9 +30,6 @@ import CancelReservationModal from "@/components/reservas/CancelReservationModal
 import ReservaCardPropietario from "@/components/reservas/ReservaCardPropietario";
 import ReservaCardAdmin from "@/components/reservas/ReservaCardAdmin";
 
-// Constantes
-const PAGINATION_LIMIT = 10;
-
 type FilterType = "Todas" | EstadoReserva;
 
 const FILTERS: FilterType[] = [
@@ -53,7 +50,8 @@ interface ReservaItem {
   motivo?: string;
   espacio_nombre: string;
   usuario_nombre?: string;
-  apartamento_codigo?: string;
+  apartamento_numero?: string;
+  apartamento_bloque?: string | null;
 }
 
 const MESES_NOMBRES = [
@@ -85,13 +83,7 @@ export default function MisReservasScreen() {
   const [reservas, setReservas] = useState<ReservaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState({
-    pagina_actual: 1,
-    total_paginas: 1,
-    total_registros: 0,
-    limite: PAGINATION_LIMIT,
-  });
-  const [loadingMore, setLoadingMore] = useState(false);
+
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState<ReservaItem | null>(
     null
@@ -102,46 +94,23 @@ export default function MisReservasScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const cargarReservasCallback = useCallback(
-    async (
-      pagina: number = 1,
-      append: boolean = false,
-      isRefresh: boolean = false
-    ) => {
+    async (isRefresh: boolean = false) => {
       try {
-        if (pagina === 1) {
-          if (isRefresh) {
-            setRefreshing(true);
-          } else {
-            setLoading(true);
-          }
-          setReservas([]);
+        if (isRefresh) {
+          setRefreshing(true);
         } else {
-          setLoadingMore(true);
+          setLoading(true);
         }
+        setReservas([]);
         setError(null);
 
         const response = await reservaService.listarReservas({
           mes: selectedMonth,
           anio: selectedYear,
-          pagina,
-          limite: PAGINATION_LIMIT,
         });
 
         if (response?.success) {
-          const nuevasReservas = response.reservas || [];
-
-          if (append && pagina > 1) {
-            setReservas((prev) => [...prev, ...nuevasReservas]);
-          } else {
-            setReservas(nuevasReservas);
-          }
-
-          setPagination({
-            pagina_actual: response.pagina_actual || 1,
-            total_paginas: response.total_paginas || 1,
-            total_registros: response.total_registros || 0,
-            limite: PAGINATION_LIMIT,
-          });
+          setReservas(response.reservas || []);
         } else {
           setError("No pudimos cargar tus reservas. Inténtalo nuevamente.");
         }
@@ -152,7 +121,6 @@ export default function MisReservasScreen() {
         console.error("Error cargando reservas:", err);
       } finally {
         setLoading(false);
-        setLoadingMore(false);
         setRefreshing(false);
       }
     },
@@ -163,19 +131,8 @@ export default function MisReservasScreen() {
     cargarReservasCallback();
   }, [cargarReservasCallback]);
 
-  const cargarMasReservas = useCallback(() => {
-    if (pagination.pagina_actual < pagination.total_paginas && !loadingMore) {
-      cargarReservasCallback(pagination.pagina_actual + 1, true);
-    }
-  }, [
-    pagination.pagina_actual,
-    pagination.total_paginas,
-    loadingMore,
-    cargarReservasCallback,
-  ]);
-
   const onRefresh = useCallback(async () => {
-    await cargarReservasCallback(1, false, true);
+    await cargarReservasCallback(true);
   }, [cargarReservasCallback]);
 
   const handleFilterPress = useCallback((filter: FilterType) => {
@@ -444,23 +401,6 @@ export default function MisReservasScreen() {
                 />
               )
             )}
-
-            {/* Botón Cargar Más - Solo visible sin filtros */}
-            {activeFilter === "Todas" &&
-              pagination.pagina_actual < pagination.total_paginas &&
-              !refreshing && (
-                <TouchableOpacity
-                  style={styles.loadMoreButton}
-                  onPress={cargarMasReservas}
-                  disabled={loadingMore}
-                >
-                  {loadingMore ? (
-                    <ActivityIndicator size="small" color="white" />
-                  ) : (
-                    <Text style={styles.loadMoreText}>Ver más reservas</Text>
-                  )}
-                </TouchableOpacity>
-              )}
           </>
         )}
       </Animated.ScrollView>
@@ -622,26 +562,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 40,
   },
-  loadMoreButton: {
-    backgroundColor: THEME.colors.success,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 20,
-    marginHorizontal: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  loadMoreText: {
-    color: THEME.colors.text.inverse,
-    fontSize: 15,
-    fontWeight: "600",
-  },
+
   // Estilos para las cards de reserva
   reservaCard: {
     backgroundColor: THEME.colors.surface,
