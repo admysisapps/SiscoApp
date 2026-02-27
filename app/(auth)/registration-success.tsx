@@ -154,19 +154,6 @@ export default function RegistrationSuccess() {
                 <Text style={styles.primaryButtonText}>Ir al Login</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Información adicional */}
-            <View style={styles.helpCard}>
-              <Ionicons
-                name="information-circle-outline"
-                size={20}
-                color={COLORS.primary}
-              />
-              <Text style={styles.helpText}>
-                Si tienes problemas, contacta al administrador de tu
-                copropiedad.
-              </Text>
-            </View>
           </View>
         </Animated.View>
       </ScrollView>
@@ -341,21 +328,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: THEME.fontSize.md,
     marginRight: THEME.spacing.sm,
-  },
-  helpCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: COLORS.primaryLight + "20",
-    padding: THEME.spacing.md,
-    borderRadius: THEME.borderRadius.md,
-    borderWidth: 1,
-    borderColor: COLORS.primaryLight + "40",
-  },
-  helpText: {
-    flex: 1,
-    fontSize: THEME.fontSize.xs,
-    color: COLORS.text.secondary,
-    marginLeft: THEME.spacing.sm,
-    lineHeight: 18,
   },
 });

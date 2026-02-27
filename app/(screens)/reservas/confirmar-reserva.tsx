@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import {
   View,
   Text,
@@ -12,6 +18,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
+import { useNavigation, CommonActions } from "@react-navigation/native";
 import dayjs from "dayjs";
 import Toast from "@/components/Toast";
 import { reservaService } from "@/services/reservaService";
@@ -31,6 +38,8 @@ const calcularHoraFin = (
 
 export default function ConfirmarReservaScreen() {
   const params = useLocalSearchParams();
+  const navigation = useNavigation();
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [loading, setLoading] = useState(false);
   const [motivo, setMotivo] = useState("");
 
@@ -53,13 +62,18 @@ export default function ConfirmarReservaScreen() {
     });
 
     return () => {
+      // CRÍTICO: Limpiar el timer para evitar closure leak
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       keyboardShowListener.remove();
       keyboardHideListener.remove();
     };
   }, []);
 
-  // Función para organizar horarios por días
-  const organizarHorarios = () => {
+  // Memoizar organización de horarios para evitar recalcular en cada render
+  const horariosOrganizados = useMemo(() => {
     const horariosStr = params.horarios as string;
     const tipoReserva = params.tipoReserva as string;
 
@@ -120,7 +134,13 @@ export default function ConfirmarReservaScreen() {
     }
 
     return resultado;
-  };
+  }, [
+    params.horarios,
+    params.fechaSeleccionada,
+    params.horaInicio,
+    params.horaFin,
+    params.tipoReserva,
+  ]);
 
   const showToast = (
     message: string,
@@ -164,8 +184,22 @@ export default function ConfirmarReservaScreen() {
       if (response.success) {
         showToast(response.mensaje || "Reserva creada exitosamente", "success");
 
-        setTimeout(() => {
-          router.push("/(tabs)");
+        // Limpiar timer anterior si existe
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
+
+        // Guardar referencia del timer para poder limpiarlo
+        timerRef.current = setTimeout(() => {
+          timerRef.current = null;
+
+          // Reset completo del stack de navegación
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: "(tabs)" }],
+            })
+          );
         }, 2000);
       } else {
         showToast(response.error || "Error al crear la reserva", "error");
@@ -223,7 +257,7 @@ export default function ConfirmarReservaScreen() {
               <View style={styles.detalleRowVertical}>
                 <Text style={styles.detalleLabel}>Horarios seleccionados</Text>
                 <View style={styles.horariosContainer}>
-                  {organizarHorarios().map((dia, index) => (
+                  {horariosOrganizados.map((dia, index) => (
                     <View key={index} style={styles.diaContainer}>
                       <Text style={styles.fechaDia}>
                         {dayjs(dia.fecha).format("dddd, DD [de] MMMM")}
