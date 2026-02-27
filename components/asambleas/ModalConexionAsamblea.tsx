@@ -44,6 +44,8 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const countdownScaleAnim = useRef(new Animated.Value(0)).current;
   const countdownOpacityAnim = useRef(new Animated.Value(0)).current;
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   const registrarAsistencia = useCallback(async () => {
     try {
@@ -208,11 +210,22 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
   ]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    // Limpiar timer anterior
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Detener animación pulse anterior
+    if (pulseAnimationRef.current) {
+      pulseAnimationRef.current.stop();
+      pulseAnimationRef.current = null;
+    }
 
     if (step === "loading") {
       const startPulse = () => {
-        Animated.sequence([
+        if (step !== "loading") return;
+        pulseAnimationRef.current = Animated.sequence([
           Animated.timing(pulseAnim, {
             toValue: 1.1,
             duration: 800,
@@ -223,13 +236,17 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
             duration: 800,
             useNativeDriver: true,
           }),
-        ]).start(() => startPulse());
+        ]);
+        pulseAnimationRef.current.start(({ finished }) => {
+          if (finished && step === "loading") {
+            startPulse();
+          }
+        });
       };
       startPulse();
     }
 
     if (step === "success" && countdown > 0) {
-      // Animación cinematográfica del contador
       countdownScaleAnim.setValue(0);
       countdownOpacityAnim.setValue(0);
 
@@ -247,7 +264,7 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
         }),
       ]).start();
 
-      timer = setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         Animated.parallel([
           Animated.timing(countdownScaleAnim, {
             toValue: 1.5,
@@ -269,7 +286,14 @@ const ModalConexionAsamblea: React.FC<ModalConexionAsambleaProps> = ({
     }
 
     return () => {
-      if (timer) clearTimeout(timer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      if (pulseAnimationRef.current) {
+        pulseAnimationRef.current.stop();
+        pulseAnimationRef.current = null;
+      }
     };
   }, [
     step,

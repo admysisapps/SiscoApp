@@ -15,15 +15,18 @@ const ConexionStatus: React.FC<ConexionStatusProps> = ({
   const [connectionType, setConnectionType] = useState<string>("wifi");
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    const timeoutRef = { current: null as NodeJS.Timeout | null };
 
     const unsubscribe = NetInfo.addEventListener((state) => {
       const connected = state.isConnected ?? false;
       const type = state.type;
 
-      if (timeoutId) clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
 
-      timeoutId = setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         if (connected !== isConnected) {
           setIsConnected(connected);
           onConnectionChange?.(connected);
@@ -33,7 +36,10 @@ const ConexionStatus: React.FC<ConexionStatusProps> = ({
     });
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
       unsubscribe();
     };
   }, [isConnected, onConnectionChange]);

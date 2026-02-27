@@ -38,6 +38,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({
   const indicatorWidth = tabWidth * 0.5; // 50% del ancho del tab
   const translateX = useSharedValue(0);
   const lottieRef = useRef<LottieView>(null);
+  const navigationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const animatedIndicatorStyle = useAnimatedStyle(() => {
     return {
@@ -71,6 +72,13 @@ const CustomTabBar: React.FC<TabBarProps> = ({
         mass: 0.8,
       });
     }
+
+    return () => {
+      if (navigationTimerRef.current) {
+        clearTimeout(navigationTimerRef.current);
+        navigationTimerRef.current = null;
+      }
+    };
   }, [state.index, state.routes, tabWidth, translateX, indicatorWidth]);
 
   const getIconName = (routeName: string, focused: boolean) => {
@@ -118,6 +126,12 @@ const CustomTabBar: React.FC<TabBarProps> = ({
         const isFocused = state.index === originalIndex;
 
         const onPress = () => {
+          // Limpiar timer anterior si existe
+          if (navigationTimerRef.current) {
+            clearTimeout(navigationTimerRef.current);
+            navigationTimerRef.current = null;
+          }
+
           // Centrar el indicador en el tab
           const offset = (tabWidth - indicatorWidth) / 2;
           translateX.value = withSpring(displayIndex * tabWidth + offset, {
@@ -139,7 +153,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({
 
           if (!isFocused && !event.defaultPrevented) {
             // Pequeño delay para evitar navegación instantánea
-            setTimeout(() => {
+            navigationTimerRef.current = setTimeout(() => {
               navigation.navigate(route.name);
             }, 50);
           }

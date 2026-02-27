@@ -35,6 +35,7 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const countdownScaleAnim = useRef(new Animated.Value(0)).current;
   const countdownOpacityAnim = useRef(new Animated.Value(0)).current;
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const registrarAsistencia = useCallback(async () => {
     try {
@@ -76,7 +77,11 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
   }, [visible, registrarAsistencia, scaleAnim, fadeAnim]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    // Limpiar timer anterior
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
 
     if (step === "success" && countdown > 0) {
       countdownScaleAnim.setValue(0);
@@ -96,7 +101,7 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
         }),
       ]).start();
 
-      timer = setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         Animated.parallel([
           Animated.timing(countdownScaleAnim, {
             toValue: 1.5,
@@ -125,7 +130,10 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
     }
 
     return () => {
-      if (timer) clearTimeout(timer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, [
     step,
