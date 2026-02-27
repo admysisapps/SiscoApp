@@ -109,9 +109,10 @@ export default function CrearReservaScreen() {
   const lastSelectedEspacioId = useRef<number | null>(null);
 
   const skeletonAnim = useRef(new Animated.Value(0)).current;
+  const skeletonAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    Animated.loop(
+    skeletonAnimationRef.current = Animated.loop(
       Animated.sequence([
         Animated.timing(skeletonAnim, {
           toValue: 1,
@@ -124,7 +125,15 @@ export default function CrearReservaScreen() {
           useNativeDriver: true,
         }),
       ])
-    ).start();
+    );
+    skeletonAnimationRef.current.start();
+
+    return () => {
+      if (skeletonAnimationRef.current) {
+        skeletonAnimationRef.current.stop();
+        skeletonAnimationRef.current = null;
+      }
+    };
   }, [skeletonAnim]);
 
   const skeletonOpacity = skeletonAnim.interpolate({

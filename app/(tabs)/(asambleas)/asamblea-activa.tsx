@@ -59,19 +59,33 @@ const AsambleaActivaScreen: React.FC = () => {
   const [loadingPreguntaActiva, setLoadingPreguntaActiva] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;
+  const spinAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
+    if (spinAnimationRef.current) {
+      spinAnimationRef.current.stop();
+      spinAnimationRef.current = null;
+    }
+
     if (loadingResultados) {
-      Animated.loop(
+      spinAnimationRef.current = Animated.loop(
         Animated.timing(spinValue, {
           toValue: 1,
           duration: 1000,
           useNativeDriver: true,
         })
-      ).start();
+      );
+      spinAnimationRef.current.start();
     } else {
       spinValue.setValue(0);
     }
+
+    return () => {
+      if (spinAnimationRef.current) {
+        spinAnimationRef.current.stop();
+        spinAnimationRef.current = null;
+      }
+    };
   }, [loadingResultados, spinValue]);
 
   const spin = spinValue.interpolate({
