@@ -15,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
-import { asambleaService } from "@/services/asambleaService";
+import { useCrearAsamblea } from "@/hooks/useAsambleas";
 import Toast from "@/components/Toast";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -46,6 +46,7 @@ interface FormErrors {
 
 export default function CrearAsambleaScreen() {
   const router = useRouter();
+  const crearAsambleaMutation = useCrearAsamblea();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<AsambleaData>({
     titulo: "",
@@ -97,54 +98,12 @@ export default function CrearAsambleaScreen() {
     setToast({ visible: false, message: "", type: "success" });
   };
 
-  // Validar fecha y hora mínima
-  const validateFechaHora = (): { fecha?: string; hora?: string } => {
-    const errors: { fecha?: string; hora?: string } = {};
-    const ahora = new Date();
-    const fechaHoraSeleccionada = new Date(formData.fecha);
-    fechaHoraSeleccionada.setHours(
-      formData.hora.getHours(),
-      formData.hora.getMinutes(),
-      0,
-      0
-    );
-
-    // Si es extraordinaria, validar mínimo 1 hora de anticipación
-    if (formData.tipo_asamblea === "extraordinaria") {
-      const unaHoraDespues = new Date(ahora.getTime() + 60 * 60 * 1000);
-      if (fechaHoraSeleccionada < unaHoraDespues) {
-        errors.hora = "Debe ser con mínimo 1 hora de anticipación";
-      }
-      return errors;
-    }
-
-    // Si es ordinaria, aplicar restricción de días mínimos
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const fechaMinima = new Date();
-    fechaMinima.setDate(hoy.getDate() + DIAS_MINIMOS_ANTELACION - 1);
-
-    if (formData.fecha < fechaMinima) {
-      errors.fecha = `Debe ser con mínimo ${DIAS_MINIMOS_ANTELACION} días de anticipación`;
-    }
-
-    return errors;
-  };
-
   // Validar formulario
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
     if (!formData.titulo.trim()) {
       newErrors.titulo = "Título es requerido";
-    }
-
-    const fechaHoraErrors = validateFechaHora();
-    if (fechaHoraErrors.fecha) {
-      newErrors.fecha = fechaHoraErrors.fecha;
-    }
-    if (fechaHoraErrors.hora) {
-      newErrors.hora = fechaHoraErrors.hora;
     }
 
     if (!formData.lugar.trim()) {
@@ -178,12 +137,13 @@ export default function CrearAsambleaScreen() {
         fecha: dayjs(formData.fecha).format("YYYY-MM-DD"),
         hora: dayjs(formData.hora).format("HH:mm"),
       };
-      const response = await asambleaService.crearAsamblea(asambleaData);
+
+      const response = await crearAsambleaMutation.mutateAsync(asambleaData);
 
       if (response.success) {
         showToast("Asamblea creada exitosamente", "success");
         setTimeout(() => {
-          router.push("/(admin)/(asambleas)");
+          router.replace("/(admin)/(asambleas)");
         }, 2000);
       } else {
         showToast(response.error || "Error al crear asamblea", "error");

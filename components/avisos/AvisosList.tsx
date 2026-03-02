@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -12,10 +12,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { avisosService } from "@/services/avisoService";
-import { useFocusEffect } from "@react-navigation/native";
 import AvisoItem from "./AvisoItem";
 import { Aviso } from "@/types/Avisos";
+import { useAvisos } from "@/hooks/useAvisos";
 
 interface AvisosListProps {
   showToast?: (message: string, type: "success" | "error" | "warning") => void;
@@ -26,70 +25,19 @@ export default function AvisosList({
   showToast,
   isAdmin = false,
 }: AvisosListProps) {
-  const [avisos, setAvisos] = useState<Aviso[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [pagina, setPagina] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [visibleAvisos, setVisibleAvisos] = useState<Set<number>>(new Set());
-
-  const cargarAvisos = useCallback(
-    async (paginaActual = 1, esRefresh = false) => {
-      try {
-        if (esRefresh) {
-          setRefreshing(true);
-        } else if (paginaActual === 1) {
-          setLoading(true);
-        } else {
-          setLoadingMore(true);
-        }
-
-        const response = await avisosService.obtenerAvisos(paginaActual, 10);
-
-        if (response.success) {
-          const nuevosAvisos = response.avisos || [];
-
-          if (esRefresh || paginaActual === 1) {
-            setAvisos(nuevosAvisos);
-          } else {
-            setAvisos((prev) => [...prev, ...nuevosAvisos]);
-          }
-
-          setPagina(paginaActual);
-          setHasMore(paginaActual < (response.total_paginas || 1));
-        }
-      } catch (error) {
-        console.error("Error cargando comunicados:", error);
-        if (showToast) {
-          showToast("Error al cargar comunicados", "error");
-        }
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-        setLoadingMore(false);
-      }
-    },
-    [showToast]
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useAvisos(10);
+  const [visibleAvisos, setVisibleAvisos] = React.useState<Set<number>>(
+    new Set()
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      cargarAvisos();
-    }, [cargarAvisos])
-  );
-
-  const onRefresh = () => {
-    setPagina(1);
-    setHasMore(true);
-    cargarAvisos(1, true);
-  };
-
-  const cargarMas = () => {
-    if (hasMore && !loadingMore) {
-      cargarAvisos(pagina + 1);
-    }
-  };
+  const avisos = data?.pages.flatMap((page) => page.avisos) || [];
 
   // Lazy loading real - detectar avisos visibles
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
@@ -112,17 +60,20 @@ export default function AvisosList({
   );
 
   const renderFooter = () => {
-    if (loading || loadingMore || refreshing || !hasMore) return null;
+    if (!hasNextPage) return null;
 
     return (
-      <TouchableOpacity onPress={cargarMas} disabled={loadingMore}>
+      <TouchableOpacity
+        onPress={() => fetchNextPage()}
+        disabled={isFetchingNextPage}
+      >
         <LinearGradient
           colors={["#013973", "#0095ff", "#0080e6"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.loadMoreButton}
         >
-          {loadingMore ? (
+          {isFetchingNextPage ? (
             <>
               <ActivityIndicator size="small" color="white" />
               <Text style={styles.loadMoreText}>Cargando...</Text>
@@ -152,15 +103,15 @@ export default function AvisosList({
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={false} onRefresh={refetch} />
         }
         ListFooterComponent={renderFooter}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
-          loading ? styles.loadingContent : styles.flatListContent
+          isLoading ? styles.loadingContent : styles.flatListContent
         }
         ListEmptyComponent={
-          loading ? (
+          isLoading ? (
             <View style={styles.centerContainer}>
               <LottieView
                 source={require("@/assets/lottie/loader-info.json")}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -10,72 +10,23 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import { EspacioCard } from "@/components/reservas/EspacioCard";
+import { EspacioCardSkeleton } from "@/components/zonasComunes/EspacioCardSkeleton";
 import { THEME } from "@/constants/theme";
-import { reservaService } from "@/services/reservaService";
-import { useLoading } from "@/contexts/LoadingContext";
+import { useEspacios } from "@/hooks/useEspacios";
+import { Espacio } from "@/types/Espacio";
 
 export default function EspaciosDisponiblesScreen() {
-  const [refreshing, setRefreshing] = useState(false);
-  const [espacios, setEspacios] = useState<any[]>([]);
-  const [inicializado, setInicializado] = useState(false);
-  const { showLoading, hideLoading } = useLoading();
+  const {
+    data: espacios = [],
+    isLoading,
+    refetch,
+  } = useEspacios({
+    solo_activos: false,
+  });
 
-  // Usar refs para estabilizar las referencias
-  const showLoadingRef = useRef(showLoading);
-  const hideLoadingRef = useRef(hideLoading);
-
-  useEffect(() => {
-    showLoadingRef.current = showLoading;
-    hideLoadingRef.current = hideLoading;
-  }, [showLoading, hideLoading]);
-
-  const cargarEspacios = React.useCallback(async (mostrarLoading = false) => {
-    try {
-      if (mostrarLoading) {
-        showLoadingRef.current("Cargando zonas comunes...");
-      }
-
-      const response = await reservaService.listarEspaciosFresh({
-        solo_activos: false,
-      });
-
-      if (response?.success) {
-        const espaciosFiltrados = (response.espacios || []).filter(
-          (espacio: any) => espacio.estado !== "inactiva"
-        );
-        setEspacios(espaciosFiltrados);
-      }
-    } catch (error) {
-      console.error("Error cargando espacios:", error);
-    } finally {
-      if (mostrarLoading) {
-        hideLoadingRef.current();
-      }
-      setInicializado(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    cargarEspacios(true);
-  }, [cargarEspacios]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      if (inicializado) {
-        cargarEspacios(false);
-      }
-    }, [cargarEspacios, inicializado])
-  );
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await cargarEspacios(false);
-    setRefreshing(false);
-  };
-
-  const handleEspacioPress = (espacio: any) => {
+  const handleEspacioPress = (espacio: Espacio) => {
     const params = new URLSearchParams({
       id: espacio.id.toString(),
       ...(espacio.imagen_nombre && { imagen_nombre: espacio.imagen_nombre }),
@@ -106,31 +57,37 @@ export default function EspaciosDisponiblesScreen() {
         style={styles.content}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={false} onRefresh={refetch} />
         }
       >
         <View style={styles.section}>
-          {espacios.length > 0
-            ? espacios.map((espacio) => (
-                <EspacioCard
-                  key={espacio.id}
-                  item={espacio}
-                  onPress={handleEspacioPress}
-                />
-              ))
-            : inicializado && (
-                <View style={styles.emptyContainer}>
-                  <Image
-                    source={require("@/assets/images/ZonasComunes.webp")}
-                    style={styles.emptyImage}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.emptyTitle}>No hay zonas comunes</Text>
-                  <Text style={styles.emptySubtitle}>
-                    Actualmente no hay zonas comunes disponibles para reservar
-                  </Text>
-                </View>
-              )}
+          {isLoading ? (
+            <>
+              <EspacioCardSkeleton />
+              <EspacioCardSkeleton />
+              <EspacioCardSkeleton />
+            </>
+          ) : espacios.length > 0 ? (
+            espacios.map((espacio: Espacio) => (
+              <EspacioCard
+                key={espacio.id}
+                item={espacio}
+                onPress={handleEspacioPress}
+              />
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Image
+                source={require("@/assets/images/ZonasComunes.webp")}
+                style={styles.emptyImage}
+                resizeMode="contain"
+              />
+              <Text style={styles.emptyTitle}>No hay zonas comunes</Text>
+              <Text style={styles.emptySubtitle}>
+                Actualmente no hay zonas comunes disponibles para reservar
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -195,6 +152,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#64748B",
     marginTop: 8,
+    textAlign: "center",
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 60,
+    paddingHorizontal: 32,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: THEME.colors.text.secondary,
     textAlign: "center",
   },
 });

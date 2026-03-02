@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Amplify } from "aws-amplify";
 import * as SplashScreen from "expo-splash-screen";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { LoadingProvider } from "../contexts/LoadingContext";
 import { ProjectProvider, useProject } from "../contexts/ProjectContext";
@@ -19,6 +20,18 @@ fcmService.initialize();
 SplashScreen.setOptions({
   duration: 500,
   fade: true,
+});
+
+// Configuración de React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 30, // 30 segundos
+      gcTime: 1000 * 60 * 10, // 10 minutos - tiempo en cache
+      retry: 2, // Reintentar 2 veces si falla
+      refetchOnWindowFocus: true, // Refrescar al volver a la app
+    },
+  },
 });
 
 function RootNavigator() {
@@ -71,19 +84,21 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <LoadingProvider>
-        <AuthProvider>
-          <UserProvider>
-            <ProjectProvider>
-              <ApartmentProvider>
-                <NotificationProvider>
-                  <RootNavigator />
-                </NotificationProvider>
-              </ApartmentProvider>
-            </ProjectProvider>
-          </UserProvider>
-        </AuthProvider>
-      </LoadingProvider>
+      <QueryClientProvider client={queryClient}>
+        <LoadingProvider>
+          <AuthProvider>
+            <UserProvider>
+              <ProjectProvider>
+                <ApartmentProvider>
+                  <NotificationProvider>
+                    <RootNavigator />
+                  </NotificationProvider>
+                </ApartmentProvider>
+              </ProjectProvider>
+            </UserProvider>
+          </AuthProvider>
+        </LoadingProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }

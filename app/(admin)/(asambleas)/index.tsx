@@ -7,23 +7,22 @@ import {
   RefreshControl,
   Image,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
-import { useAsambleas } from "@/contexts/AsambleaContext";
+import { useAsambleas } from "@/hooks/useAsambleas";
 import { THEME } from "@/constants/theme";
 import AsambleaCard from "@/components/asambleas/AsambleaCard";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 
 export default function AsambleasScreen() {
-  const { asambleas, cargarAsambleas, cargando } = useAsambleas();
+  const { data: asambleas = [], isLoading, refetch } = useAsambleas();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await cargarAsambleas();
+    await refetch();
     setRefreshing(false);
-  }, [cargarAsambleas]);
+  }, [refetch]);
 
   const handleBackPress = useCallback(() => {
     router.back();
@@ -43,13 +42,6 @@ export default function AsambleasScreen() {
     [asambleas]
   );
 
-  // Cargar asambleas al montar y al volver a la pantalla
-  useFocusEffect(
-    useCallback(() => {
-      cargarAsambleas();
-    }, [cargarAsambleas])
-  );
-
   return (
     <View style={styles.container}>
       <ScreenHeader title="Asambleas" onBackPress={handleBackPress} />
@@ -66,7 +58,7 @@ export default function AsambleasScreen() {
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {cargando ? (
+        {isLoading ? (
           <View style={styles.centerContainer}>
             <LottieView
               source={require("@/assets/lottie/loader-admin.json")}

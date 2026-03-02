@@ -26,6 +26,7 @@ import { CreateAvisoRequest } from "@/types/Avisos";
 import { getAvisoIcon, getAvisoColor } from "@/utils/avisoUtils";
 import { router } from "expo-router";
 import { avisosService } from "@/services/avisoService";
+import { useCrearAviso } from "@/hooks/useAvisos";
 import Toast from "@/components/Toast";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 import { Button } from "@/components/reacticx/button";
@@ -54,6 +55,7 @@ const prioridades = [
 ] as const;
 
 export default function CrearAvisoScreen() {
+  const crearAvisoMutation = useCrearAviso();
   const [formData, setFormData] = useState<
     CreateAvisoRequest & { archivos_nombres?: string }
   >({
@@ -188,7 +190,7 @@ export default function CrearAvisoScreen() {
           archivos_nombres: archivos_nombres || undefined,
         };
 
-        const response = await avisosService.crearAviso(
+        const response = await crearAvisoMutation.mutateAsync(
           avisoToSave as CreateAvisoRequest
         );
 

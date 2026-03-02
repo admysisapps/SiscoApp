@@ -33,6 +33,20 @@ export interface EspacioAPI {
   imagen_nombre?: string;
 }
 
+// Interface para espacio con propiedades requeridas (usado en componentes)
+export interface Espacio {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  tipo_reserva: "por_minutos" | "por_horas" | "bloque_fijo" | "gratuito";
+  costo: number;
+  capacidad_maxima: number;
+  estado: "activa" | "inactiva" | "mantenimiento";
+  imagen_nombre?: string;
+  duracion_bloque?: number;
+  fecha_mantenimiento?: string;
+}
+
 // Interface para imagen seleccionada
 export interface ImagenSeleccionada {
   name: string;
