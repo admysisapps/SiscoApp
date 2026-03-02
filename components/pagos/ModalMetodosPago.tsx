@@ -22,7 +22,6 @@ import { apiService } from "@/services/apiService";
 import { getTipoNombre, truncateUrl } from "@/constants/pagos";
 import { openURL } from "@/utils/linkingHelper";
 import Toast from "@/components/Toast";
-import { eventBus, EVENTS } from "@/utils/eventBus";
 
 const { width, height } = Dimensions.get("window");
 
@@ -105,23 +104,10 @@ export default function PaymentMethodsModal({
     loadUserContext();
   }, [visible]);
 
-  // Escuchar eventos de cambios en cuentas de pago
+  // React Query maneja la invalidación automáticamente
   useEffect(() => {
     if (!visible || !onRefresh) return;
-
-    const handleCuentaChange = () => {
-      onRefresh();
-    };
-
-    eventBus.on(EVENTS.CUENTA_PAGO_CREATED, handleCuentaChange);
-    eventBus.on(EVENTS.CUENTA_PAGO_UPDATED, handleCuentaChange);
-    eventBus.on(EVENTS.CUENTA_PAGO_DELETED, handleCuentaChange);
-
-    return () => {
-      eventBus.off(EVENTS.CUENTA_PAGO_CREATED, handleCuentaChange);
-      eventBus.off(EVENTS.CUENTA_PAGO_UPDATED, handleCuentaChange);
-      eventBus.off(EVENTS.CUENTA_PAGO_DELETED, handleCuentaChange);
-    };
+    // onRefresh se mantiene para compatibilidad con componentes legacy
   }, [visible, onRefresh]);
 
   const handleCardPress = useCallback((cuenta: CuentaPago) => {

@@ -12,11 +12,9 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, THEME } from "@/constants/theme";
-import { CuentaPago } from "@/types/CuentaPago";
-import { cuentasPagoService } from "@/services/cuentasPagoService";
+import { useCuentasPago, useEliminarCuentaPago } from "@/hooks/useCuentasPago";
 import Toast from "@/components/Toast";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
-import { eventBus, EVENTS } from "@/utils/eventBus";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 
 const getTipoNombre = (tipo: string): string => {
@@ -32,8 +30,8 @@ const getTipoNombre = (tipo: string): string => {
 
 export default function GestionarCuentasScreen() {
   const router = useRouter();
-  const [cuentas, setCuentas] = useState<CuentaPago[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: cuentas = [], isLoading: loading, refetch } = useCuentasPago();
+  const eliminarCuentaMutation = useEliminarCuentaPago();
   const [deleting, setDeleting] = useState<number | null>(null);
   const [toast, setToast] = useState<{
     visible: boolean;
@@ -56,22 +54,6 @@ export default function GestionarCuentasScreen() {
   const handleAddAccount = useCallback(() => {
     router.push("/pagos/admin/CrearCuentaPagos");
   }, [router]);
-
-  const loadCuentas = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await cuentasPagoService.obtenerCuentasPago();
-      if (response.success) {
-        setCuentas(response.cuentas || []);
-      } else {
-        showToast(response.error || "Error al cargar métodos de pago", "error");
-      }
-    } catch {
-      showToast("Error de conexión al cargar métodos de pago", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const handleEditAccount = useCallback(
     (id: number) => {
@@ -100,10 +82,9 @@ export default function GestionarCuentasScreen() {
     try {
       setDeleting(id);
       setConfirmModal({ visible: false, accountId: null });
-      const response = await cuentasPagoService.eliminarCuentaPago(id);
+      const response = await eliminarCuentaMutation.mutateAsync(id);
+
       if (response.success) {
-        setCuentas((prev) => prev.filter((c) => c.id !== id));
-        eventBus.emit(EVENTS.CUENTA_PAGO_DELETED);
         showToast("Método de pago eliminado correctamente", "success");
       } else {
         showToast(
@@ -111,7 +92,8 @@ export default function GestionarCuentasScreen() {
           "error"
         );
       }
-    } catch {
+    } catch (error) {
+      console.error("[ELIMINAR CUENTA] Error:", error);
       showToast("Error de conexión al eliminar método de pago", "error");
     } finally {
       setDeleting(null);
@@ -152,8 +134,8 @@ export default function GestionarCuentasScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      loadCuentas();
-    }, [loadCuentas])
+      refetch();
+    }, [refetch])
   );
 
   return (

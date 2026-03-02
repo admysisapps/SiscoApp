@@ -26,7 +26,7 @@ SplashScreen.setOptions({
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 30, // 30 segundos
+      staleTime: 1000 * 10, // 10 segundos
       gcTime: 1000 * 60 * 10, // 10 minutos - tiempo en cache
       retry: 2, // Reintentar 2 veces si falla
       refetchOnWindowFocus: true, // Refrescar al volver a la app
