@@ -25,6 +25,8 @@ import {
   setUserId,
   recordError,
 } from "@react-native-firebase/crashlytics";
+import { useQueryClient } from "@tanstack/react-query";
+import { PaymentCache } from "@/utils/paymentCache";
 
 // Función para sanitizar mensajes de error
 const sanitizeErrorMessage = (message: string): string => {
@@ -85,6 +87,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState<AuthError | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -169,9 +172,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearAuthError();
 
       await authService.logout();
-
-      // Limpiar cache de usuario
       await userCacheService.clearAllCache();
+      await PaymentCache.clearAll();
+      queryClient.clear();
 
       setIsAuthenticated(false);
       setCurrentUsername(null);
@@ -186,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [clearAuthError]);
+  }, [clearAuthError, queryClient]);
 
   // Register
   const register = useCallback(

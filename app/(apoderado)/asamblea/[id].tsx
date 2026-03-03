@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, BackHandler } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { THEME } from "@/constants/theme";
 import { useApoderado } from "@/contexts/ApoderadoContext";
@@ -190,13 +189,7 @@ export default function DetalleAsambleaScreen() {
         cancelText="Cancelar"
         onConfirm={async () => {
           setShowExitModal(false);
-          // Limpiar sesión de apoderado y user_context
           await sessionService.clearSession();
-          try {
-            await AsyncStorage.removeItem("user_context");
-          } catch (error) {
-            console.error("Error limpiando user_context:", error);
-          }
           router.replace("/(auth)/login");
         }}
         onCancel={() => setShowExitModal(false)}

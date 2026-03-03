@@ -19,8 +19,8 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
 import { asistenciaService } from "@/services/asistenciaService";
-import { asambleaService } from "@/services/asambleaService";
 import { votacionesService } from "@/services/votacionesService";
+import { useCambiarEstadoAsamblea } from "@/hooks/useAsambleas";
 
 import RepresentacionCardAdmin from "@/components/votaciones/base/admin/RepresentacionCardAdmin";
 import ConexionStatus from "@/components/votaciones/base/ConexionStatus";
@@ -33,6 +33,7 @@ const AsambleaModeracioScreen: React.FC = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const hasLoadedRef = useRef(false);
+  const cambiarEstadoMutation = useCambiarEstadoAsamblea();
 
   const [registroData, setRegistroData] = useState<any>(null);
   const [asambleaId, setAsambleaId] = useState<number | null>(null);
@@ -147,39 +148,45 @@ const AsambleaModeracioScreen: React.FC = () => {
   const handleFinalizarAsamblea = async () => {
     setShowFinalizarModal(false);
 
-    try {
-      const response = await asambleaService.cambiarEstadoAsamblea(
-        asambleaId!,
-        "finalizada"
-      );
+    cambiarEstadoMutation.mutate(
+      {
+        asambleaId: asambleaId!,
+        nuevoEstado: "finalizada",
+      },
+      {
+        onSuccess: async (response) => {
+          if (response.success) {
+            await quorumService.clearParticipantesCache(
+              asambleaId ?? undefined
+            );
 
-      if (response.success) {
-        await quorumService.clearParticipantesCache(asambleaId ?? undefined);
+            setToast({
+              visible: true,
+              message: response.message || "Asamblea finalizada exitosamente",
+              type: "success",
+            });
 
-        setToast({
-          visible: true,
-          message: response.message || "Asamblea finalizada exitosamente",
-          type: "success",
-        });
-
-        setTimeout(() => {
-          router.back();
-        }, 2000);
-      } else {
-        setToast({
-          visible: true,
-          message: response.error || "Error al finalizar asamblea",
-          type: "error",
-        });
+            setTimeout(() => {
+              router.back();
+            }, 2000);
+          } else {
+            setToast({
+              visible: true,
+              message: response.error || "Error al finalizar asamblea",
+              type: "error",
+            });
+          }
+        },
+        onError: (error) => {
+          console.error("Error finalizando asamblea:", error);
+          setToast({
+            visible: true,
+            message: "Error de conexión al finalizar asamblea",
+            type: "error",
+          });
+        },
       }
-    } catch (error) {
-      console.error("Error finalizando asamblea:", error);
-      setToast({
-        visible: true,
-        message: "Error de conexión al finalizar asamblea",
-        type: "error",
-      });
-    }
+    );
   };
 
   // Mostrar skeleton si no hay datos
