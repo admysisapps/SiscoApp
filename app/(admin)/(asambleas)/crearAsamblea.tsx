@@ -547,13 +547,6 @@ export default function CrearAsambleaScreen() {
         </LinearGradient>
       </KeyboardAvoidingView>
 
-      <Toast
-        visible={toast.visible}
-        message={toast.message}
-        type={toast.type}
-        onHide={hideToast}
-      />
-
       {showDatePicker && (
         <DateTimePicker
           value={formData.fecha}
@@ -579,6 +572,13 @@ export default function CrearAsambleaScreen() {
           onChange={handleTimeChange}
         />
       )}
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={hideToast}
+      />
     </View>
   );
 }

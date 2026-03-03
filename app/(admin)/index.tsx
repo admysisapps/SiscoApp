@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pageContent: {
-    paddingBottom: 100,
+    paddingBottom: 20,
     flexGrow: 1,
   },
 });

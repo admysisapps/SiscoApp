@@ -153,9 +153,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const authError = createAuthError(error, "Error al iniciar sesión");
         setAuthError(authError);
 
-        // Crashlytics: registrar error de login
-        const crashlyticsInstance = getCrashlytics();
-        recordError(crashlyticsInstance, error);
+        // Crashlytics: registrar solo errores inesperados (no credenciales incorrectas)
+        const isExpectedError =
+          error.name === "NotAuthorizedException" ||
+          error.name === "NotAuthorized" ||
+          error.name === "UserNotFoundException" ||
+          error.name === "UserNotConfirmedException";
+
+        if (!isExpectedError) {
+          const crashlyticsInstance = getCrashlytics();
+          recordError(crashlyticsInstance, error);
+        }
 
         throw error;
       } finally {
