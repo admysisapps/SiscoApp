@@ -9,6 +9,7 @@ import {
   recordError,
 } from "@react-native-firebase/crashlytics";
 import { apiService } from "./apiService";
+import { getOrCreateDeviceId } from "./deviceIdService";
 
 const BASE_URL = "https://kberc0s7n3.execute-api.us-east-1.amazonaws.com";
 
@@ -131,6 +132,7 @@ class NotificationService {
         usuario_documento: username,
         proyecto_nit: proyecto_nit,
         push_token: this.fcmToken,
+        dispositivo_id: await getOrCreateDeviceId(),
         dispositivo_tipo: Platform.OS === "ios" ? "ios" : "android",
       };
 
@@ -267,6 +269,7 @@ class NotificationService {
       const payload = {
         usuario_documento: username,
         push_token: token,
+        dispositivo_id: await getOrCreateDeviceId(),
         dispositivo_tipo: Platform.OS === "ios" ? "ios" : "android",
       };
 

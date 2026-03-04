@@ -117,16 +117,16 @@ export default function Perfil() {
 
   const handleSignOut = useCallback(async () => {
     try {
-      // Desactivar token en segundo plano (no esperar)
-      if (currentUsername) {
-        notificationService.deactivateToken(currentUsername).catch(() => {
-          // Ignorar errores - el logout debe continuar
-        });
-      }
-
-      // Cerrar sesión inmediatamente
+      // Cerrar sesión inmediatamente (sin esperar desactivación)
       await logout();
       router.replace("/(auth)/login");
+
+      // Desactivar token en background después del logout
+      if (currentUsername) {
+        notificationService.deactivateToken(currentUsername).catch(() => {
+          // Ignorar errores silenciosamente
+        });
+      }
     } catch (error) {
       console.error("Error cerrando sesión:", error);
       setToast({

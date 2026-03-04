@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import { Platform } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Amplify } from "aws-amplify";
 import * as SplashScreen from "expo-splash-screen";
@@ -39,42 +40,52 @@ function RootNavigator() {
   const { isAuthenticated } = useAuth();
   const isAdmin = selectedProject?.rolUsuario === "admin";
 
-  // "default" - Nativa del sistema (iOS: slide_from_right, Android: slide_from_bottom)
-  // "fade" - Fade in/out suave
-  // "slide_from_right" - Slide desde derecha (estilo iOS)
-  // "slide_from_left" - Slide desde izquierda
-  // "slide_from_bottom" - Slide desde abajo (estilo modal)
-  // "fade_from_bottom" - Fade + slide desde abajo (moderno)
-  // "flip" - Volteo 3D (experimental)
-  // "simple_push" - Push simple sin fade
-  // "none" - Sin animación
-
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: "default",
+        animation: Platform.select({
+          ios: "slide_from_right",
+          android: "fade_from_bottom",
+          default: "default",
+        }),
+        // Optimización de performance (Native Stack)
+        freezeOnBlur: true,
+        // Configuración de gestos
+        gestureEnabled: true,
+        fullScreenGestureEnabled: true,
       }}
     >
-      {/* Ruta de anclaje para usuarios autenticados */}
+      {/* Pantalla inicial - sin gestos para evitar salidas accidentales */}
       <Stack.Screen
         name="project-selector"
-        options={{ animation: "default" }}
+        options={{
+          animation: "fade",
+          gestureEnabled: false,
+        }}
       />
 
       {/* Rutas protegidas por AUTENTICACIÓN */}
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen
           name="(tabs)"
-          options={{ animation: "slide_from_right" }}
+          options={{
+            animation: "slide_from_right",
+            gestureDirection: "horizontal",
+            animationTypeForReplace: "push",
+          }}
         />
       </Stack.Protected>
 
-      {/* Rutas protegidas por rol ADMIN */}
+      {/* Rutas protegidas por rol ADMIN - estilo modal */}
       <Stack.Protected guard={isAdmin}>
         <Stack.Screen
           name="(admin)"
-          options={{ animation: "slide_from_right" }}
+          options={{
+            presentation: "modal",
+            animation: "slide_from_right",
+            gestureDirection: "vertical",
+          }}
         />
       </Stack.Protected>
     </Stack>
