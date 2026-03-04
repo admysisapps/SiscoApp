@@ -38,16 +38,16 @@ export default function AdminPerfil() {
 
   const handleSignOut = useCallback(async () => {
     try {
-      // Cerrar sesión inmediatamente (sin esperar desactivación)
-      await logout();
-      router.replace("/(auth)/login");
-
-      // Desactivar token en background después del logout
+      // Desactivar token en segundo plano (no esperar)
       if (currentUsername) {
         notificationService.deactivateToken(currentUsername).catch(() => {
-          // Ignorar errores silenciosamente
+          // Ignorar errores - el logout debe continuar
         });
       }
+
+      // Cerrar sesión inmediatamente
+      await logout();
+      router.replace("/(auth)/login");
     } catch (error) {
       console.error("Error cerrando sesión:", error);
     }
