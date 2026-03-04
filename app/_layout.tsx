@@ -5,15 +5,15 @@ import { Amplify } from "aws-amplify";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { LoadingProvider } from "../contexts/LoadingContext";
-import { ProjectProvider, useProject } from "../contexts/ProjectContext";
-import { ApartmentProvider } from "../contexts/ApartmentContext";
-import { AuthProvider, useAuth } from "../contexts/AuthContext";
-import { UserProvider } from "../contexts/UserContext";
-import { NotificationProvider } from "../contexts/NotificationContext";
-import { fcmService } from "../services/fcmService";
+import { LoadingProvider } from "@/contexts/LoadingContext";
+import { ProjectProvider, useProject } from "@/contexts/ProjectContext";
+import { ApartmentProvider } from "@/contexts/ApartmentContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { UserProvider } from "@/contexts/UserContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import { fcmService } from "@/services/fcmService";
 
-import outputs from "../amplify_outputs.json";
+import outputs from "@/amplify_outputs.json";
 
 Amplify.configure(outputs);
 fcmService.initialize();
@@ -45,8 +45,6 @@ function RootNavigator() {
       screenOptions={{
         headerShown: false,
         animation: Platform.select({
-          ios: "slide_from_right",
-          android: "fade_from_bottom",
           default: "default",
         }),
         // Optimización de performance (Native Stack)
@@ -82,7 +80,6 @@ function RootNavigator() {
         <Stack.Screen
           name="(admin)"
           options={{
-            presentation: "modal",
             animation: "slide_from_right",
             gestureDirection: "vertical",
           }}

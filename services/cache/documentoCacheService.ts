@@ -44,9 +44,7 @@ export const documentoCacheService = {
       return file.uri;
     } catch (error: any) {
       if (error.message?.includes("404")) {
-        throw new Error(
-          "Este documento ya no está disponible. Por favor, contacta al administrador."
-        );
+        throw new Error("Este documento ya no está disponible.");
       }
       throw new Error(
         "No se pudo descargar el documento. Verifica tu conexión a internet."

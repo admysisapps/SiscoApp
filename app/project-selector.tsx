@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import ProjectSelector from "../components/ProjectSelector";
-import AccessDenied from ".//(screens)/AccessDenied";
+import ProjectSelector from "@/components/ProjectSelector";
+import AccessDenied from "@/app/(screens)/AccessDenied";
 import LoadingScreen from "@/components/LoadingScreen";
 
 import { useProject } from "@/contexts/ProjectContext";

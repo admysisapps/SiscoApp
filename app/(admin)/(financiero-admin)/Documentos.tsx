@@ -228,6 +228,10 @@ export default function Documentos() {
             result.url
           );
           eventBus.emit(EVENTS.DOCUMENTO_CACHED);
+        } else {
+          throw new Error(
+            result.error || "El documento no existe o no está disponible"
+          );
         }
       }
     } catch (error: any) {
