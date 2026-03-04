@@ -1,28 +1,28 @@
+import { THEME } from "@/constants/theme";
+import { useApartment } from "@/contexts/ApartmentContext";
+import { useProject } from "@/contexts/ProjectContext";
+import { Apartamento } from "@/types/Apartamento";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import React, {
-  useState,
-  useMemo,
   useCallback,
-  useRef,
   useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-  ScrollView,
   Animated,
   Dimensions,
-  PanResponder,
   Easing,
+  Modal,
+  PanResponder,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { THEME } from "@/constants/theme";
-import { useProject } from "@/contexts/ProjectContext";
-import { useApartment } from "@/contexts/ApartmentContext";
-import { Apartamento } from "@/types/Apartamento";
 
 const { height } = Dimensions.get("window");
 
@@ -40,6 +40,8 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    let loopAnimation: Animated.CompositeAnimation | null = null;
+
     if (modalVisible) {
       translateY.setValue(height);
       backdropOpacity.setValue(0);
@@ -57,7 +59,7 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
         }),
       ]).start();
 
-      Animated.loop(
+      loopAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
             toValue: 0.6,
@@ -70,10 +72,14 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
             useNativeDriver: true,
           }),
         ])
-      ).start();
-    } else {
-      pulseAnim.setValue(1);
+      );
+      loopAnimation.start();
     }
+
+    return () => {
+      loopAnimation?.stop();
+      pulseAnim.setValue(1);
+    };
   }, [modalVisible, pulseAnim, translateY, backdropOpacity]);
 
   const handleCloseModal = useCallback(() => {
@@ -261,41 +267,43 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
       </TouchableOpacity>
 
       {/* Modal de selección */}
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={handleCloseModal}
-        statusBarTranslucent
-      >
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <View style={styles.modalOverlay}>
-            <Animated.View
-              style={[styles.backdrop, { opacity: backdropOpacity }]}
-            >
-              <TouchableOpacity
-                style={styles.backdropTouch}
-                activeOpacity={1}
-                onPress={handleCloseModal}
-              />
-            </Animated.View>
-            <Animated.View
-              style={[styles.modalContent, { transform: [{ translateY }] }]}
-            >
-              <View {...panResponder.panHandlers}>
-                <View style={styles.modalHandle} />
-              </View>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Seleccionar Unidad</Text>
-              </View>
+      {modalVisible && (
+        <Modal
+          animationType="none"
+          transparent={true}
+          visible={true}
+          onRequestClose={handleCloseModal}
+          statusBarTranslucent
+        >
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <View style={styles.modalOverlay}>
+              <Animated.View
+                style={[styles.backdrop, { opacity: backdropOpacity }]}
+              >
+                <TouchableOpacity
+                  style={styles.backdropTouch}
+                  activeOpacity={1}
+                  onPress={handleCloseModal}
+                />
+              </Animated.View>
+              <Animated.View
+                style={[styles.modalContent, { transform: [{ translateY }] }]}
+              >
+                <View {...panResponder.panHandlers}>
+                  <View style={styles.modalHandle} />
+                </View>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Seleccionar Unidad</Text>
+                </View>
 
-              <ScrollView contentContainerStyle={styles.apartmentsList}>
-                {apartmentItems}
-              </ScrollView>
-            </Animated.View>
-          </View>
-        </GestureHandlerRootView>
-      </Modal>
+                <ScrollView contentContainerStyle={styles.apartmentsList}>
+                  {apartmentItems}
+                </ScrollView>
+              </Animated.View>
+            </View>
+          </GestureHandlerRootView>
+        </Modal>
+      )}
     </View>
   );
 });
@@ -305,7 +313,7 @@ const ApartmentSkeleton = () => {
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const loopAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
           toValue: 1,
@@ -318,7 +326,12 @@ const ApartmentSkeleton = () => {
           useNativeDriver: true,
         }),
       ])
-    ).start();
+    );
+    loopAnimation.start();
+
+    return () => {
+      loopAnimation.stop();
+    };
   }, [pulseAnim]);
 
   const opacity = pulseAnim.interpolate({
