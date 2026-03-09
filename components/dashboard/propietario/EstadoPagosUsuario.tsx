@@ -9,12 +9,12 @@ const mockCuentaCobro: CuentaCobro = {
   unidad: 102,
   tipo: "Cuenta de Cobro",
   param: {
-    fecha_desc: "2026-02-30",
+    fecha_desc: "2026-03-30",
     porcentaje_desc: 10.0,
   },
   movimientos: [
     {
-      periodo: "01-2026",
+      periodo: "03-2026",
       saldo_ini_deuda: 450000.0,
       saldo_ini_ant: -50000.0,
       detalle: [

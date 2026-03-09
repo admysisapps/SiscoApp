@@ -7,7 +7,7 @@ import {
   RefreshControl,
   Image,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import LottieView from "lottie-react-native";
 import { useAsambleas } from "@/hooks/useAsambleas";
 import { THEME } from "@/constants/theme";
@@ -17,6 +17,12 @@ import ScreenHeader from "@/components/shared/ScreenHeader";
 export default function AsambleasScreen() {
   const { data: asambleas = [], isLoading, refetch } = useAsambleas();
   const [refreshing, setRefreshing] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
