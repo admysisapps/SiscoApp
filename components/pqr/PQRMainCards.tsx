@@ -51,8 +51,8 @@ export const PqrMainCards: React.FC = () => {
           </Text>
           <Text style={styles.cardDescription}>
             {isAdmin
-              ? "Ver y administrar todas las PQRs"
-              : "Ver y gestionar mis solicitudes"}
+              ? "administra todas las PQRs"
+              : "gestionar mis solicitudes"}
           </Text>
         </View>
       </TouchableOpacity>
@@ -66,7 +66,7 @@ export const PqrMainCards: React.FC = () => {
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>Documentos</Text>
             <Text style={styles.cardDescription}>
-              Ver documentos de la copropiedad
+              Documentos de la copropiedad
             </Text>
           </View>
         </TouchableOpacity>

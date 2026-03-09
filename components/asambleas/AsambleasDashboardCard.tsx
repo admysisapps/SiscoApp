@@ -1,28 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useRole } from "@/hooks/useRole";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { THEME } from "@/constants/theme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export function AsambleasDashboardCard() {
   const router = useRouter();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkUserRole = async () => {
-      try {
-        const context = await AsyncStorage.getItem("user_context");
-        if (context) {
-          const parsedContext = JSON.parse(context);
-          setIsAdmin(parsedContext.rol === "admin");
-        }
-      } catch (error) {
-        console.error("Error checking user role:", error);
-      }
-    };
-
-    checkUserRole();
-  }, []);
+  const { isAdmin } = useRole();
 
   const handlePress = () => {
     // Navegar a la ruta correcta según el rol
@@ -61,20 +46,20 @@ export function AsambleasDashboardCard() {
 
         <View style={styles.infoRow}>
           <Ionicons
-            name="document-text-outline"
-            size={16}
-            color={THEME.colors.text.secondary}
-          />
-          <Text style={styles.infoText}>Actas y documentos</Text>
-        </View>
-
-        <View style={styles.infoRow}>
-          <Ionicons
             name="person-add-outline"
             size={16}
             color={THEME.colors.text.secondary}
           />
           <Text style={styles.infoText}>Gestión de apoderados</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons
+            name="document-text-outline"
+            size={16}
+            color={THEME.colors.text.secondary}
+          />
+          <Text style={styles.infoText}>Actas</Text>
         </View>
       </View>
     </TouchableOpacity>

@@ -52,7 +52,7 @@ export const AvisosAdminCards: React.FC = () => {
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Crear Nuevo Comunicado</Text>
           <Text style={styles.cardDescription}>
-            Publicar un nuevo comunicado o notificación
+            Crea un nuevo comunicado o notificación
           </Text>
         </View>
       </TouchableOpacity>

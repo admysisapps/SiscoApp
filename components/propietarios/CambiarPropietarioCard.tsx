@@ -19,7 +19,7 @@ export const CambiarPropietarioCard: React.FC<CambiarPropietarioCardProps> = ({
       <View style={styles.content}>
         <Text style={styles.title}>Cambiar Propietario</Text>
         <Text style={styles.description}>
-          Asignar el acceso de propietarios a sus inmuebles
+          Gestiona el acceso de los propietarios a sus inmuebles.
         </Text>
       </View>
 

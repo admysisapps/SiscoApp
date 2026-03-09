@@ -24,7 +24,7 @@ export const AvisosUserCards: React.FC = () => {
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Ver Comunicados</Text>
           <Text style={styles.cardDescription}>
-            Ver comunicados y notificaciones importantes
+            Comunicados y notificaciones importantes
           </Text>
         </View>
       </TouchableOpacity>
@@ -40,7 +40,7 @@ export const AvisosUserCards: React.FC = () => {
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Tablero de Publicaciones</Text>
           <Text style={styles.cardDescription}>
-            Ver tablero de publicaciones y anuncios
+            Tablero de publicaciones y anuncios
           </Text>
         </View>
       </TouchableOpacity>

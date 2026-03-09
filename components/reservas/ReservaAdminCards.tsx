@@ -42,9 +42,9 @@ export const ReservaAdminCards: React.FC = () => {
           <FontAwesome6 name="gear" size={26} color="#10B981" />
         </View>
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>Gestionar zonas comunes </Text>
+          <Text style={styles.cardTitle}>Gestiona zonas comunes </Text>
           <Text style={styles.cardDescription}>
-            Crear, editar zonas comunes
+            Crea y edita las zonas comunes
           </Text>
         </View>
       </TouchableOpacity>
@@ -61,7 +61,7 @@ export const ReservaAdminCards: React.FC = () => {
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Gestionar Reservas</Text>
           <Text style={styles.cardDescription}>
-            Ver y administrar todas las reservas
+            administra todas las reservas
           </Text>
         </View>
       </TouchableOpacity>

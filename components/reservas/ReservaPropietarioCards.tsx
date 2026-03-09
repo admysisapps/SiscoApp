@@ -61,9 +61,7 @@ export const ReservaMainCards: React.FC = () => {
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Mis Reservas</Text>
-          <Text style={styles.cardDescription}>
-            Ver y gestionar mis reservas
-          </Text>
+          <Text style={styles.cardDescription}>Gestionar mis reservas</Text>
         </View>
       </TouchableOpacity>
 
@@ -73,9 +71,9 @@ export const ReservaMainCards: React.FC = () => {
           <Ionicons name="card" size={26} color="#10B981" />
         </View>
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>Informacion de Pago</Text>
+          <Text style={styles.cardTitle}>Información de Pago</Text>
           <Text style={styles.cardDescription}>
-            Metodos de pago disponibles
+            Métodos de pago disponibles
           </Text>
         </View>
       </TouchableOpacity>

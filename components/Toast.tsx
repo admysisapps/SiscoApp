@@ -30,19 +30,29 @@ export default function Toast({
   const [isVisible, setIsVisible] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(message);
   const [currentType, setCurrentType] = useState(type);
-  const slideAnim = useRef(new Animated.Value(-200)).current;
+  const slideAnimRef = useRef(new Animated.Value(-200));
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const onHideRef = useRef(onHide);
+
+  useEffect(() => {
+    onHideRef.current = onHide;
+  }, [onHide]);
 
   const hideToast = useCallback(() => {
-    Animated.timing(slideAnim, {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    Animated.timing(slideAnimRef.current, {
       toValue: -200,
       duration: 250,
       useNativeDriver: true,
     }).start(() => {
       setIsVisible(false);
-      onHide();
+      onHideRef.current();
     });
-  }, [slideAnim, onHide]);
+  }, []);
 
   // Gesture handler para swipe up
   const panResponder = useRef(
@@ -54,7 +64,7 @@ export default function Toast({
       onPanResponderMove: (_, gestureState) => {
         // Solo permitir movimiento hacia arriba
         if (gestureState.dy < 0) {
-          slideAnim.setValue(gestureState.dy);
+          slideAnimRef.current.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
@@ -62,18 +72,10 @@ export default function Toast({
 
         // Si deslizó suficiente hacia arriba O tiene velocidad hacia arriba
         if (dy < -50 || vy < -0.5) {
-          // Cerrar rápido con timing
-          Animated.timing(slideAnim, {
-            toValue: -200,
-            duration: 250,
-            useNativeDriver: true,
-          }).start(() => {
-            setIsVisible(false);
-            onHide();
-          });
+          hideToast();
         } else {
           // Volver a posición con spring suave
-          Animated.spring(slideAnim, {
+          Animated.spring(slideAnimRef.current, {
             toValue: 0,
             useNativeDriver: true,
             tension: 100,
@@ -86,39 +88,33 @@ export default function Toast({
 
   useEffect(() => {
     if (visible) {
-      // Limpiar timeout anterior si existe
+      // Limpiar timeout anterior
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
 
-      // Actualizar mensaje y tipo
+      // Actualizar contenido
       setCurrentMessage(message);
       setCurrentType(type);
       setIsVisible(true);
 
       // Haptic feedback solo para errores
       if (type === "error") {
-        Vibration.vibrate([0, 100, 50, 100]); // Patrón: pausa, vibra, pausa, vibra
+        Vibration.vibrate([0, 100, 50, 100]);
       }
 
-      // Si ya está visible, solo reiniciar el timer
-      if (isVisible) {
-        timeoutRef.current = setTimeout(() => {
-          hideToast();
-        }, duration);
-      } else {
-        // Mostrar toast con animación
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-          tension: 100,
-          friction: 8,
-        }).start();
+      // Animación de entrada
+      Animated.spring(slideAnimRef.current, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }).start();
 
-        timeoutRef.current = setTimeout(() => {
-          hideToast();
-        }, duration);
-      }
+      // Timer de auto-hide
+      timeoutRef.current = setTimeout(() => {
+        hideToast();
+      }, duration);
     }
 
     return () => {
@@ -126,7 +122,7 @@ export default function Toast({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [visible, message, type, duration, hideToast, slideAnim, isVisible]);
+  }, [visible, message, type, duration, hideToast]);
 
   if (!isVisible) return null;
 
@@ -158,7 +154,7 @@ export default function Toast({
   const toastStyle = getToastStyle();
 
   // Interpolación de opacidad para desvanecimiento suave
-  const opacity = slideAnim.interpolate({
+  const opacity = slideAnimRef.current.interpolate({
     inputRange: [-200, -100, 0],
     outputRange: [0, 0.5, 1],
     extrapolate: "clamp",
@@ -171,7 +167,7 @@ export default function Toast({
         styles.container,
         { backgroundColor: toastStyle.backgroundColor },
         {
-          transform: [{ translateY: slideAnim }],
+          transform: [{ translateY: slideAnimRef.current }],
           opacity: opacity,
         },
         { top: insets.top + 10 },

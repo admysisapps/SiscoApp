@@ -89,7 +89,6 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
                   <Text style={styles.actionTitle}>{action.title}</Text>
                   <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
               </TouchableOpacity>
             ))}
           </View>
