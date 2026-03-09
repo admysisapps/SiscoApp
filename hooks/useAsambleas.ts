@@ -22,6 +22,8 @@ export const useAsambleas = () => {
       return (response.asambleas || []) as Asamblea[];
     },
     enabled: !!selectedProject,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 };
 

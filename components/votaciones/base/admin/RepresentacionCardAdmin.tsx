@@ -27,26 +27,22 @@ const RepresentacionCardAdmin: React.FC<RepresentacionCardAdminProps> = ({
 
       {hasApartments ? (
         <>
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{apartamentosCount}</Text>
-              <Text style={styles.statLabel}>
-                inmuebles{apartamentosCount !== 1 ? "s" : ""}
+          <View style={styles.coeficienteContainer}>
+            <View style={styles.coeficienteMain}>
+              <Text style={styles.coeficienteValue}>
+                {(coeficienteTotal * 100).toFixed(2)}
               </Text>
+              <Text style={styles.coeficienteSymbol}>%</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>
-                {(coeficienteTotal * 100).toFixed(2)}%
-              </Text>
-              <Text style={styles.statLabel}>Coeficiente</Text>
-            </View>
+            <Text style={styles.coeficienteLabel}>coeficiente total</Text>
           </View>
 
           <View style={styles.apartmentsList}>
-            <Text style={styles.apartmentsLabel}>inmuebles:</Text>
-            <Text style={styles.apartmentsNumbers}>
-              {apartamentosNumeros.join(", ")}
-            </Text>
+            {apartamentosNumeros.map((apt) => (
+              <View key={apt} style={styles.apartmentChip}>
+                <Text style={styles.apartmentChipText}>Inm. {apt}</Text>
+              </View>
+            ))}
           </View>
         </>
       ) : (
@@ -74,6 +70,8 @@ const styles = StyleSheet.create({
     borderRadius: THEME.borderRadius.lg,
     padding: THEME.spacing.lg,
     marginBottom: THEME.spacing.lg,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
   },
   header: {
     flexDirection: "row",
@@ -86,44 +84,56 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: THEME.fontSize.lg,
+    fontSize: THEME.fontSize.md,
     fontWeight: "600",
     color: THEME.colors.text.primary,
-    marginLeft: THEME.spacing.sm,
-  },
-
-  statsRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: THEME.spacing.md,
-  },
-  statItem: {
-    alignItems: "center",
-  },
-  statValue: {
-    fontSize: THEME.fontSize.xl,
-    fontWeight: "700",
-    color: THEME.colors.admin,
-  },
-  statLabel: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.secondary,
-    marginTop: 2,
-  },
-  apartmentsList: {
-    backgroundColor: THEME.colors.background,
-    borderRadius: THEME.borderRadius.md,
-    padding: THEME.spacing.md,
-  },
-  apartmentsLabel: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.text.secondary,
+    letterSpacing: 0.5,
+    marginLeft: 0,
     marginBottom: 4,
   },
-  apartmentsNumbers: {
-    fontSize: THEME.fontSize.md,
+
+  coeficienteContainer: {
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  coeficienteMain: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  coeficienteValue: {
+    fontSize: 36,
+    fontWeight: "800",
+    color: THEME.colors.admin,
+    lineHeight: 36,
+  },
+  coeficienteSymbol: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: THEME.colors.admin,
+    marginLeft: 4,
+  },
+  coeficienteLabel: {
+    fontSize: 13,
+    color: THEME.colors.text.secondary,
+    marginTop: 4,
+  },
+  apartmentsList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  apartmentChip: {
+    backgroundColor: THEME.colors.background,
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  apartmentChipText: {
+    fontSize: 13,
+    fontWeight: "600",
     color: THEME.colors.text.primary,
-    fontWeight: "500",
   },
   noApartmentsContainer: {
     alignItems: "center",

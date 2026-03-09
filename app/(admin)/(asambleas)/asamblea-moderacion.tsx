@@ -16,7 +16,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { THEME } from "@/constants/theme";
 import { asistenciaService } from "@/services/asistenciaService";
 import { votacionesService } from "@/services/votacionesService";
@@ -269,122 +268,129 @@ const AsambleaModeracioScreen: React.FC = () => {
           asambleaId={asambleaId ?? undefined}
         />
 
-        {/* Herramientas de moderación o Quorum */}
-        {showQuorum ? (
-          <View style={styles.actionsCard}>
-            <View style={styles.quorumHeader}>
-              <TouchableOpacity
-                onPress={() => setShowQuorum(false)}
-                style={styles.backToMenuButton}
-              >
-                <Ionicons
-                  name="arrow-back"
-                  size={20}
-                  color={THEME.colors.primary}
-                />
-                <Text style={styles.backToMenuText}>Volver al menú</Text>
-              </TouchableOpacity>
-            </View>
-            <QuorumChart asambleaId={asambleaId ?? undefined} />
-          </View>
-        ) : (
-          <View style={styles.actionsCard}>
-            <Text style={styles.cardTitle}>Herramientas de moderación</Text>
+        {/* Herramientas de moderación */}
+        <View>
+          <Text style={styles.sectionTitle}>Herramientas de moderación</Text>
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() =>
-                router.push(`/votacion-crear?asambleaId=${asambleaId}`)
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              setShowQuorum(false);
+              setShowResultados(false);
+              router.push(`/votacion-crear?asambleaId=${asambleaId}`);
+            }}
+          >
+            <Ionicons
+              name="add-circle"
+              size={22}
+              color={THEME.colors.primary}
+            />
+            <Text style={styles.actionButtonText}>Crear votación</Text>
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color={THEME.colors.primary}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              setShowQuorum(false);
+              setShowResultados(false);
+              router.push({
+                pathname: "/(admin)/(asambleas)/ControlPreguntas",
+                params: {
+                  asambleaId: asambleaId?.toString() || "",
+                  registroData: JSON.stringify(registroData),
+                },
+              });
+            }}
+          >
+            <MaterialCommunityIcons
+              name="vote-outline"
+              size={24}
+              color={THEME.colors.primary}
+            />
+            <Text style={styles.actionButtonText}>Control de preguntas</Text>
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color={THEME.colors.primary}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              setShowResultados(false);
+              setShowQuorum(!showQuorum);
+            }}
+          >
+            <FontAwesome
+              name="pie-chart"
+              size={20}
+              color={THEME.colors.primary}
+            />
+            <Text style={styles.actionButtonText}>Estado del quórum</Text>
+            <Ionicons
+              name={showQuorum ? "chevron-up" : "chevron-down"}
+              size={22}
+              color={THEME.colors.primary}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={async () => {
+              if (!showResultados) {
+                setLoadingResultados(true);
+                try {
+                  const response = await votacionesService.obtenerResultados(
+                    asambleaId!
+                  );
+                  if (response.success && response.preguntas) {
+                    setResultadosData(response.preguntas);
+                  }
+                } catch (error) {
+                  console.error("Error obteniendo resultados:", error);
+                  setToast({
+                    visible: true,
+                    message: "Error al cargar resultados",
+                    type: "error",
+                  });
+                } finally {
+                  setLoadingResultados(false);
+                }
               }
-            >
+              setShowQuorum(false);
+              setShowResultados(!showResultados);
+            }}
+          >
+            <MaterialCommunityIcons
+              name="chart-box-outline"
+              size={24}
+              color={THEME.colors.primary}
+            />
+            <Text style={styles.actionButtonText}>Resultados</Text>
+            {loadingResultados ? (
+              <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                <Ionicons name="sync" size={22} color={THEME.colors.primary} />
+              </Animated.View>
+            ) : (
               <Ionicons
-                name="add-circle"
+                name={showResultados ? "chevron-up" : "chevron-down"}
                 size={22}
                 color={THEME.colors.primary}
               />
-              <Text style={styles.actionButtonText}>Crear votación</Text>
-            </TouchableOpacity>
+            )}
+          </TouchableOpacity>
+        </View>
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() =>
-                router.push({
-                  pathname: "/(admin)/(asambleas)/ControlPreguntas",
-                  params: {
-                    asambleaId: asambleaId?.toString() || "",
-                    registroData: JSON.stringify(registroData),
-                  },
-                })
-              }
-            >
-              <MaterialCommunityIcons
-                name="vote-outline"
-                size={24}
-                color={THEME.colors.primary}
-              />
-              <Text style={styles.actionButtonText}>Control de preguntas</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => setShowQuorum(true)}
-            >
-              <FontAwesome
-                name="pie-chart"
-                size={20}
-                color={THEME.colors.primary}
-              />
-              <Text style={styles.actionButtonText}>Estado del quórum</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={async () => {
-                if (!showResultados) {
-                  setLoadingResultados(true);
-                  try {
-                    const response = await votacionesService.obtenerResultados(
-                      asambleaId!
-                    );
-                    if (response.success && response.preguntas) {
-                      setResultadosData(response.preguntas);
-                    }
-                  } catch (error) {
-                    console.error("Error obteniendo resultados:", error);
-                    setToast({
-                      visible: true,
-                      message: "Error al cargar resultados",
-                      type: "error",
-                    });
-                  } finally {
-                    setLoadingResultados(false);
-                  }
-                }
-                setShowResultados(!showResultados);
-              }}
-            >
-              <MaterialCommunityIcons
-                name="chart-box-outline"
-                size={24}
-                color={THEME.colors.primary}
-              />
-              <Text style={styles.actionButtonText}>Resultados</Text>
-              {loadingResultados ? (
-                <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Ionicons
-                    name="sync"
-                    size={22}
-                    color={THEME.colors.primary}
-                  />
-                </Animated.View>
-              ) : (
-                <Ionicons
-                  name={showResultados ? "chevron-up" : "chevron-down"}
-                  size={22}
-                  color={THEME.colors.primary}
-                />
-              )}
-            </TouchableOpacity>
+        {/* Quorum expandible */}
+        {showQuorum && (
+          <View style={styles.quorumContainer}>
+            <QuorumChart asambleaId={asambleaId ?? undefined} />
           </View>
         )}
 
@@ -419,20 +425,13 @@ const AsambleaModeracioScreen: React.FC = () => {
             </ScrollView>
           ))}
 
-        {/* Acciones de control */}
+        {/* Botón finalizar asamblea */}
         <TouchableOpacity
-          activeOpacity={0.8}
+          style={styles.actionButtonDanger}
           onPress={() => setShowFinalizarModal(true)}
         >
-          <LinearGradient
-            colors={["#F87171", "#EF4444", "#DC2626"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.finishButton}
-          >
-            <Ionicons name="stop-circle" size={20} color="white" />
-            <Text style={styles.controlButtonText}>Finalizar asamblea</Text>
-          </LinearGradient>
+          <Ionicons name="stop-circle" size={22} color="#EF4444" />
+          <Text style={styles.actionButtonDangerText}>Finalizar asamblea</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -601,20 +600,21 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.primary,
     fontWeight: "500",
   },
-  actionsCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-  },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: THEME.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
+    backgroundColor: THEME.colors.surface,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   actionButtonText: {
     flex: 1,
@@ -622,40 +622,37 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.primary,
     marginLeft: THEME.spacing.md,
   },
-  finishButton: {
+  actionButtonDanger: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: THEME.spacing.md,
-    paddingHorizontal: THEME.spacing.lg,
-    borderRadius: THEME.borderRadius.md,
-    gap: THEME.spacing.sm,
-    marginTop: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-    shadowColor: "#000",
+    backgroundColor: "#FEF2F2",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#FEE2E2",
+    shadowColor: "#EF4444",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
-  controlButtonText: {
-    color: THEME.colors.text.inverse,
-    fontSize: THEME.fontSize.md,
+  actionButtonDangerText: {
+    flex: 1,
+    fontSize: THEME.fontSize.lg,
+    color: "#EF4444",
     fontWeight: "600",
+    marginLeft: THEME.spacing.md,
   },
-  quorumHeader: {
+  sectionTitle: {
+    fontSize: THEME.fontSize.lg,
+    fontWeight: "600",
+    color: THEME.colors.text.heading,
     marginBottom: THEME.spacing.md,
   },
-  backToMenuButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: THEME.spacing.sm,
-  },
-  backToMenuText: {
-    marginLeft: THEME.spacing.sm,
-    fontSize: THEME.fontSize.md,
-    color: THEME.colors.primary,
-    fontWeight: "500",
+  quorumContainer: {
+    marginTop: THEME.spacing.md,
   },
   resultadoItem: {
     width: Dimensions.get("window").width - THEME.spacing.lg * 2,

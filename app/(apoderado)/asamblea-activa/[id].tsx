@@ -142,8 +142,8 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
         />
 
         {/* Acciones disponibles */}
-        <View style={styles.actionsCard}>
-          <Text style={styles.cardTitle}>Acciones disponibles</Text>
+        <View>
+          <Text style={styles.sectionTitle}>Acciones</Text>
 
           <TouchableOpacity
             style={styles.actionButton}
@@ -154,10 +154,15 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
               })
             }
           >
-            <Ionicons name="list" size={20} color={THEME.colors.primary} />
+            <Ionicons name="list" size={22} color={THEME.colors.primary} />
             <Text style={styles.actionButtonText}>
               Ver preguntas de votación
             </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color={THEME.colors.primary}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -190,7 +195,7 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
           >
             <FontAwesome5
               name="vote-yea"
-              size={20}
+              size={22}
               color={THEME.colors.primary}
             />
             <Text style={styles.actionButtonText}>Pregunta activa</Text>
@@ -224,18 +229,18 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
           >
             <Ionicons
               name="stats-chart"
-              size={20}
+              size={22}
               color={THEME.colors.primary}
             />
             <Text style={styles.actionButtonText}>Resultados</Text>
             {loadingResultados ? (
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                <Ionicons name="sync" size={20} color={THEME.colors.primary} />
+                <Ionicons name="sync" size={22} color={THEME.colors.primary} />
               </Animated.View>
             ) : (
               <Ionicons
                 name={showResultados ? "chevron-up" : "chevron-down"}
-                size={20}
+                size={22}
                 color={THEME.colors.primary}
               />
             )}
@@ -272,6 +277,17 @@ const AsambleaActivaApoderadoScreen: React.FC = () => {
               ))}
             </ScrollView>
           ))}
+
+        {/* Botón de salida */}
+        <TouchableOpacity
+          style={styles.actionButtonDanger}
+          onPress={() => setShowExitModal(true)}
+        >
+          <Ionicons name="exit-outline" size={22} color="#EF4444" />
+          <Text style={styles.actionButtonDangerText}>
+            Salir de la asamblea
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <Toast
@@ -355,32 +371,56 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: THEME.spacing.xl * 2,
   },
-  cardTitle: {
-    fontSize: THEME.fontSize.md,
-    fontWeight: "600",
-    color: THEME.colors.text.primary,
-    marginBottom: THEME.spacing.md,
-  },
-  actionsCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-  },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: THEME.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
+    backgroundColor: THEME.colors.surface,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   actionButtonText: {
     flex: 1,
-    fontSize: THEME.fontSize.md,
+    fontSize: THEME.fontSize.lg,
     color: THEME.colors.text.primary,
     marginLeft: THEME.spacing.md,
+  },
+  actionButtonDanger: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF2F2",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#FEE2E2",
+    shadowColor: "#EF4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  actionButtonDangerText: {
+    flex: 1,
+    fontSize: THEME.fontSize.lg,
+    color: "#EF4444",
+    fontWeight: "600",
+    marginLeft: THEME.spacing.md,
+  },
+  sectionTitle: {
+    fontSize: THEME.fontSize.lg,
+    fontWeight: "600",
+    color: THEME.colors.text.heading,
+    marginBottom: THEME.spacing.md,
   },
   resultadoItem: {
     width: Dimensions.get("window").width - THEME.spacing.lg * 2,

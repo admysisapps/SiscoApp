@@ -30,7 +30,7 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
 }) => {
   const [step, setStep] = useState<"loading" | "success" | "error">("loading");
   const [registroData, setRegistroData] = useState<any>(null);
-  const [countdown, setCountdown] = useState(2);
+  const [countdown, setCountdown] = useState(3);
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const countdownScaleAnim = useRef(new Animated.Value(0)).current;
@@ -52,7 +52,7 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
   useEffect(() => {
     if (visible) {
       setStep("loading");
-      setCountdown(2);
+      setCountdown(3);
       setRegistroData(null);
 
       Animated.parallel([
@@ -163,14 +163,6 @@ const ModalConexionAsambleaAdmin: React.FC<ModalConexionAsambleaAdminProps> = ({
             },
           ]}
         >
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons
-              name="close"
-              size={24}
-              color={THEME.colors.text.secondary}
-            />
-          </TouchableOpacity>
-
           {step === "loading" && (
             <View style={styles.content}>
               <View style={styles.loadingContainer}>
@@ -310,12 +302,6 @@ const styles = StyleSheet.create({
     width: "85%",
     maxWidth: 340,
   },
-  closeButton: {
-    position: "absolute",
-    top: THEME.spacing.md,
-    right: THEME.spacing.md,
-    padding: THEME.spacing.sm,
-  },
   content: {
     alignItems: "center",
     paddingTop: THEME.spacing.lg,
@@ -363,6 +349,7 @@ const styles = StyleSheet.create({
   statBox: {
     alignItems: "center",
     flex: 1,
+    minWidth: 80,
   },
   statNumber: {
     fontSize: 32,

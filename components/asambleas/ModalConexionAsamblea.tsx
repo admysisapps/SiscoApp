@@ -540,6 +540,7 @@ const styles = StyleSheet.create({
   statBox: {
     alignItems: "center",
     flex: 1,
+    minWidth: 80,
   },
   statNumber: {
     fontSize: 32,

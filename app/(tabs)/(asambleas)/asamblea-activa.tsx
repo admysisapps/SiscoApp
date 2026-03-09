@@ -191,63 +191,77 @@ const AsambleaActivaScreen: React.FC = () => {
         )}
 
         {/* Acciones disponibles */}
-        <View style={styles.actionsCard}>
-          <Text style={styles.cardTitle}>
-            {isObserver ? "Resultados" : "Acciones disponibles"}
+        <View>
+          <Text style={styles.sectionTitle}>
+            {isObserver ? "Resultados" : "Acciones"}
           </Text>
 
           {isObserver ? (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={async () => {
-                if (!showResultados) {
-                  setLoadingResultados(true);
-                  try {
-                    const response = await votacionesService.obtenerResultados(
-                      asambleaId!
-                    );
-                    if (response.success && response.preguntas) {
-                      const transformedData = transformarResultadosAPI(
-                        response.preguntas
-                      );
-                      setResultadosData(transformedData);
+            <>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={async () => {
+                  if (!showResultados) {
+                    setLoadingResultados(true);
+                    try {
+                      const response =
+                        await votacionesService.obtenerResultados(asambleaId!);
+                      if (response.success && response.preguntas) {
+                        const transformedData = transformarResultadosAPI(
+                          response.preguntas
+                        );
+                        setResultadosData(transformedData);
+                      }
+                    } catch (error) {
+                      console.error("Error obteniendo resultados:", error);
+                      setToast({
+                        visible: true,
+                        message: "Error al cargar resultados",
+                        type: "error",
+                      });
+                    } finally {
+                      setLoadingResultados(false);
                     }
-                  } catch (error) {
-                    console.error("Error obteniendo resultados:", error);
-                    setToast({
-                      visible: true,
-                      message: "Error al cargar resultados",
-                      type: "error",
-                    });
-                  } finally {
-                    setLoadingResultados(false);
                   }
-                }
-                setShowResultados(!showResultados);
-              }}
-            >
-              <Ionicons
-                name="stats-chart"
-                size={22}
-                color={THEME.colors.primary}
-              />
-              <Text style={styles.actionButtonText}>Ver resultados</Text>
-              {loadingResultados ? (
-                <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Ionicons
-                    name="sync"
-                    size={22}
-                    color={THEME.colors.primary}
-                  />
-                </Animated.View>
-              ) : (
+                  setShowResultados(!showResultados);
+                }}
+              >
                 <Ionicons
-                  name={showResultados ? "chevron-up" : "chevron-down"}
+                  name="stats-chart"
                   size={22}
                   color={THEME.colors.primary}
                 />
-              )}
-            </TouchableOpacity>
+                <Text style={styles.actionButtonText}>Ver resultados</Text>
+                {loadingResultados ? (
+                  <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                    <Ionicons
+                      name="sync"
+                      size={22}
+                      color={THEME.colors.primary}
+                    />
+                  </Animated.View>
+                ) : (
+                  <Ionicons
+                    name={showResultados ? "chevron-up" : "chevron-down"}
+                    size={22}
+                    color={THEME.colors.primary}
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionButtonDanger}
+                onPress={() => {
+                  setCanExit(true);
+                  router.back();
+                }}
+              >
+                <Ionicons name="exit-outline" size={22} color="#EF4444" />
+                <Text style={styles.actionButtonDangerText}>
+                  Salir de la asamblea
+                </Text>
+              </TouchableOpacity>
+            </>
           ) : (
             <>
               <TouchableOpacity
@@ -260,6 +274,11 @@ const AsambleaActivaScreen: React.FC = () => {
                 <Text style={styles.actionButtonText}>
                   Ver preguntas de votación
                 </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={22}
+                  color={THEME.colors.primary}
+                />
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -300,6 +319,11 @@ const AsambleaActivaScreen: React.FC = () => {
                   color={THEME.colors.primary}
                 />
                 <Text style={styles.actionButtonText}>Pregunta activa</Text>
+                {/* <Ionicons
+                  name="chevron-forward"
+                  size={22}
+                  color={THEME.colors.primary}
+                /> */}
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -386,6 +410,19 @@ const AsambleaActivaScreen: React.FC = () => {
               ))}
             </ScrollView>
           ))}
+
+        {/* Botón de salida - Solo para usuarios normales */}
+        {!isObserver && (
+          <TouchableOpacity
+            style={styles.actionButtonDanger}
+            onPress={() => setShowExitModal(true)}
+          >
+            <Ionicons name="exit-outline" size={22} color="#EF4444" />
+            <Text style={styles.actionButtonDangerText}>
+              Salir de la asamblea
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       <Toast
@@ -472,25 +509,49 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: THEME.spacing.xl * 2,
   },
-  actionsCard: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: THEME.borderRadius.lg,
-    padding: THEME.spacing.lg,
-    marginBottom: THEME.spacing.lg,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-  },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: THEME.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: THEME.colors.border,
+    backgroundColor: THEME.colors.surface,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   actionButtonText: {
     flex: 1,
     fontSize: THEME.fontSize.lg,
     color: THEME.colors.text.primary,
+    marginLeft: THEME.spacing.md,
+  },
+  actionButtonDanger: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF2F2",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#FEE2E2",
+    shadowColor: "#EF4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  actionButtonDangerText: {
+    flex: 1,
+    fontSize: THEME.fontSize.lg,
+    color: "#EF4444",
+    fontWeight: "600",
     marginLeft: THEME.spacing.md,
   },
   cardTitle: {
