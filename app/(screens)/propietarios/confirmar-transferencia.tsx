@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { Apartamento } from "@/types/Apartamento";
+import { BuscarUsuarioResponse } from "@/types/CambioPropietario";
 import {
   View,
   Text,
@@ -14,10 +16,24 @@ import { propietarioService } from "@/services/propietarioService";
 import { useLoading } from "@/contexts/LoadingContext";
 import Toast from "@/components/Toast";
 
+type ApartamentoConPropietario = Apartamento & {
+  propietario_nombre?: string;
+};
+
+type UsuarioData = NonNullable<BuscarUsuarioResponse["usuario"]>;
+
 export default function ConfirmarTransferenciaScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { showLoading, hideLoading } = useLoading();
+
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const [confirmado, setConfirmado] = useState(false);
   const [toast, setToast] = useState<{
@@ -26,15 +42,38 @@ export default function ConfirmarTransferenciaScreen() {
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
 
-  const apartamento = params.apartamento
-    ? JSON.parse(params.apartamento as string)
+  const apartamento: ApartamentoConPropietario | null = params.apartamento
+    ? (() => {
+        try {
+          return JSON.parse(params.apartamento as string);
+        } catch {
+          return null;
+        }
+      })()
     : null;
-  const usuario = params.usuario ? JSON.parse(params.usuario as string) : null;
+  const usuario: UsuarioData | null = params.usuario
+    ? (() => {
+        try {
+          return JSON.parse(params.usuario as string);
+        } catch {
+          return null;
+        }
+      })()
+    : null;
   const esUsuarioNuevo = params.esUsuarioNuevo === "true";
 
   const esTransferencia = !!apartamento?.propietario_nombre;
 
   const confirmarTransferencia = async () => {
+    if (!apartamento || !usuario) {
+      setToast({
+        visible: true,
+        message: "Error al cargar los datos",
+        type: "error",
+      });
+      return;
+    }
+
     if (!confirmado) {
       setConfirmado(true);
       return;
@@ -46,7 +85,6 @@ export default function ConfirmarTransferenciaScreen() {
       const resultado = await propietarioService.transferirPropiedad({
         apartamento_id: apartamento.id,
         nuevo_propietario_documento: usuario.documento,
-        propietario_anterior_documento: apartamento.propietario_documento || "",
       });
 
       if (resultado.success) {
@@ -55,7 +93,7 @@ export default function ConfirmarTransferenciaScreen() {
           message: `Inmueble ${apartamento.codigo_apt} ${esTransferencia ? "transferido" : "asignado"} exitosamente`,
           type: "success",
         });
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           router.dismissAll();
           router.replace("/(admin)");
         }, 1500);

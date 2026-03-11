@@ -26,6 +26,4 @@ export interface CrearUsuarioData {
 export interface TransferirPropiedadData {
   apartamento_id: number;
   nuevo_propietario_documento: string;
-  propietario_anterior_documento: string;
-  observaciones?: string;
 }
