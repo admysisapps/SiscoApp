@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 interface PQR {
   id_pqr: number;
   asunto: string;
@@ -113,12 +112,15 @@ const PqrCardComponent: React.FC<PqrCardProps> = ({ item, onPress }) => (
 
       <View style={styles.footerRow}>
         <View style={styles.infoItem}>
-          <Ionicons name="calendar-outline" size={12} color="#94a3b8" />
           <Text style={styles.infoText}>{formatDate(item.fecha_creacion)}</Text>
         </View>
         {item.apartamento && (
           <View style={styles.infoItem}>
-            <Ionicons name="home-outline" size={12} color="#94a3b8" />
+            <MaterialCommunityIcons
+              name="home-circle"
+              size={22}
+              color="#94a3b8"
+            />
             <Text style={styles.infoText}>
               {item.apartamento.bloque
                 ? `Inmueble ${item.apartamento.numero} - Bloque ${item.apartamento.bloque}`
