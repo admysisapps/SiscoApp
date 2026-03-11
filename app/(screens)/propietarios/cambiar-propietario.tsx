@@ -32,7 +32,7 @@ export default function CambiarPropietarioScreen() {
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [cedulaParaCrear, setCedulaParaCrear] = useState("");
-  const [animationActive, setAnimationActive] = useState(true);
+  const animationActiveRef = useRef(true);
 
   // Animaciones para los números
   const scaleAnims = useRef([
@@ -44,15 +44,15 @@ export default function CambiarPropietarioScreen() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!animationActive) return;
+    if (!animationActiveRef.current) return;
 
     // Animación secuencial de los números
     const animateNumbers = () => {
-      if (!animationActive) return;
+      if (!animationActiveRef.current) return;
 
       scaleAnims.forEach((anim, index) => {
         setTimeout(() => {
-          if (!animationActive) return;
+          if (!animationActiveRef.current) return;
 
           Animated.sequence([
             Animated.timing(anim, {
@@ -82,7 +82,7 @@ export default function CambiarPropietarioScreen() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [scaleAnims, animationActive]);
+  }, [scaleAnims]);
 
   const buscarUsuario = async () => {
     if (!cedula.trim()) {
@@ -113,8 +113,7 @@ export default function CambiarPropietarioScreen() {
       return;
     }
 
-    // Detener animación durante la búsqueda
-    setAnimationActive(false);
+    animationActiveRef.current = false;
     showLoading("Buscando usuario...");
     try {
       const resultado = await propietarioService.buscarUsuario(cedula);
@@ -148,6 +147,7 @@ export default function CambiarPropietarioScreen() {
         type: "error",
       });
     } finally {
+      animationActiveRef.current = true;
       hideLoading();
     }
   };

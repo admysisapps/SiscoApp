@@ -16,14 +16,23 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { THEME, COLORS } from "@/constants/theme";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import {
+  ApartamentoListado,
+  BuscarUsuarioResponse,
+} from "@/types/CambioPropietario";
 import { propietarioService } from "@/services/propietarioService";
 import { useLoading } from "@/contexts/LoadingContext";
 import Toast from "@/components/Toast";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+
+type UsuarioData = NonNullable<BuscarUsuarioResponse["usuario"]>;
 
 const AnimatedFlatList = Animated.createAnimatedComponent(
   FlatList<ApartamentoProcesado>
@@ -32,17 +41,7 @@ const AnimatedFlatList = Animated.createAnimatedComponent(
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const SEARCH_TOP = SCREEN_HEIGHT < 700 ? 200 : 220;
 
-interface Apartamento {
-  id: number;
-  codigo_apt: string;
-  numero: string;
-  bloque: string;
-  coeficiente: number;
-  propietario_nombre?: string | null;
-  propietario_documento?: string | null;
-}
-
-interface ApartamentoProcesado extends Apartamento {
+interface ApartamentoProcesado extends ApartamentoListado {
   ui: {
     statusText: string;
     statusColor: string;
@@ -56,11 +55,20 @@ export default function SeleccionarApartamentoScreen() {
   const params = useLocalSearchParams();
   const { showLoading, hideLoading } = useLoading();
 
-  // Parsear datos del usuario destino
-  const usuario = params.usuario ? JSON.parse(params.usuario as string) : null;
+  const { bottom } = useSafeAreaInsets();
+
+  const usuario: UsuarioData | null = params.usuario
+    ? (() => {
+        try {
+          return JSON.parse(params.usuario as string);
+        } catch {
+          return null;
+        }
+      })()
+    : null;
   const esUsuarioNuevo = params.esUsuarioNuevo === "true";
 
-  const [apartamentos, setApartamentos] = useState<Apartamento[]>([]);
+  const [apartamentos, setApartamentos] = useState<ApartamentoListado[]>([]);
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -153,7 +161,7 @@ export default function SeleccionarApartamentoScreen() {
   }, [filtro, apartamentos, ordenPor]);
 
   const seleccionarApartamento = useCallback(
-    (apartamento: Apartamento) => {
+    (apartamento: ApartamentoListado) => {
       router.push({
         pathname: "/(screens)/propietarios/confirmar-transferencia",
         params: {
@@ -366,7 +374,7 @@ export default function SeleccionarApartamentoScreen() {
       {/* Lista de inmuebles virtualizada */}
       <AnimatedFlatList
         style={styles.content}
-        contentContainerStyle={{ paddingBottom: 190 }}
+        contentContainerStyle={{ paddingBottom: bottom + THEME.spacing.xl }}
         data={apartamentosFiltrados}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
@@ -429,19 +437,7 @@ const styles = StyleSheet.create({
     color: COLORS.text.secondary,
     marginTop: 2,
   },
-  newUserBadge: {
-    backgroundColor: COLORS.success + "20",
-    paddingHorizontal: THEME.spacing.xs,
-    paddingVertical: 2,
-    borderRadius: THEME.borderRadius.sm,
-    alignSelf: "flex-start",
-    marginTop: 4,
-  },
-  newUserText: {
-    fontSize: THEME.fontSize.xs,
-    color: COLORS.success,
-    fontWeight: "600",
-  },
+
   searchSection: {
     position: "absolute",
     top: SEARCH_TOP,

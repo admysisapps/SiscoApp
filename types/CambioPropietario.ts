@@ -27,3 +27,12 @@ export interface TransferirPropiedadData {
   apartamento_id: number;
   nuevo_propietario_documento: string;
 }
+
+export interface ApartamentoListado {
+  id: number;
+  codigo_apt: string;
+  numero: string;
+  bloque: string;
+  coeficiente: number;
+  propietario_nombre?: string | null;
+}

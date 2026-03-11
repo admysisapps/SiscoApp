@@ -16,6 +16,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  cancelAnimation,
 } from "react-native-reanimated";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 
@@ -43,6 +44,7 @@ export default function UsuarioExistenteScreen() {
       -1,
       false
     );
+    return () => cancelAnimation(rotate);
   }, [rotate]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -283,20 +285,6 @@ const styles = StyleSheet.create({
     color: COLORS.text.secondary,
     marginTop: 2,
   },
-  transferButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.primaryLight + "20",
-    paddingHorizontal: THEME.spacing.sm,
-    paddingVertical: THEME.spacing.xs,
-    borderRadius: THEME.borderRadius.sm,
-    gap: 4,
-  },
-  transferButtonText: {
-    color: COLORS.primary,
-    fontSize: THEME.fontSize.xs,
-    fontWeight: "600",
-  },
   noApartments: {
     alignItems: "center",
     paddingVertical: THEME.spacing.xl,
@@ -348,81 +336,5 @@ const styles = StyleSheet.create({
     fontSize: THEME.fontSize.sm,
     color: COLORS.text.secondary,
     marginTop: 2,
-  },
-  actionButtonDisabled: {
-    backgroundColor: COLORS.text.muted + "15",
-    opacity: 0.5,
-    borderWidth: 1,
-    borderColor: COLORS.text.muted + "30",
-    borderStyle: "dashed",
-  },
-  actionTitleDisabled: {
-    color: COLORS.text.muted,
-  },
-  actionDescriptionDisabled: {
-    color: COLORS.text.muted,
-  },
-  // Estados de carga y hover
-  loadingContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: THEME.borderRadius.md,
-    zIndex: 10,
-  },
-  actionButtonHover: {
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
-    transform: [{ scale: 1.02 }],
-  },
-  cardHover: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  // Estados responsivos
-  userCardLarge: {
-    padding: THEME.spacing.xl,
-  },
-  userCardSmall: {
-    padding: THEME.spacing.md,
-  },
-  // Gradientes y efectos visuales
-  gradientOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: COLORS.primary,
-    opacity: 0.7,
-  },
-  successGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: COLORS.success,
-  },
-  // Estados de interacción
-  pressedState: {
-    opacity: 0.9,
-    transform: [{ scale: 0.98 }],
-  },
-  // Mejoras de accesibilidad
-  focusState: {
-    borderWidth: 2,
-    borderColor: COLORS.primary,
   },
 });
