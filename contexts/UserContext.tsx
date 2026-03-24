@@ -17,6 +17,7 @@ interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   isLoading: boolean;
+  hasInitialized: boolean;
 
   // Estados de error
   error: string | null;
@@ -41,6 +42,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [hasAccessError, setHasAccessError] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const updatingRoleRef = useRef(false);
   const hasLoadedRef = useRef(false);
   const loadingRef = useRef(false);
@@ -86,6 +88,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       } finally {
         setIsLoading(false);
         loadingRef.current = false;
+        setHasInitialized(true);
       }
     },
     []
@@ -106,6 +109,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setError(null);
       setHasError(false);
       setHasAccessError(false);
+      setHasInitialized(false);
       hasLoadedRef.current = false;
       loadingRef.current = false;
     }
@@ -167,6 +171,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       user,
       setUser,
       isLoading,
+      hasInitialized,
       error,
       hasError,
       hasAccessError,
@@ -178,6 +183,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     [
       user,
       isLoading,
+      hasInitialized,
       error,
       hasError,
       hasAccessError,
