@@ -8,7 +8,7 @@ import ModalMetodosPago from "@/components/pagos/ModalMetodosPago";
 export const ReservaMainCards: React.FC = () => {
   const {
     showModal,
-    openPaymentMethods,
+    // openPaymentMethods,
     closePaymentMethods,
     cuentas,
     loading,
@@ -66,7 +66,7 @@ export const ReservaMainCards: React.FC = () => {
       </TouchableOpacity>
 
       {/* Card Métodos de Pago */}
-      <TouchableOpacity style={styles.card} onPress={openPaymentMethods}>
+      {/* <TouchableOpacity style={styles.card} onPress={openPaymentMethods}>
         <View style={styles.iconContainer}>
           <Ionicons name="card" size={26} color="#10B981" />
         </View>
@@ -76,7 +76,7 @@ export const ReservaMainCards: React.FC = () => {
             Métodos de pago disponibles
           </Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <ModalMetodosPago
         visible={showModal}

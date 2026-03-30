@@ -131,7 +131,7 @@ export default function SignUp() {
   const getCognitoErrorMessage = (error: any): string => {
     switch (error.name) {
       case "UsernameExistsException":
-        return "Ya existe un usuario con esta cédula";
+        return "Ya existe un usuario con este documento";
       case "InvalidParameterException":
         return "Datos inválidos. Verifica la información";
       case "InvalidPasswordException":

@@ -25,7 +25,6 @@ import { useProject } from "@/contexts/ProjectContext";
 import { CreateAvisoRequest } from "@/types/Avisos";
 import { getAvisoIcon, getAvisoColor } from "@/utils/avisoUtils";
 import { router } from "expo-router";
-import { avisosService } from "@/services/avisoService";
 import { useCrearAviso } from "@/hooks/useAvisos";
 import Toast from "@/components/Toast";
 import ScreenHeader from "@/components/shared/ScreenHeader";
@@ -810,15 +809,9 @@ const styles = StyleSheet.create({
   },
   fixedBottom: {
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
-    paddingTop: THEME.spacing.sm,
-    paddingBottom: THEME.spacing.md,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 8,
-    alignItems: "center",
+    padding: THEME.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: THEME.colors.border,
   },
   submitText: {
     color: "white",

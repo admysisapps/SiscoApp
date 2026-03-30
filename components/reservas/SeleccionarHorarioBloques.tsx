@@ -232,6 +232,7 @@ export default function SeleccionarHorarioBloques({
   };
 
   const getTextoEstado = (hora: string) => {
+    if (horariosSeleccionados.includes(hora)) return "Seleccionado";
     const esHorarioSiguienteDia = hora.startsWith("next_");
     const horaReal = esHorarioSiguienteDia ? hora.replace("next_", "") : hora;
     const estado = esHorarioSiguienteDia
@@ -329,8 +330,24 @@ export default function SeleccionarHorarioBloques({
             style={[styles.horarioButton, getEstiloHorario(hora)]}
             onPress={() => handleSeleccionarHorario(hora)}
           >
-            <Text style={styles.horarioHora}>{getTextoHorario(hora)}</Text>
-            <Text style={styles.horarioEstado}>{getTextoEstado(hora)}</Text>
+            <Text
+              style={[
+                styles.horarioHora,
+                horariosSeleccionados.includes(hora) &&
+                  styles.horarioHoraSeleccionado,
+              ]}
+            >
+              {getTextoHorario(hora)}
+            </Text>
+            <Text
+              style={[
+                styles.horarioEstado,
+                horariosSeleccionados.includes(hora) &&
+                  styles.horarioEstadoSeleccionado,
+              ]}
+            >
+              {getTextoEstado(hora)}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -347,8 +364,24 @@ export default function SeleccionarHorarioBloques({
                 style={[styles.horarioButton, getEstiloHorario(hora)]}
                 onPress={() => handleSeleccionarHorario(hora)}
               >
-                <Text style={styles.horarioHora}>{getTextoHorario(hora)}</Text>
-                <Text style={styles.horarioEstado}>{getTextoEstado(hora)}</Text>
+                <Text
+                  style={[
+                    styles.horarioHora,
+                    horariosSeleccionados.includes(hora) &&
+                      styles.horarioHoraSeleccionado,
+                  ]}
+                >
+                  {getTextoHorario(hora)}
+                </Text>
+                <Text
+                  style={[
+                    styles.horarioEstado,
+                    horariosSeleccionados.includes(hora) &&
+                      styles.horarioEstadoSeleccionado,
+                  ]}
+                >
+                  {getTextoEstado(hora)}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -493,10 +526,16 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     textAlign: "center",
   },
+  horarioHoraSeleccionado: {
+    color: "#FFFFFF",
+  },
   horarioEstado: {
     fontSize: 10,
     color: "#64748B",
     textAlign: "center",
+  },
+  horarioEstadoSeleccionado: {
+    color: "#FFFFFF",
   },
   emptyStateContainer: {
     alignItems: "center",
