@@ -128,7 +128,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setIsLoadingProjects(false);
       setHasTriedLoading(false);
       loadingRef.current = false;
-      // Limpiar caches
       try {
         AsyncStorage.removeItem("user_context");
       } catch (error) {
@@ -203,9 +202,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [isAuthenticated, currentUsername, proyectos.length]);
 
-  // ========================================
   // FUNCIONES MEMOIZADAS CON useCallback
-  // ========================================
   // Todas las funciones están envueltas en useCallback para evitar
   // que se recreen en cada render
 
@@ -293,9 +290,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  // ========================================
   // VALOR DEL CONTEXTO MEMOIZADO
-  // ========================================
   // useMemo previene que el objeto de contexto se recree en cada render
   // Solo se recrea cuando alguna de sus dependencias cambia
   const contextValue = useMemo(

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { useProject } from "@/contexts/ProjectContext";
@@ -36,17 +37,20 @@ const MenuItem = memo(
     index,
     isLast,
     onPress,
+    isLoggingOut,
   }: {
     item: MenuItemType;
     index: number;
     isLast: boolean;
     onPress: () => void;
+    isLoggingOut?: boolean;
   }) => (
     <TouchableOpacity
       testID={item.id === "logout" ? "button-cerrar-sesion" : undefined}
       style={[styles.menuItem, isLast && styles.lastMenuItem]}
       onPress={onPress}
       activeOpacity={0.7}
+      disabled={isLoggingOut}
     >
       <View style={styles.menuItemLeft}>
         <View
@@ -56,17 +60,21 @@ const MenuItem = memo(
             item.isSuccess && styles.successIconContainer,
           ]}
         >
-          <Ionicons
-            name={item.icon as any}
-            size={20}
-            color={
-              item.isDestructive
-                ? THEME.colors.error
-                : item.isSuccess
-                  ? THEME.colors.success
-                  : THEME.colors.text.secondary
-            }
-          />
+          {isLoggingOut ? (
+            <ActivityIndicator size="small" color={THEME.colors.error} />
+          ) : (
+            <Ionicons
+              name={item.icon as any}
+              size={20}
+              color={
+                item.isDestructive
+                  ? THEME.colors.error
+                  : item.isSuccess
+                    ? THEME.colors.success
+                    : THEME.colors.text.secondary
+              }
+            />
+          )}
         </View>
         <Text
           style={[
@@ -77,11 +85,7 @@ const MenuItem = memo(
           {item.title}
         </Text>
       </View>
-      <Ionicons
-        name="chevron-forward"
-        size={20}
-        color={THEME.colors.text.muted}
-      />
+      <Ionicons name="chevron-forward" size={20} color={THEME.colors.text.muted} />
     </TouchableOpacity>
   )
 );
@@ -102,6 +106,7 @@ export default function Perfil() {
 
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const [toast, setToast] = useState<{
     visible: boolean;
@@ -116,26 +121,20 @@ export default function Perfil() {
   }, [switchProject]);
 
   const handleSignOut = useCallback(async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
-      // Desactivar token en segundo plano (no esperar)
       if (currentUsername) {
-        notificationService.deactivateToken(currentUsername).catch(() => {
-          // Ignorar errores - el logout debe continuar
-        });
+        notificationService.deactivateToken(currentUsername).catch(() => {});
       }
-
-      // Cerrar sesión inmediatamente
       await logout();
       router.replace("/(auth)/login");
     } catch (error) {
       console.error("Error cerrando sesión:", error);
-      setToast({
-        visible: true,
-        message: "Error al cerrar sesión",
-        type: "error",
-      });
+      setIsLoggingOut(false);
+      setToast({ visible: true, message: "Error al cerrar sesión", type: "error" });
     }
-  }, [logout, currentUsername]);
+  }, [logout, currentUsername, isLoggingOut]);
 
   const handlePersonalInfo = useCallback(() => {
     router.push("/(screens)/Info_personal");
@@ -284,7 +283,8 @@ export default function Perfil() {
               item={item}
               index={index}
               isLast={index === menuItems.length - 1}
-              onPress={item.onPress}
+              onPress={item.id === "logout" && isLoggingOut ? () => {} : item.onPress}
+              isLoggingOut={item.id === "logout" && isLoggingOut}
             />
           ))}
         </View>

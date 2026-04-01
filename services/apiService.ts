@@ -91,9 +91,8 @@ export const apiService = {
   ) {
     const fields = (CONTEXT_TYPES as any)[contextType];
     const fullContext = await this.getUserContext();
-
-    // Obtener token JWT de Cognito
     const token = await this.getAuthToken();
+
     const headers: any = {
       "Content-Type": "application/json",
     };
@@ -102,17 +101,13 @@ export const apiService = {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    // Preparar body según el tipo de contexto
     let requestBody = data;
 
     if (fields === "NONE") {
-      // Sin contexto
       requestBody = data;
     } else if (fields === "FULL" || fields === null) {
-      // Contexto completo
       requestBody = { ...data, user_context: fullContext };
     } else if (Array.isArray(fields) && fields.length > 0) {
-      // Contexto mínimo
       const minimalContext: Record<string, any> = {};
       fields.forEach((field: string) => {
         if (fullContext && fullContext[field] !== undefined) {
@@ -122,27 +117,36 @@ export const apiService = {
       requestBody = { ...data, user_context: minimalContext };
     }
 
-    // Una sola llamada fetch
     try {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(requestBody),
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      if (response.status === 401 || response.status === 403) {
-        console.error(`[API] Unauthorized en ${endpoint}`);
-        const crashlytics = getCrashlytics();
-        log(crashlytics, `API Unauthorized: ${endpoint}`);
+      try {
+        const response = await fetch(`${BASE_URL}${endpoint}`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          console.error(`[API] Unauthorized en ${endpoint}`);
+          const crashlytics = getCrashlytics();
+          log(crashlytics, `API Unauthorized: ${endpoint}`);
+        }
+
+        if (!response.ok) {
+          const error = new Error(
+            `API Error: ${response.status} - ${endpoint}`
+          );
+          const crashlytics = getCrashlytics();
+          recordError(crashlytics, error);
+        }
+
+        return response.json();
+      } finally {
+        clearTimeout(timeoutId);
       }
-
-      if (!response.ok) {
-        const error = new Error(`API Error: ${response.status} - ${endpoint}`);
-        const crashlytics = getCrashlytics();
-        recordError(crashlytics, error);
-      }
-
-      return response.json();
     } catch (error) {
       console.error(`[API] Error en ${endpoint}:`, error);
       const crashlytics = getCrashlytics();

@@ -131,7 +131,8 @@ const ADMIN_SECTIONS = [
   {
     key: "pqr",
     component: AdminPQRSection,
-    icon: "document-text",
+    icon: "file-document-alert",
+    iconType: "materialcommunity",
     color: "#4F46E5",
   },
   {
@@ -337,11 +338,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   tabIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
   carousel: {
     flex: 1,

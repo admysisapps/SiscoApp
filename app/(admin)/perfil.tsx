@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 
 import { router } from "expo-router";
@@ -23,8 +24,8 @@ import ScreenHeader from "@/components/shared/ScreenHeader";
 export default function AdminPerfil() {
   const { selectedProject, switchProject, proyectos } = useProject();
   const { logout, currentUsername } = useAuth();
-  const [notificationModalVisible, setNotificationModalVisible] =
-    useState(false);
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -37,21 +38,19 @@ export default function AdminPerfil() {
   }, [switchProject]);
 
   const handleSignOut = useCallback(async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
-      // Desactivar token en segundo plano (no esperar)
       if (currentUsername) {
-        notificationService.deactivateToken(currentUsername).catch(() => {
-          // Ignorar errores - el logout debe continuar
-        });
+        notificationService.deactivateToken(currentUsername).catch(() => {});
       }
-
-      // Cerrar sesión inmediatamente
       await logout();
       router.replace("/(auth)/login");
     } catch (error) {
       console.error("Error cerrando sesión:", error);
+      setIsLoggingOut(false);
     }
-  }, [logout, currentUsername]);
+  }, [logout, currentUsername, isLoggingOut]);
 
   const handleChangePassword = useCallback(() => {
     router.push("/(auth)/changePassword");
@@ -168,8 +167,9 @@ export default function AdminPerfil() {
                 styles.menuItem,
                 index === menuItems.length - 1 && styles.lastMenuItem,
               ]}
-              onPress={item.onPress}
+              onPress={item.id === "logout" && isLoggingOut ? () => {} : item.onPress}
               activeOpacity={0.7}
+              disabled={item.id === "logout" && isLoggingOut}
             >
               <View style={styles.menuItemLeft}>
                 <LinearGradient
@@ -180,7 +180,11 @@ export default function AdminPerfil() {
                   }
                   style={styles.adminIconContainer2}
                 >
-                  <Ionicons name={item.icon as any} size={18} color="white" />
+                  {item.id === "logout" && isLoggingOut ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Ionicons name={item.icon as any} size={18} color="white" />
+                  )}
                 </LinearGradient>
                 <Text
                   style={[
@@ -191,12 +195,7 @@ export default function AdminPerfil() {
                   {item.title}
                 </Text>
               </View>
-
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={THEME.colors.text.muted}
-              />
+              <Ionicons name="chevron-forward" size={20} color={THEME.colors.text.muted} />
             </TouchableOpacity>
           ))}
         </View>

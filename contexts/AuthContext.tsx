@@ -187,7 +187,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(false);
       setCurrentUsername(null);
 
-      // Crashlytics: registrar logout
       const crashlyticsInstance = getCrashlytics();
       log(crashlyticsInstance, "Usuario cerró sesión");
     } catch (error: any) {
@@ -373,7 +372,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initAuth = async () => {
       try {
-        // Verificación rápida desde cache/token local primero
         const { isAuthenticated, username } =
           await authService.checkAuthStatus();
 
@@ -381,11 +379,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsAuthenticated(isAuthenticated);
           setCurrentUsername(username || null);
           setIsLoading(false);
-
-          // Si está autenticado, no necesitamos más validaciones aquí
-          // Los otros contextos se encargarán de cargar sus datos
         }
-      } catch {
+      } catch (error) {
+        console.error("[AuthContext] checkAuthStatus ERROR:", error);
         if (mounted) {
           setIsAuthenticated(false);
           setCurrentUsername(null);

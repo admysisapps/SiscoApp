@@ -90,8 +90,6 @@ export const authService = {
   async logout(): Promise<void> {
     await signOut();
     await authCacheService.clearAuthCache();
-
-    // Limpiar cache de token
     const { apiService } = await import("../apiService");
     apiService.clearTokenCache();
   },
