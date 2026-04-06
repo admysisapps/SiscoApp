@@ -13,9 +13,9 @@ import CustomTabBar from "@/components/CustomTabBar";
 
 export default function AdminLayout() {
   const { isLoading: userLoading } = useUser();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { selectedProject, isLoadingProjects } = useProject();
-  const isLoading = userLoading || authLoading || isLoadingProjects;
+  const isLoading = userLoading || isLoadingProjects;
   const router = useRouter();
 
   // Protección: verificar autenticación y rol admin

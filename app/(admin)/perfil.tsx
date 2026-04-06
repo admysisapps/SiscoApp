@@ -24,7 +24,8 @@ import ScreenHeader from "@/components/shared/ScreenHeader";
 export default function AdminPerfil() {
   const { selectedProject, switchProject, proyectos } = useProject();
   const { logout, currentUsername } = useAuth();
-  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [notificationModalVisible, setNotificationModalVisible] =
+    useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [toast, setToast] = useState<{
     visible: boolean;
@@ -167,7 +168,9 @@ export default function AdminPerfil() {
                 styles.menuItem,
                 index === menuItems.length - 1 && styles.lastMenuItem,
               ]}
-              onPress={item.id === "logout" && isLoggingOut ? () => {} : item.onPress}
+              onPress={
+                item.id === "logout" && isLoggingOut ? () => {} : item.onPress
+              }
               activeOpacity={0.7}
               disabled={item.id === "logout" && isLoggingOut}
             >
@@ -195,7 +198,11 @@ export default function AdminPerfil() {
                   {item.title}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={THEME.colors.text.muted} />
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={THEME.colors.text.muted}
+              />
             </TouchableOpacity>
           ))}
         </View>

@@ -85,7 +85,11 @@ const MenuItem = memo(
           {item.title}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={THEME.colors.text.muted} />
+      <Ionicons
+        name="chevron-forward"
+        size={20}
+        color={THEME.colors.text.muted}
+      />
     </TouchableOpacity>
   )
 );
@@ -132,7 +136,11 @@ export default function Perfil() {
     } catch (error) {
       console.error("Error cerrando sesión:", error);
       setIsLoggingOut(false);
-      setToast({ visible: true, message: "Error al cerrar sesión", type: "error" });
+      setToast({
+        visible: true,
+        message: "Error al cerrar sesión",
+        type: "error",
+      });
     }
   }, [logout, currentUsername, isLoggingOut]);
 
@@ -283,7 +291,9 @@ export default function Perfil() {
               item={item}
               index={index}
               isLast={index === menuItems.length - 1}
-              onPress={item.id === "logout" && isLoggingOut ? () => {} : item.onPress}
+              onPress={
+                item.id === "logout" && isLoggingOut ? () => {} : item.onPress
+              }
               isLoggingOut={item.id === "logout" && isLoggingOut}
             />
           ))}
