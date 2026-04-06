@@ -305,26 +305,34 @@ export default function DetalleReservaScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Estado Badge */}
-        <View style={styles.statusContainer}>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getEstadoColor(reserva.estado) },
-            ]}
-          >
-            <Ionicons
-              name={getEstadoIcon(reserva.estado)}
-              size={16}
-              color="white"
-            />
-            <Text style={styles.statusText}>{reserva.estado}</Text>
-          </View>
-        </View>
-
         {/* Información Principal */}
         <View style={styles.mainCard}>
-          <Text style={styles.espacioNombre}>{reserva.espacio_nombre}</Text>
+          <View style={styles.cardTopRow}>
+            <Text style={styles.espacioNombre}>{reserva.espacio_nombre}</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor: getEstadoColor(reserva.estado) + "15",
+                  borderColor: getEstadoColor(reserva.estado) + "40",
+                },
+              ]}
+            >
+              <Ionicons
+                name={getEstadoIcon(reserva.estado)}
+                size={14}
+                color={getEstadoColor(reserva.estado)}
+              />
+              <Text
+                style={[
+                  styles.statusText,
+                  { color: getEstadoColor(reserva.estado) },
+                ]}
+              >
+                {reserva.estado}
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
@@ -380,16 +388,21 @@ export default function DetalleReservaScreen() {
             </>
           )}
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Observaciones</Text>
-            {reserva.observaciones ? (
-              <Text style={styles.detailValue}>{reserva.observaciones}</Text>
-            ) : (
-              <Text style={styles.detailEmptyValue}>Sin observaciones</Text>
-            )}
-          </View>
-
-          <View style={styles.dividerLine} />
+          {!(reserva.estado === "Rechazada" && reserva.motivo_cancelacion) && (
+            <>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Observaciones</Text>
+                {reserva.observaciones ? (
+                  <Text style={styles.detailValue}>
+                    {reserva.observaciones}
+                  </Text>
+                ) : (
+                  <Text style={styles.detailEmptyValue}>Sin observaciones</Text>
+                )}
+              </View>
+              <View style={styles.dividerLine} />
+            </>
+          )}
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Fecha de creación</Text>
@@ -440,9 +453,6 @@ export default function DetalleReservaScreen() {
             <Text style={styles.contactTitle}>Contacto del administrador</Text>
             <View style={styles.contactCard}>
               <View style={styles.contactInfo}>
-                <View style={styles.contactAvatar}>
-                  <Ionicons name="person" size={24} color="#fff" />
-                </View>
                 <View style={styles.contactDetails}>
                   {reserva.admin_nombre && (
                     <Text style={styles.contactName}>
@@ -450,7 +460,11 @@ export default function DetalleReservaScreen() {
                     </Text>
                   )}
                   {reserva.admin_email && (
-                    <Text style={styles.contactEmail}>
+                    <Text
+                      style={styles.contactEmail}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
                       {reserva.admin_email}
                     </Text>
                   )}
@@ -566,27 +580,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  statusContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 25,
-    gap: 6,
-  },
-  statusText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-  },
   mainCard: {
     backgroundColor: THEME.colors.surface,
     borderRadius: 16,
-    padding: 24,
+    padding: 20,
     marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -594,12 +591,31 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  cardTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    gap: 12,
+  },
   espacioNombre: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "700",
     color: THEME.colors.text.heading,
-    marginBottom: 24,
-    textAlign: "center",
+    flex: 1,
+  },
+  statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: 4,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: "600",
   },
   infoGrid: {
     flexDirection: "row",
@@ -706,7 +722,6 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     padding: 20,
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -759,35 +774,28 @@ const styles = StyleSheet.create({
   },
   contactInfo: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     flex: 1,
-  },
-  contactAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: THEME.colors.success,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
   },
   contactDetails: {
     flex: 1,
+    gap: 4,
   },
   contactName: {
     fontSize: 16,
     fontWeight: "700",
     color: THEME.colors.text.heading,
-    marginBottom: 2,
+    lineHeight: 20,
   },
   contactEmail: {
     fontSize: 14,
     color: THEME.colors.text.secondary,
+    lineHeight: 18,
   },
   contactPhone: {
     fontSize: 14,
     color: THEME.colors.text.secondary,
-    marginTop: 2,
+    lineHeight: 18,
   },
   contactActions: {
     flexDirection: "row",
@@ -827,17 +835,6 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: THEME.colors.text.muted,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: THEME.colors.background,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: THEME.colors.text.secondary,
-    marginTop: 16,
   },
   errorContainer: {
     flex: 1,

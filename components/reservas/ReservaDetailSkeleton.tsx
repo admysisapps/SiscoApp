@@ -44,18 +44,12 @@ export default function ReservaDetailSkeleton() {
 
   return (
     <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-      {/* Status Badge Skeleton */}
-      <View style={styles.statusContainer}>
-        <SkeletonBox width={120} height={32} style={{ borderRadius: 25 }} />
-      </View>
-
       {/* Main Card Skeleton */}
       <View style={styles.mainCard}>
-        <SkeletonBox
-          width="80%"
-          height={28}
-          style={{ alignSelf: "center", marginBottom: 24 }}
-        />
+        <View style={styles.cardTopRow}>
+          <SkeletonBox width="55%" height={22} />
+          <SkeletonBox width={90} height={26} style={{ borderRadius: 20 }} />
+        </View>
 
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
@@ -158,20 +152,23 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  statusContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
   mainCard: {
     backgroundColor: THEME.colors.surface,
     borderRadius: 16,
-    padding: 24,
+    padding: 20,
     marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
+  },
+  cardTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    gap: 12,
   },
   infoGrid: {
     flexDirection: "row",

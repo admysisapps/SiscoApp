@@ -370,26 +370,34 @@ export default function DetalleReservaAdminScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Estado Badge */}
-        <View style={styles.statusContainer}>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getEstadoColor(reserva.estado) },
-            ]}
-          >
-            <Ionicons
-              name={getEstadoIcon(reserva.estado)}
-              size={16}
-              color="white"
-            />
-            <Text style={styles.statusText}>{reserva.estado}</Text>
-          </View>
-        </View>
-
         {/* Información Principal */}
         <View style={styles.mainCard}>
-          <Text style={styles.espacioNombre}>{reserva.espacio_nombre}</Text>
+          <View style={styles.cardTopRow}>
+            <Text style={styles.espacioNombre}>{reserva.espacio_nombre}</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor: getEstadoColor(reserva.estado) + "15",
+                  borderColor: getEstadoColor(reserva.estado) + "40",
+                },
+              ]}
+            >
+              <Ionicons
+                name={getEstadoIcon(reserva.estado)}
+                size={14}
+                color={getEstadoColor(reserva.estado)}
+              />
+              <Text
+                style={[
+                  styles.statusText,
+                  { color: getEstadoColor(reserva.estado) },
+                ]}
+              >
+                {reserva.estado}
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
@@ -488,7 +496,8 @@ export default function DetalleReservaAdminScreen() {
         </View>
 
         {/* Información de Cancelación/Rechazo */}
-        {(reserva.estado === "Cancelada" || reserva.estado === "Rechazada") &&
+        {(reserva.estado === "Cancelada" ||
+          (reserva.estado === "Rechazada" && !observaciones)) &&
           (reserva.fecha_cancelacion || reserva.motivo_cancelacion) && (
             <View style={styles.cancelationSection}>
               <View style={styles.cancelationCard}>
@@ -520,21 +529,20 @@ export default function DetalleReservaAdminScreen() {
             </View>
           )}
 
-        {/* Contacto del Usuario */}
+        {/* Contacto del proetario */}
         <View style={styles.contactSection}>
-          <Text style={styles.contactTitle}>Información del usuario</Text>
+          <Text style={styles.contactTitle}>Información del propietario</Text>
           <View style={styles.contactCard}>
             <View style={styles.contactInfo}>
-              <View style={styles.contactAvatar}>
-                <Ionicons
-                  name="person"
-                  size={24}
-                  color={THEME.colors.text.inverse}
-                />
-              </View>
               <View style={styles.contactDetails}>
                 <Text style={styles.contactName}>{reserva.usuario_nombre}</Text>
-                <Text style={styles.contactEmail}>{reserva.usuario_email}</Text>
+                <Text
+                  style={styles.contactEmail}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {reserva.usuario_email}
+                </Text>
                 <Text style={styles.contactPhone}>
                   Inmueble{" "}
                   {reserva.apartamento_bloque
@@ -664,27 +672,23 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  statusContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 25,
-    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: 4,
   },
   statusText: {
-    color: THEME.colors.text.inverse,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
   },
   mainCard: {
     backgroundColor: THEME.colors.surface,
     borderRadius: 16,
-    padding: 24,
+    padding: 20,
     marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -692,12 +696,18 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  cardTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    gap: 12,
+  },
   espacioNombre: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "700",
     color: THEME.colors.text.heading,
-    marginBottom: 24,
-    textAlign: "center",
+    flex: 1,
   },
   infoGrid: {
     flexDirection: "row",
@@ -807,10 +817,6 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
     marginBottom: 12,
   },
-  observacionesDisabled: {
-    backgroundColor: THEME.colors.background,
-    color: THEME.colors.text.secondary,
-  },
   guardarButton: {
     backgroundColor: THEME.colors.success,
     borderRadius: 8,
@@ -830,8 +836,7 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.surface,
     borderRadius: 16,
     padding: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: THEME.colors.error,
+
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -886,32 +891,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
   },
-  contactAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: THEME.colors.success,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
   contactDetails: {
     flex: 1,
+    gap: 4,
   },
   contactName: {
     fontSize: 16,
     fontWeight: "700",
     color: THEME.colors.text.heading,
-    marginBottom: 2,
+    lineHeight: 20,
   },
   contactEmail: {
     fontSize: 14,
     color: THEME.colors.text.secondary,
+    lineHeight: 18,
   },
   contactPhone: {
     fontSize: 14,
     color: THEME.colors.text.secondary,
-    marginTop: 2,
   },
   contactActions: {
     flexDirection: "row",
@@ -957,32 +954,6 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.inverse,
     fontSize: 14,
     fontWeight: "600",
-  },
-  cancelButton: {
-    backgroundColor: THEME.colors.error,
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cancelButtonText: {
-    color: THEME.colors.text.inverse,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  buttonDisabled: {
-    backgroundColor: THEME.colors.text.muted,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: THEME.colors.background,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: THEME.colors.text.secondary,
-    marginTop: 16,
   },
   errorContainer: {
     flex: 1,

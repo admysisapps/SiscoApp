@@ -3,6 +3,7 @@ import { useApartment } from "@/contexts/ApartmentContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { Apartamento } from "@/types/Apartamento";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React, {
   useCallback,
   useEffect,
@@ -35,13 +36,10 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
     isLoadingApartments,
   } = useApartment();
   const [modalVisible, setModalVisible] = useState(false);
-  const pulseAnim = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(height)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    let loopAnimation: Animated.CompositeAnimation | null = null;
-
     if (modalVisible) {
       translateY.setValue(height);
       backdropOpacity.setValue(0);
@@ -58,29 +56,8 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
           useNativeDriver: true,
         }),
       ]).start();
-
-      loopAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 0.6,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      loopAnimation.start();
     }
-
-    return () => {
-      loopAnimation?.stop();
-      pulseAnim.setValue(1);
-    };
-  }, [modalVisible, pulseAnim, translateY, backdropOpacity]);
+  }, [modalVisible, translateY, backdropOpacity]);
 
   const handleCloseModal = useCallback(() => {
     Animated.parallel([
@@ -149,20 +126,15 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
           ]}
           onPress={() => handleApartmentSelect(apt)}
         >
-          <Animated.View
-            style={[
-              styles.apartmentOptionIcon,
-              { opacity: isSelected ? 1 : pulseAnim },
-            ]}
-          >
+          <View style={styles.apartmentOptionIcon}>
             <FontAwesome5
-              name="door-closed"
-              size={22}
+              name="home"
+              size={18}
               color={
                 isSelected ? THEME.colors.primary : THEME.colors.text.muted
               }
             />
-          </Animated.View>
+          </View>
           <View style={styles.apartmentOptionContent}>
             <Text
               style={[
@@ -186,7 +158,7 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
         </TouchableOpacity>
       );
     });
-  }, [apartamentos, selectedApartment, handleApartmentSelect, pulseAnim]);
+  }, [apartamentos, selectedApartment, handleApartmentSelect]);
 
   // Si es admin en el proyecto seleccionado, no mostrar selector
   if (selectedProject?.rolUsuario === "admin") {
@@ -203,18 +175,16 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
     return (
       <View style={styles.wrapper}>
         <View style={styles.card}>
-          <View style={styles.iconContainer}>
-            <FontAwesome5
-              name="door-open"
-              size={30}
-              color={THEME.colors.primary}
-            />
-          </View>
+          <LinearGradient
+            colors={[THEME.colors.primary, THEME.colors.secondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.iconContainer}
+          >
+            <FontAwesome5 name="home" size={16} color="white" />
+          </LinearGradient>
           <View style={styles.contentContainer}>
-            <Text style={styles.label}>Mi Unidad</Text>
-            <Text style={styles.noApartmentsText}>
-              No se encontraron unidades
-            </Text>
+            <Text style={styles.apartmentNumber}>Sin unidad asignada</Text>
           </View>
         </View>
       </View>
@@ -229,41 +199,37 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
         style={styles.card}
         onPress={handleSelectApartment}
         disabled={!isSelectable}
-        activeOpacity={isSelectable ? 0.8 : 1}
+        activeOpacity={isSelectable ? 0.7 : 1}
       >
-        <View style={styles.iconContainer}>
-          <FontAwesome5
-            name="door-open"
-            size={30}
-            color={THEME.colors.primary}
-          />
-        </View>
+        <LinearGradient
+          colors={[THEME.colors.primary, THEME.colors.secondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.iconContainer}
+        >
+          <FontAwesome5 name="home" size={16} color="white" />
+        </LinearGradient>
 
         <View style={styles.contentContainer}>
-          <Text style={styles.label}>Mi Unidad</Text>
-          <View style={styles.apartmentInfo}>
-            <Text style={styles.apartmentNumber}>
-              {selectedApartment
-                ? `Unidad ${selectedApartment.numero}`
-                : "Sin asignar"}
+          <Text style={styles.apartmentNumber}>
+            {selectedApartment
+              ? `Unidad ${selectedApartment.numero}`
+              : "Sin asignar"}
+          </Text>
+          {selectedApartment?.bloque && (
+            <Text style={styles.apartmentBlock}>
+              Bloque {selectedApartment.bloque}
             </Text>
-            {selectedApartment?.bloque && (
-              <Text style={styles.apartmentBlock}>
-                Bloque {selectedApartment.bloque}
-              </Text>
-            )}
-          </View>
-        </View>
-
-        <View style={styles.rightContainer}>
-          {isSelectable && (
-            <Ionicons
-              name="chevron-down"
-              size={20}
-              color={THEME.colors.text.muted}
-            />
           )}
         </View>
+
+        {isSelectable && (
+          <Ionicons
+            name="chevron-down"
+            size={16}
+            color={THEME.colors.text.muted}
+          />
+        )}
       </TouchableOpacity>
 
       {/* Modal de selección */}
@@ -342,46 +308,18 @@ const ApartmentSkeleton = () => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.card}>
-        <View style={styles.iconContainer}>
-          <FontAwesome5
-            name="door-open"
-            size={30}
-            color={THEME.colors.primary}
+        <Animated.View style={[styles.iconContainer, { opacity }]} />
+        <View style={styles.contentContainer}>
+          <Animated.View
+            style={[
+              styles.skeletonBox,
+              { width: 100, height: 14, opacity, marginBottom: 4 },
+            ]}
+          />
+          <Animated.View
+            style={[styles.skeletonBox, { width: 60, height: 12, opacity }]}
           />
         </View>
-        <View style={styles.contentContainer}>
-          <View style={styles.apartmentInfo}>
-            <Animated.View
-              style={[
-                styles.skeletonBox,
-                {
-                  width: 60,
-                  height: THEME.fontSize.xs,
-                  opacity,
-                  marginBottom: 4,
-                },
-              ]}
-            />
-            <Animated.View
-              style={[
-                styles.skeletonBox,
-                {
-                  width: 100,
-                  height: THEME.fontSize.lg,
-                  opacity,
-                  marginBottom: 2,
-                },
-              ]}
-            />
-            <Animated.View
-              style={[
-                styles.skeletonBox,
-                { width: 75, height: THEME.fontSize.sm, opacity },
-              ]}
-            />
-          </View>
-        </View>
-        <View style={styles.rightContainer} />
       </View>
     </View>
   );
@@ -391,69 +329,50 @@ export default ApartmentSelector;
 
 const styles = StyleSheet.create({
   wrapper: {
-    paddingHorizontal: 1,
-    marginBottom: THEME.spacing.lg,
+    alignItems: "center",
+    marginBottom: THEME.spacing.md,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
+    alignSelf: "center",
     backgroundColor: THEME.colors.surface,
-    padding: THEME.spacing.md,
-    borderRadius: THEME.borderRadius.lg,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
     elevation: 2,
+    gap: 8,
   },
-
   iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: THEME.borderRadius.full,
-    backgroundColor: THEME.colors.surfaceLight,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: THEME.spacing.md,
   },
   contentContainer: {
-    flex: 1,
-  },
-  label: {
-    fontSize: THEME.fontSize.xs,
-    fontWeight: "500",
-    color: THEME.colors.text.muted,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  apartmentInfo: {
-    flex: 1,
+    justifyContent: "center",
   },
   apartmentNumber: {
-    fontSize: THEME.fontSize.lg,
-    fontWeight: "600",
+    fontSize: THEME.fontSize.md,
+    fontWeight: "700",
     color: THEME.colors.text.primary,
-    marginBottom: 2,
   },
   apartmentBlock: {
-    fontSize: THEME.fontSize.sm,
+    fontSize: THEME.fontSize.xs,
     color: THEME.colors.text.secondary,
     fontWeight: "400",
-  },
-  rightContainer: {
-    width: 20,
-    alignItems: "center",
-    justifyContent: "center",
+    marginTop: 1,
   },
   skeletonBox: {
     backgroundColor: THEME.colors.border,
     borderRadius: 4,
-  },
-  noApartmentsText: {
-    fontSize: THEME.fontSize.sm,
-    color: THEME.colors.error,
-    fontStyle: "italic",
   },
   modalOverlay: {
     flex: 1,
