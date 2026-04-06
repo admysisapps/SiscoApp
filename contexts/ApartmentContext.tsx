@@ -1,11 +1,12 @@
 // contexts/ApartmentContext.tsx
-import React, {
+import {
   createContext,
   useContext,
   useState,
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import type { ReactNode } from "react";
 import { Apartamento } from "@/types/Apartamento";
@@ -60,6 +61,7 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
     useState<Apartamento | null>(null);
   const [apartamentos, setApartamentos] = useState<Apartamento[]>([]);
   const [isLoadingApartments, setIsLoadingApartments] = useState(false);
+  const loadingRef = useRef(false);
 
   const { user } = useUser();
   const { isAuthenticated } = useAuth();
@@ -92,7 +94,7 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
       }
 
       // Prevenir múltiples cargas simultáneas
-      if (isLoadingApartments) {
+      if (loadingRef.current) {
         return;
       }
 
@@ -104,16 +106,15 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        loadingRef.current = true;
         setIsLoadingApartments(true);
 
-        // Intentar obtener desde cache primero
         const cachedApartments =
           await apartmentCacheService.getCachedApartments(userDoc, proyectoNIT);
 
         if (cachedApartments) {
           setApartamentos(cachedApartments);
 
-          // Auto-seleccionar apartamento usando helper
           await autoSelectApartment(
             cachedApartments,
             setSelectedApartment,
@@ -124,11 +125,9 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        // Si no hay cache, hacer petición a la API
         const response = await apiService.getApartamentosUsuario();
 
         if (response.success && Array.isArray(response.data)) {
-          // Guardar en cache
           await apartmentCacheService.setCachedApartments(
             userDoc,
             proyectoNIT,
@@ -137,7 +136,6 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
 
           setApartamentos(response.data);
 
-          // Auto-seleccionar apartamento usando helper
           await autoSelectApartment(
             response.data,
             setSelectedApartment,
@@ -147,10 +145,11 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Error cargando apartamentos:", error);
       } finally {
+        loadingRef.current = false;
         setIsLoadingApartments(false);
       }
     },
-    [user, saveApartmentContext, isLoadingApartments]
+    [user, saveApartmentContext]
   );
 
   // Función para seleccionar apartamento con contexto
@@ -171,6 +170,7 @@ export function ApartmentProvider({ children }: { children: ReactNode }) {
     setSelectedApartment(null);
     setApartamentos([]);
     setIsLoadingApartments(false);
+    loadingRef.current = false;
   }, []);
 
   // Efecto para limpiar en logout

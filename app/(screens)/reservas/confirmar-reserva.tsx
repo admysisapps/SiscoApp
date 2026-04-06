@@ -18,7 +18,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useNavigation, CommonActions } from "@react-navigation/native";
 import dayjs from "dayjs";
 import Toast from "@/components/Toast";
 import { reservaService } from "@/services/reservaService";
@@ -38,7 +37,6 @@ const calcularHoraFin = (
 
 export default function ConfirmarReservaScreen() {
   const params = useLocalSearchParams();
-  const navigation = useNavigation();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [loading, setLoading] = useState(false);
   const [motivo, setMotivo] = useState("");
@@ -184,22 +182,13 @@ export default function ConfirmarReservaScreen() {
       if (response.success) {
         showToast(response.mensaje || "Reserva creada exitosamente", "success");
 
-        // Limpiar timer anterior si existe
         if (timerRef.current) {
           clearTimeout(timerRef.current);
         }
 
-        // Guardar referencia del timer para poder limpiarlo
         timerRef.current = setTimeout(() => {
           timerRef.current = null;
-
-          // Reset completo del stack de navegación
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{ name: "(tabs)" }],
-            })
-          );
+          router.dismissAll();
         }, 2000);
       } else {
         showToast(response.error || "Error al crear la reserva", "error");
