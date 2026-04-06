@@ -3,52 +3,10 @@ import { CuentaCobro } from "@/types/cuentaCobro";
 import React, { useMemo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { DetalleCuentaModal } from "../DetalleCuentaModal";
+import { useCuentaCobro } from "@/hooks/useCuentaCobro";
 
 // Mock data - Ejemplo con fechas actuales (Enero 2026)
-const mockCuentaCobro: CuentaCobro = {
-  unidad: 102,
-  tipo: "Cuenta de Cobro",
-  param: {
-    fecha_desc: "2026-03-30",
-    porcentaje_desc: 10.0,
-  },
-  movimientos: [
-    {
-      periodo: "03-2026",
-      saldo_ini_deuda: 450000.0,
-      saldo_ini_ant: -50000.0,
-      detalle: [
-        {
-          descrip: "CUOTA DE ADMINISTRACION",
-          cuota: 280000.0,
-          anticipos: -30000.0,
-        },
-        {
-          descrip: "PARQUEADERO CARRO (P-45)",
-          cuota: 110000.0,
-          anticipos: 0,
-        },
-        {
-          descrip: "SERVICIO DE CASILLERO",
-          cuota: 15000.0,
-          anticipos: 0,
-        },
-        {
-          descrip: "MULTA CONVIVENCIA (RUIDO)",
-          cuota: 140000.0,
-          anticipos: 0,
-        },
-        {
-          descrip: "FONDO DE IMPREVISTOS",
-          cuota: 3000.0,
-          anticipos: 0,
-        },
-      ],
-    },
-  ],
-  saldo_sin_desc: 1000500,
-  saldo_con_desc: 972500,
-};
+// TODO: eliminar cuando exista el endpoint real
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("es-CO", {
@@ -72,6 +30,7 @@ const calcularDescuento = (fechaDesc: string) => {
 
 const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
   const [modalVisible, setModalVisible] = useState(false);
+  const { cuentaCobro } = useCuentaCobro();
 
   const {
     descuentoActivo,
@@ -81,12 +40,22 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
     serviciosBasicos,
     extras,
   } = useMemo(() => {
+    if (!cuentaCobro)
+      return {
+        descuentoActivo: false,
+        ahorro: 0,
+        movimiento: null,
+        subtotalConceptos: 0,
+        diasRestantes: 0,
+        serviciosBasicos: [],
+        extras: [],
+      };
+
     const { activo: descuentoActivo, diasRestantes } = calcularDescuento(
-      mockCuentaCobro.param.fecha_desc
+      cuentaCobro.param.fecha_desc
     );
-    const ahorro =
-      mockCuentaCobro.saldo_sin_desc - mockCuentaCobro.saldo_con_desc;
-    const movimiento = mockCuentaCobro.movimientos[0];
+    const ahorro = cuentaCobro.saldo_sin_desc - cuentaCobro.saldo_con_desc;
+    const movimiento = cuentaCobro.movimientos[0];
     const subtotalConceptos =
       movimiento?.detalle.reduce((sum, item) => sum + item.cuota, 0) || 0;
 
@@ -113,7 +82,9 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
       serviciosBasicos,
       extras,
     };
-  }, []);
+  }, [cuentaCobro]);
+
+  if (!cuentaCobro) return null;
 
   return (
     <View style={styles.container}>
@@ -127,7 +98,7 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
           <View style={styles.headerTop}>
             <View>
               <Text style={styles.receiptTitle}>
-                Unidad {mockCuentaCobro.unidad}
+                Unidad {cuentaCobro.unidad}
               </Text>
               <Text style={styles.receiptPeriod}>
                 Período {movimiento?.periodo}
@@ -169,19 +140,20 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
         )}
 
         {/* Deuda y saldos */}
-        {(movimiento?.saldo_ini_deuda > 0 || movimiento?.saldo_ini_ant < 0) && (
+        {((movimiento?.saldo_ini_deuda ?? 0) > 0 ||
+          (movimiento?.saldo_ini_ant ?? 0) < 0) && (
           <View style={styles.section}>
-            {movimiento?.saldo_ini_deuda > 0 && (
+            {(movimiento?.saldo_ini_deuda ?? 0) > 0 && (
               <View style={styles.receiptRow}>
                 <Text style={[styles.receiptLabel, { color: "#EF4444" }]}>
                   Deuda anterior
                 </Text>
                 <Text style={[styles.receiptValue, { color: "#EF4444" }]}>
-                  {formatCurrency(movimiento.saldo_ini_deuda)}
+                  {formatCurrency(movimiento?.saldo_ini_deuda ?? 0)}
                 </Text>
               </View>
             )}
-            {movimiento?.saldo_ini_ant < 0 && (
+            {(movimiento?.saldo_ini_ant ?? 0) < 0 && (
               <View style={styles.receiptRow}>
                 <Text
                   style={[styles.receiptLabel, { color: THEME.colors.success }]}
@@ -191,7 +163,7 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
                 <Text
                   style={[styles.receiptValue, { color: THEME.colors.success }]}
                 >
-                  -{formatCurrency(Math.abs(movimiento.saldo_ini_ant))}
+                  -{formatCurrency(Math.abs(movimiento?.saldo_ini_ant ?? 0))}
                 </Text>
               </View>
             )}
@@ -204,13 +176,13 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
             <View style={styles.discountRow}>
               <View style={styles.discountInfo}>
                 <Text style={styles.discountLabel}>
-                  Descuento {mockCuentaCobro.param.porcentaje_desc}%
+                  Descuento {cuentaCobro.param.porcentaje_desc}%
                 </Text>
               </View>
             </View>
             <Text style={styles.discountHint}>
               Válido hasta el{" "}
-              {mockCuentaCobro.param.fecha_desc.split("-").reverse().join("/")}
+              {cuentaCobro.param.fecha_desc.split("-").reverse().join("/")}
             </Text>
           </View>
         )}
@@ -223,8 +195,8 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
           <Text style={styles.receiptTotalValue}>
             {formatCurrency(
               descuentoActivo
-                ? mockCuentaCobro.saldo_con_desc
-                : mockCuentaCobro.saldo_sin_desc
+                ? cuentaCobro.saldo_con_desc
+                : cuentaCobro.saldo_sin_desc
             )}
           </Text>
         </View>
@@ -233,7 +205,7 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
       <DetalleCuentaModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        cuentaCobro={mockCuentaCobro}
+        cuentaCobro={cuentaCobro}
         formatCurrency={formatCurrency}
         descuentoActivo={descuentoActivo}
         ahorro={ahorro}

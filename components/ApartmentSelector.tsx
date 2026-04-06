@@ -181,7 +181,7 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
             end={{ x: 1, y: 1 }}
             style={styles.iconContainer}
           >
-            <FontAwesome5 name="home" size={16} color="white" />
+            <FontAwesome5 name="home" size={18} color="white" />
           </LinearGradient>
           <View style={styles.contentContainer}>
             <Text style={styles.apartmentNumber}>Sin unidad asignada</Text>
@@ -207,7 +207,7 @@ const ApartmentSelector = React.memo(function ApartmentSelector() {
           end={{ x: 1, y: 1 }}
           style={styles.iconContainer}
         >
-          <FontAwesome5 name="home" size={16} color="white" />
+          <FontAwesome5 name="home" size={18} color="white" />
         </LinearGradient>
 
         <View style={styles.contentContainer}>
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: THEME.colors.surface,
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
     borderRadius: 50,
     borderWidth: 1,
     borderColor: THEME.colors.border,
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
-    gap: 8,
+    gap: 12,
   },
   iconContainer: {
     width: 36,
