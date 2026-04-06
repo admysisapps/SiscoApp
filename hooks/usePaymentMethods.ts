@@ -1,4 +1,3 @@
-// hooks/usePaymentMethods.ts
 import { useState, useCallback } from "react";
 import { CuentaPago } from "@/types/CuentaPago";
 import { cuentasPagoService } from "@/services/cuentasPagoService";
