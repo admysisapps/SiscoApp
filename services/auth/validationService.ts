@@ -2,10 +2,8 @@ const BASE_URL = "https://kberc0s7n3.execute-api.us-east-1.amazonaws.com";
 
 export interface ValidationResult {
   success: boolean;
-  message?: string;
   error?: string;
   email?: string;
-  proyecto_nit?: string;
 }
 
 // Helper para hacer requests HTTP con validación
@@ -77,10 +75,7 @@ export const validationService = {
       if (result.success) {
         return {
           success: true,
-          message:
-            result.message || "Usuario validado y preparado correctamente",
           email: result.email,
-          proyecto_nit: result.proyecto_nit,
         };
       } else {
         return {

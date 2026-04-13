@@ -1,9 +1,11 @@
+import { openURL } from "@/utils/linkingHelper";
 import Toast from "@/components/Toast";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { COLORS, THEME } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { validationService } from "@/services/auth/validationService";
+import { AuthError } from "@/services/auth/authService";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -26,6 +28,7 @@ export default function SignUp() {
   const [codigoInvitacion, setCodigoInvitacion] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -37,6 +40,7 @@ export default function SignUp() {
     codigoInvitacion?: string;
     password?: string;
     confirmPassword?: string;
+    terminos?: string;
   }>({});
 
   const { register } = useAuth();
@@ -128,7 +132,7 @@ export default function SignUp() {
   };
 
   // Obtener mensaje de error específico de Cognito
-  const getCognitoErrorMessage = (error: any): string => {
+  const getCognitoErrorMessage = (error: AuthError): string => {
     switch (error.name) {
       case "UsernameExistsException":
         return "Ya existe un usuario con este documento";
@@ -215,6 +219,11 @@ export default function SignUp() {
       hasErrors = true;
     }
 
+    if (!aceptaTerminos) {
+      setFieldError("terminos", "Debes aceptar los términos y condiciones");
+      hasErrors = true;
+    }
+
     if (hasErrors) {
       return;
     }
@@ -242,18 +251,24 @@ export default function SignUp() {
 
       // Usar el email devuelto por la validación (puede ser diferente al ingresado)
       const validatedEmail = validation.email || email;
-      const proyectoNit = validation.proyecto_nit;
 
       await register(cedula, password, validatedEmail);
 
       showToast("Registro exitoso. Revisa tu correo para confirmar", "success");
 
-      const confirmUrl = `/(auth)/confirm?username=${encodeURIComponent(cedula)}&email=${encodeURIComponent(validatedEmail)}&proyecto_nit=${encodeURIComponent(proyectoNit || "")}`;
-      router.push(confirmUrl as any);
+      const confirmParams = {
+        username: cedula,
+        email: validatedEmail,
+      };
+      router.push({
+        pathname: "/(auth)/confirm",
+        params: confirmParams,
+      });
       // No hideLoading() aquí - se mantendrá hasta confirm
-    } catch (error: any) {
-      console.error("SIGNUP error:", error.message || error);
-      const errorMessage = getCognitoErrorMessage(error);
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      console.error("SIGNUP error:", authError.message || error);
+      const errorMessage = getCognitoErrorMessage(authError);
       showToast(errorMessage, "error");
       hideLoading();
     }
@@ -494,12 +509,58 @@ export default function SignUp() {
               )}
             </View>
 
+            {/* Términos y Condiciones */}
+            <View style={styles.terminosContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  setAceptaTerminos(!aceptaTerminos);
+                  if (fieldErrors.terminos) clearFieldError("terminos");
+                }}
+                style={styles.terminosCheckbox}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={aceptaTerminos ? "checkbox" : "square-outline"}
+                  size={22}
+                  color={fieldErrors.terminos ? COLORS.error : COLORS.primary}
+                />
+              </TouchableOpacity>
+              <View style={styles.terminosTextoContainer}>
+                <Text style={styles.terminosTexto}>
+                  He leído y acepto los{" "}
+                  <Text
+                    style={styles.terminosLink}
+                    onPress={() =>
+                      openURL("https://admysis.com/home", (msg) =>
+                        showToast(msg, "error")
+                      )
+                    }
+                  >
+                    Términos y Condiciones
+                  </Text>{" "}
+                  y la{" "}
+                  <Text
+                    style={styles.terminosLink}
+                    onPress={() =>
+                      openURL("https://admysis.com/home", (msg) =>
+                        showToast(msg, "error")
+                      )
+                    }
+                  >
+                    Política de Privacidad
+                  </Text>
+                </Text>
+                {fieldErrors.terminos && (
+                  <Text style={styles.terminosError}>
+                    {fieldErrors.terminos}
+                  </Text>
+                )}
+              </View>
+            </View>
+
             {/* Botón de registro */}
             <TouchableOpacity
-              style={[
-                styles.registerButton,
-                isLoading && styles.buttonDisabled,
-              ]}
+              style={styles.registerButton}
               onPress={handleSignUp}
               disabled={isLoading}
             >
@@ -661,7 +722,31 @@ const styles = StyleSheet.create({
     marginBottom: THEME.spacing.sm,
     marginLeft: THEME.spacing.sm,
   },
-  buttonDisabled: {
-    // Sin cambios visuales, solo previene múltiples clics
+  terminosContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: THEME.spacing.md,
+    gap: THEME.spacing.sm,
+  },
+  terminosCheckbox: {
+    paddingTop: 1,
+  },
+  terminosTextoContainer: {
+    flex: 1,
+  },
+  terminosTexto: {
+    fontSize: THEME.fontSize.sm,
+    color: COLORS.text.secondary,
+    lineHeight: 20,
+  },
+  terminosLink: {
+    color: COLORS.primary,
+    fontWeight: "600",
+  },
+  terminosError: {
+    color: COLORS.error,
+    fontSize: THEME.fontSize.xs,
+    marginTop: THEME.spacing.xs,
+    marginLeft: 2,
   },
 });
