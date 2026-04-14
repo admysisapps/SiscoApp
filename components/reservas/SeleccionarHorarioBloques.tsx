@@ -442,7 +442,7 @@ export default function SeleccionarHorarioBloques({
                 : primeraHora;
 
               router.push({
-                pathname: "/(screens)/reservas/confirmar-reserva" as any,
+                pathname: "/(screens)/reservas/confirmar-reserva",
                 params: {
                   espacioId,
                   espacioNombre,

@@ -158,13 +158,13 @@ export default function Confirm() {
     showLoading("Confirmando cuenta...");
     try {
       await confirmRegistration(username, code);
-      hideLoading();
 
-      // Navegar inmediatamente
+      // No hideLoading() aquí - lo maneja registration-success en su useEffect
       const finalEmail = updatedEmail || email || userEmail || "";
-      router.push(
-        `/(auth)/registration-success?username=${encodeURIComponent(username)}&email=${encodeURIComponent(finalEmail)}`
-      );
+      router.replace({
+        pathname: "/(auth)/registration-success",
+        params: { username, email: finalEmail },
+      });
     } catch (error: any) {
       const errorMessage = getCognitoErrorMessage(error);
       showToast(errorMessage, "error");

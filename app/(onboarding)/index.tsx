@@ -14,6 +14,8 @@ import { THEME, COLORS } from "@/constants/theme";
 
 const { width, height } = Dimensions.get("window");
 
+type AuthPath = "/(auth)/signup" | "/(auth)/login";
+
 export default function OnboardingWelcome() {
   const router = useRouter();
   const animationRef = useRef<LottieView>(null);
@@ -30,13 +32,13 @@ export default function OnboardingWelcome() {
     }, [])
   );
 
-  const completeOnboarding = async (path: string) => {
+  const completeOnboarding = async (path: AuthPath) => {
     try {
       await AsyncStorage.setItem("onboardingSeen", "true");
-      router.push(path as any);
+      router.push({ pathname: path });
     } catch (error) {
       console.error("Error setting onboarding seen:", error);
-      router.push(path as any);
+      router.push({ pathname: path });
     }
   };
 

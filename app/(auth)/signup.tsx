@@ -254,8 +254,6 @@ export default function SignUp() {
 
       await register(cedula, password, validatedEmail);
 
-      showToast("Registro exitoso. Revisa tu correo para confirmar", "success");
-
       const confirmParams = {
         username: cedula,
         email: validatedEmail,

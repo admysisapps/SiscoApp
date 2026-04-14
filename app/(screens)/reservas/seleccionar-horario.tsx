@@ -220,7 +220,7 @@ export default function SeleccionarHorarioScreen() {
             setConflictoModal({ ...conflictoModal, visible: false });
 
             router.push({
-              pathname: "/(screens)/reservas/confirmar-reserva" as any,
+              pathname: "/(screens)/reservas/confirmar-reserva",
               params: {
                 espacioId,
                 espacioNombre,

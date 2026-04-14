@@ -557,8 +557,7 @@ export default function CrearReservaScreen() {
                   style={styles.continueButton}
                   onPress={() => {
                     router.push({
-                      pathname:
-                        "/(screens)/reservas/seleccionar-horario" as any,
+                      pathname: "/(screens)/reservas/seleccionar-horario",
                       params: {
                         espacioId: espacioSeleccionado.id,
                         espacioNombre: espacioSeleccionado.nombre,

@@ -26,14 +26,6 @@ import { asistenciaService } from "@/services/asistenciaService";
 
 const { height } = Dimensions.get("window");
 
-// Helper para construir URL de confirmación
-const buildConfirmUrl = (username: string): string => {
-  const emailParam = username.includes("@")
-    ? `&email=${encodeURIComponent(username)}`
-    : "";
-  return `/(auth)/confirm?username=${encodeURIComponent(username)}${emailParam}`;
-};
-
 const Login = React.memo(function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -150,21 +142,28 @@ const Login = React.memo(function Login() {
         "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
       ) {
         // Usuario debe cambiar contraseña (challenge)
-        router.push(
-          `/(auth)/force-password-change?username=${encodeURIComponent(cleanUsername)}`
-        );
+        router.push({
+          pathname: "/(auth)/force-password-change",
+          params: { username: cleanUsername },
+        });
         return;
       }
     } catch (error: any) {
       let message = "Error al iniciar sesión";
       let shouldNavigate = false;
-      let navigateUrl = "";
+      let navigateTarget:
+        | { pathname: "/(auth)/confirm"; params: { username: string } }
+        | { pathname: "/(auth)/forgot-password" }
+        | null = null;
 
       if (error.name === "UserNotConfirmedException") {
         message =
           "Tu cuenta no ha sido confirmada. Te redirigiremos para completar la verificación.";
         shouldNavigate = true;
-        navigateUrl = buildConfirmUrl(cleanUsername);
+        navigateTarget = {
+          pathname: "/(auth)/confirm",
+          params: { username: cleanUsername },
+        };
       } else if (
         error.name === "PasswordResetRequiredException" ||
         error.__type === "PasswordResetRequiredException"
@@ -172,7 +171,7 @@ const Login = React.memo(function Login() {
         message =
           "Debes cambiar tu contraseña. Te redirigiremos para establecer una nueva.";
         shouldNavigate = true;
-        navigateUrl = "/(auth)/forgot-password";
+        navigateTarget = { pathname: "/(auth)/forgot-password" };
       } else if (
         error.name === "NotAuthorizedException" ||
         error.name === "NotAuthorized"
@@ -198,14 +197,13 @@ const Login = React.memo(function Login() {
         message = "La conexión está muy lenta. Inténtalo de nuevo.";
       }
 
-      // Mostrar toast con delay para evitar conflictos
       setTimeout(() => {
         showToast(message, "error");
 
-        // Navegar después del toast si es necesario
-        if (shouldNavigate) {
+        if (shouldNavigate && navigateTarget) {
           setTimeout(() => {
-            router.push(navigateUrl as any);
+            console.log("[Login] → navegando desde catch", navigateTarget);
+            router.push(navigateTarget!);
           }, 2000);
         }
       }, 100);
@@ -461,8 +459,10 @@ const Login = React.memo(function Login() {
         confirmText="Continuar"
         onConfirm={() => {
           setShowConfirmModal(false);
-          const confirmUrl = buildConfirmUrl(username);
-          router.push(confirmUrl as any);
+          router.push({
+            pathname: "/(auth)/confirm",
+            params: { username },
+          });
         }}
         onCancel={() => setShowConfirmModal(false)}
       />
