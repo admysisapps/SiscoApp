@@ -20,4 +20,5 @@ export interface IButton {
   withPressAnimation?: boolean;
   animationDuration?: number;
   disabled?: boolean;
+  fullWidth?: boolean;
 }

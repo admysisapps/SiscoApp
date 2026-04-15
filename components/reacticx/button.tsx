@@ -38,6 +38,7 @@ const ButtonComponent: React.FC<IButton> = memo<IButton>(
     showLoadingIndicator = false,
     renderLoadingIndicator,
     loadingTextBackgroundColor = "#cacaca",
+    fullWidth = false,
   }: IButton) => {
     const animationProgress = useSharedValue<number>(isLoading ? 1 : 0);
     const scaleValue = useSharedValue<number>(1);
@@ -50,6 +51,8 @@ const ButtonComponent: React.FC<IButton> = memo<IButton>(
     }, [isLoading, animationDuration, animationProgress]);
 
     const calculatedBorderRadius = borderRadius ?? height / 2;
+
+    const resolvedWidth = fullWidth ? "100%" : width;
 
     const contentAnimatedStylez = useAnimatedStyle<
       Pick<ViewStyle, "transform" | "opacity">
@@ -133,7 +136,7 @@ const ButtonComponent: React.FC<IButton> = memo<IButton>(
           style={[
             styles.button,
             {
-              width,
+              width: resolvedWidth,
               height,
               borderRadius: calculatedBorderRadius,
             },
@@ -148,7 +151,7 @@ const ButtonComponent: React.FC<IButton> = memo<IButton>(
         style={[
           styles.button,
           {
-            width,
+            width: resolvedWidth,
             height,
             backgroundColor,
             borderRadius: calculatedBorderRadius,
@@ -169,6 +172,7 @@ const ButtonComponent: React.FC<IButton> = memo<IButton>(
         onPressOut={handlePressOut}
         style={({ pressed }) => [
           styles.pressable,
+          fullWidth && styles.pressableFullWidth,
           Platform.OS === "ios" && pressed && styles.pressed,
         ]}
         accessible={true}
@@ -188,6 +192,10 @@ export const Button = ButtonComponent;
 const styles = StyleSheet.create({
   pressable: {
     width: "100%",
+  },
+  pressableFullWidth: {
+    width: "100%",
+    alignSelf: "stretch",
   },
   pressed: {
     opacity: 0.9,
