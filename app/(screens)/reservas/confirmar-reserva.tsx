@@ -334,7 +334,7 @@ export default function ConfirmarReservaScreen() {
             loadingTextBackgroundColor={THEME.colors.success}
             height={56}
             borderRadius={12}
-            style={{ width: "100%" }}
+            fullWidth
           >
             <Text style={styles.confirmarButtonText}>Confirmar Reserva</Text>
           </Button>

@@ -1333,7 +1333,7 @@ export default function CrearEspacioScreen() {
               loadingTextBackgroundColor={THEME.colors.success}
               height={56}
               borderRadius={12}
-              style={{ width: "100%" }}
+              fullWidth
             >
               <Text style={styles.createButtonText}>
                 {isEditMode ? "Guardar Cambios" : "Crear Zona Común"}

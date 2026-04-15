@@ -451,7 +451,7 @@ export default function CreatePQRScreen() {
 
           {/* Botón submit fijo abajo */}
           <View style={styles.fixedBottom}>
-            <View testID="button-enviar-pqr" style={{ width: "100%" }}>
+            <View testID="button-enviar-pqr">
               <Button
                 isLoading={loading}
                 onPress={handleSubmit}
@@ -461,7 +461,7 @@ export default function CreatePQRScreen() {
                 loadingTextBackgroundColor={THEME.colors.indigo}
                 height={56}
                 borderRadius={12}
-                style={{ width: "100%" }}
+                fullWidth
               >
                 <Text style={styles.submitText}>Enviar PQR</Text>
               </Button>

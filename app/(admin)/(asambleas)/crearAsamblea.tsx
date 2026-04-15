@@ -536,7 +536,7 @@ export default function CrearAsambleaScreen() {
                 loadingTextBackgroundColor={THEME.colors.primary}
                 height={56}
                 borderRadius={12}
-                style={{ width: "100%" }}
+                fullWidth
               >
                 <Text style={styles.submitText}>Crear Asamblea</Text>
               </Button>
