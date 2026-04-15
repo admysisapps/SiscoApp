@@ -1,5 +1,5 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState, useEffect, useCallback, useRef, memo } from "react";
 import { router } from "expo-router";
 import {
   Image,
@@ -12,24 +12,26 @@ import {
   StatusBar,
   Dimensions,
 } from "react-native";
+import type { StyleProp, ImageStyle, ViewStyle } from "react-native";
 
 import CrearPublicacionForm from "./CrearPublicacionForm";
 import MisPublicaciones from "./MisPublicaciones";
-import { publicacionesService } from "../../services/publicacionesService";
-import { Publicacion, TipoPublicacion } from "../../types/publicaciones";
-import { s3Service } from "../../services/s3Service";
-import { useProject } from "../../contexts/ProjectContext";
-import { THEME } from "../../constants/theme";
-import ScreenHeader from "../shared/ScreenHeader";
+import { publicacionesService } from "@/services/publicacionesService";
+import { Publicacion, TipoPublicacion } from "@/types/publicaciones";
+import { s3Service } from "@/services/s3Service";
+import { useProject } from "@/contexts/ProjectContext";
+import { THEME } from "@/constants/theme";
+import ScreenHeader from "@/components/shared/ScreenHeader";
+import { eventBus, EVENTS } from "@/utils/eventBus";
 
-function PublicacionImage({
+const PublicacionImage = memo(function PublicacionImage({
   archivos,
   tipo,
   style,
 }: {
   archivos: string[] | null;
   tipo: TipoPublicacion;
-  style?: any;
+  style?: StyleProp<ImageStyle> & StyleProp<ViewStyle>;
 }) {
   const { selectedProject } = useProject();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -73,15 +75,74 @@ function PublicacionImage({
   }
 
   return null;
+});
+
+interface PublicacionCardProps {
+  publicacion: Publicacion;
+  cardHeight: number;
+  onPress: (publicacion: Publicacion) => void;
 }
+
+const PublicacionCard = memo(function PublicacionCard({
+  publicacion,
+  cardHeight,
+  onPress,
+}: PublicacionCardProps) {
+  return (
+    <TouchableOpacity
+      style={[styles.masonryCard, { height: cardHeight }]}
+      onPress={() => onPress(publicacion)}
+      activeOpacity={0.9}
+    >
+      {publicacion.archivos_nombres?.length ? (
+        <PublicacionImage
+          archivos={publicacion.archivos_nombres}
+          tipo={publicacion.tipo}
+          style={styles.masonryImage}
+        />
+      ) : (
+        <View style={styles.masonryNoImage}>
+          <Ionicons
+            name={
+              publicacion.tipo === "productos"
+                ? "bag-handle"
+                : publicacion.tipo === "servicios"
+                  ? "construct"
+                  : "home"
+            }
+            size={28}
+            color="#9CA3AF"
+          />
+        </View>
+      )}
+
+      <View style={styles.masonryContent}>
+        <Text style={styles.masonryTitle} numberOfLines={2}>
+          {publicacion.titulo || "Sin título"}
+        </Text>
+        {publicacion.precio > 0 && (
+          <Text style={styles.masonryPrice}>
+            $
+            {publicacion.precio
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+          </Text>
+        )}
+        {publicacion.negociable ? (
+          <Text style={styles.masonryNegotiable}>Negociable</Text>
+        ) : null}
+      </View>
+    </TouchableOpacity>
+  );
+});
 
 const { width: screenWidth } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 const numColumns = isTablet ? 3 : 2;
 
 export default function TableroPublicaciones() {
-  const [tabActiva, setTabActiva] = useState<"inicio" | "mis-anuncios">(
-    "inicio"
+  const [tabActiva, setTabActiva] = useState<"anuncios" | "mis-anuncios">(
+    "anuncios"
   );
   const [mostrarFormularioCrear, setMostrarFormularioCrear] = useState(false);
 
@@ -91,197 +152,89 @@ export default function TableroPublicaciones() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
-  // Cache para optimizar filtros
-  const [cache, setCache] = useState<
-    Record<
-      string,
-      {
-        publicaciones: Publicacion[];
-        page: number;
-        hasMore: boolean;
+  const isLoadingRef = useRef(false);
+
+  const cargarPublicaciones = useCallback(async (nuevaPagina: number = 1) => {
+    if (isLoadingRef.current) return;
+
+    isLoadingRef.current = true;
+    setIsLoading(true);
+
+    try {
+      const response = await publicacionesService.listarPublicaciones({
+        pagina: nuevaPagina,
+        limite: 12,
+        filtros: {},
+      });
+
+      const incoming = response.publicaciones;
+      if (nuevaPagina === 1) {
+        setPublicaciones(incoming);
+      } else {
+        setPublicaciones((prev) => [...prev, ...incoming]);
       }
-    >
-  >({});
+      setHasMore(response.hay_mas);
+      setPage(nuevaPagina);
+    } catch (error) {
+      console.error("[TableroPublicaciones] error en fetch:", error);
+    } finally {
+      isLoadingRef.current = false;
+      setIsLoading(false);
+    }
+  }, []);
 
-  // Ref para evitar dependencias circulares
-  const cargarPublicacionesRef = useRef<
-    ((nuevaPagina?: number, resetear?: boolean) => Promise<void>) | null
-  >(null);
-
-  const cargarPublicaciones = useCallback(
-    async (nuevaPagina: number = 1, resetear: boolean = false) => {
-      if (isLoading) return;
-
-      const cacheKey = "todas";
-
-      // Si es resetear y tenemos cache, usar cache
-      if (resetear && cache[cacheKey]) {
-        const cachedData = cache[cacheKey];
-        setPublicaciones(cachedData.publicaciones);
-        setPage(cachedData.page);
-        setHasMore(cachedData.hasMore);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const response = await publicacionesService.listarPublicaciones({
-          pagina: nuevaPagina,
-          limite: 12,
-          filtros: {},
-        });
-
-        if (response.success && response.publicaciones) {
-          let nuevasPublicaciones: Publicacion[];
-
-          if (resetear || nuevaPagina === 1) {
-            nuevasPublicaciones = response.publicaciones;
-            setPublicaciones(nuevasPublicaciones);
-          } else {
-            setPublicaciones((prev) => {
-              nuevasPublicaciones = [...prev, ...response.publicaciones];
-              return nuevasPublicaciones;
-            });
-          }
-
-          const newHasMore = response.hay_mas || false;
-          setHasMore(newHasMore);
-          setPage(nuevaPagina);
-
-          // Actualizar cache
-          setCache((prev) => ({
-            ...prev,
-            [cacheKey]: {
-              publicaciones: nuevasPublicaciones!,
-              page: nuevaPagina,
-              hasMore: newHasMore,
-            },
-          }));
-        }
-      } catch (error) {
-        console.error("Error cargando publicaciones:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [isLoading, cache]
-  );
-
-  // Actualizar ref
   useEffect(() => {
-    cargarPublicacionesRef.current = cargarPublicaciones;
-  }, [cargarPublicaciones]);
+    const handlePublicacionUpdated = ({ id }: { id: number }) => {
+      setPublicaciones((prev) => prev.filter((p) => p.id !== id));
+    };
+
+    eventBus.on(EVENTS.PUBLICACION_REMOVED_FROM_FEED, handlePublicacionUpdated);
+    return () => {
+      eventBus.off(
+        EVENTS.PUBLICACION_REMOVED_FROM_FEED,
+        handlePublicacionUpdated
+      );
+    };
+  }, []);
 
   const loadMoreData = useCallback(() => {
-    if (isLoading || !hasMore) return;
-    cargarPublicaciones(page + 1, false);
-  }, [page, isLoading, hasMore, cargarPublicaciones]);
+    if (isLoadingRef.current || !hasMore) return;
+    cargarPublicaciones(page + 1);
+  }, [page, hasMore, cargarPublicaciones]);
 
   useEffect(() => {
-    if (tabActiva === "inicio") {
-      setPublicaciones([]);
-      setPage(1);
-      setHasMore(true);
-      cargarPublicacionesRef.current?.(1, true);
-    }
-  }, [tabActiva]);
+    cargarPublicaciones(1);
+  }, [cargarPublicaciones]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     setPublicaciones([]);
     setPage(1);
     setHasMore(true);
-
-    const cacheKey = "todas";
-    setCache((prev) => {
-      const newCache = { ...prev };
-      delete newCache[cacheKey];
-      return newCache;
-    });
-
-    await cargarPublicaciones(1, false);
+    await cargarPublicaciones(1);
     setRefreshing(false);
   }, [cargarPublicaciones]);
 
-  const handleEndReached = useCallback(() => {
-    loadMoreData();
-  }, [loadMoreData]);
-
-  const abrirDetallePublicacion = (publicacion: Publicacion) => {
+  const abrirDetallePublicacion = useCallback((publicacion: Publicacion) => {
     router.push({
       pathname: "/(screens)/publicaciones/PublicacionDetalleScreen",
       params: { publicacion: JSON.stringify(publicacion) },
     });
-  };
+  }, []);
 
-  const getCardHeight = (index: number) => {
+  const getCardHeight = useCallback((index: number) => {
     const heights = [280, 200, 240, 220, 260, 180];
     return heights[index % heights.length];
-  };
-
-  const renderPublicacionCard = (
-    publicacion: Publicacion,
-    keyId: number,
-    columnId: string
-  ) => {
-    const cardHeight = getCardHeight(keyId);
-
-    return (
-      <TouchableOpacity
-        key={`${columnId}-${publicacion.id}-${keyId}`}
-        style={[styles.masonryCard, { height: cardHeight }]}
-        onPress={() => abrirDetallePublicacion(publicacion)}
-        activeOpacity={0.9}
-      >
-        {publicacion.archivos_nombres?.length ? (
-          <PublicacionImage
-            archivos={publicacion.archivos_nombres}
-            tipo={publicacion.tipo}
-            style={styles.masonryImage}
-          />
-        ) : (
-          <View style={styles.masonryNoImage}>
-            {publicacion.tipo === "productos" ? (
-              <MaterialIcons name="emoji-objects" size={28} color="#9CA3AF" />
-            ) : (
-              <Ionicons
-                name={publicacion.tipo === "servicios" ? "construct" : "home"}
-                size={28}
-                color="#9CA3AF"
-              />
-            )}
-          </View>
-        )}
-
-        <View style={styles.masonryContent}>
-          <Text style={styles.masonryTitle} numberOfLines={2}>
-            {publicacion.titulo || "Sin título"}
-          </Text>
-          {publicacion.precio > 0 && (
-            <Text style={styles.masonryPrice}>
-              $
-              {publicacion.precio
-                .toString()
-                .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
-            </Text>
-          )}
-          {publicacion.negociable ? (
-            <Text style={styles.masonryNegotiable}>Negociable</Text>
-          ) : null}
-        </View>
-      </TouchableOpacity>
-    );
-  };
+  }, []);
 
   if (mostrarFormularioCrear) {
     return (
       <CrearPublicacionForm
         onClose={async () => {
           setMostrarFormularioCrear(false);
-          setCache({});
           setPublicaciones([]);
           setPage(1);
-          await cargarPublicaciones(1, false);
+          await cargarPublicaciones(1);
         }}
       />
     );
@@ -296,14 +249,14 @@ export default function TableroPublicaciones() {
         {/* Tabs */}
         <View style={styles.tabsContainer}>
           <TouchableOpacity
-            style={[styles.tab, tabActiva === "inicio" && styles.tabActive]}
-            onPress={() => setTabActiva("inicio")}
+            style={[styles.tab, tabActiva === "anuncios" && styles.tabActive]}
+            onPress={() => setTabActiva("anuncios")}
           >
             <Ionicons
-              name="home"
+              name="storefront-outline"
               size={20}
               color={
-                tabActiva === "inicio"
+                tabActiva === "anuncios"
                   ? THEME.colors.primary
                   : THEME.colors.text.secondary
               }
@@ -311,10 +264,10 @@ export default function TableroPublicaciones() {
             <Text
               style={[
                 styles.tabText,
-                tabActiva === "inicio" && styles.tabTextActive,
+                tabActiva === "anuncios" && styles.tabTextActive,
               ]}
             >
-              Inicio
+              Anuncios
             </Text>
           </TouchableOpacity>
 
@@ -326,7 +279,7 @@ export default function TableroPublicaciones() {
             onPress={() => setTabActiva("mis-anuncios")}
           >
             <Ionicons
-              name="list"
+              name="receipt-outline"
               size={20}
               color={
                 tabActiva === "mis-anuncios"
@@ -346,7 +299,7 @@ export default function TableroPublicaciones() {
         </View>
 
         {/* Contenido según tab activa */}
-        {tabActiva === "inicio" ? (
+        {tabActiva === "anuncios" ? (
           <ScrollView
             style={styles.mainScrollView}
             refreshControl={
@@ -367,7 +320,7 @@ export default function TableroPublicaciones() {
                 layoutMeasurement.height + contentOffset.y >=
                   contentSize.height - paddingToBottom
               ) {
-                handleEndReached();
+                loadMoreData();
               }
             }}
             scrollEventThrottle={16}
@@ -393,13 +346,14 @@ export default function TableroPublicaciones() {
                 <View key={columnIndex} style={styles.masonryColumn}>
                   {publicaciones
                     .filter((_, index) => index % numColumns === columnIndex)
-                    .map((publicacion, mapIndex) =>
-                      renderPublicacionCard(
-                        publicacion,
-                        mapIndex,
-                        `column-${columnIndex}`
-                      )
-                    )}
+                    .map((publicacion, mapIndex) => (
+                      <PublicacionCard
+                        key={`col-${columnIndex}-${publicacion.id}`}
+                        publicacion={publicacion}
+                        cardHeight={getCardHeight(mapIndex)}
+                        onPress={abrirDetallePublicacion}
+                      />
+                    ))}
                   {/* Loading skeletons */}
                   {isLoading && (
                     <View
@@ -439,9 +393,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  searchButton: {
-    padding: 8,
   },
   tabsContainer: {
     flexDirection: "row",

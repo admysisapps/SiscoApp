@@ -12,7 +12,6 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Toast from "../Toast";
 import { THEME } from "../../constants/theme";
 
 interface BloquearPublicacionModalProps {
@@ -30,40 +29,19 @@ export default function BloquearPublicacionModal({
 }: BloquearPublicacionModalProps) {
   const [razon, setRazon] = useState("");
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{
-    visible: boolean;
-    message: string;
-    type: "success" | "error" | "warning";
-  }>({ visible: false, message: "", type: "success" });
+  const [razonError, setRazonError] = useState("");
 
   const handleConfirm = async () => {
     if (!razon.trim()) {
-      setToast({
-        visible: true,
-        message: "Debes ingresar un motivo de bloqueo",
-        type: "warning",
-      });
+      setRazonError("Debes ingresar un motivo de bloqueo");
       return;
     }
-
+    setRazonError("");
     setLoading(true);
     try {
       await onConfirm(razon.trim());
       setRazon("");
-      setToast({
-        visible: true,
-        message: "Publicación bloqueada exitosamente",
-        type: "success",
-      });
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-    } catch {
-      setToast({
-        visible: true,
-        message: "Error al bloquear la publicación",
-        type: "error",
-      });
+      onClose();
     } finally {
       setLoading(false);
     }
@@ -71,6 +49,7 @@ export default function BloquearPublicacionModal({
 
   const handleClose = () => {
     setRazon("");
+    setRazonError("");
     onClose();
   };
 
@@ -104,15 +83,24 @@ export default function BloquearPublicacionModal({
                 Motivo del bloqueo <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
-                style={styles.textArea}
+                style={[
+                  styles.textArea,
+                  razonError ? styles.textAreaError : undefined,
+                ]}
                 placeholder="Describe la razón por la cual se bloquea esta publicación..."
                 value={razon}
-                onChangeText={setRazon}
+                onChangeText={(text) => {
+                  setRazon(text);
+                  if (razonError) setRazonError("");
+                }}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
                 placeholderTextColor={THEME.colors.text.muted}
               />
+              {razonError ? (
+                <Text style={styles.errorText}>{razonError}</Text>
+              ) : null}
 
               <View style={styles.actions}>
                 <TouchableOpacity
@@ -150,13 +138,6 @@ export default function BloquearPublicacionModal({
               </View>
             </View>
           </ScrollView>
-
-          <Toast
-            visible={toast.visible}
-            message={toast.message}
-            type={toast.type}
-            onHide={() => setToast({ ...toast, visible: false })}
-          />
         </KeyboardAvoidingView>
       </View>
     </Modal>
@@ -226,8 +207,16 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.heading,
     minHeight: 140,
     maxHeight: 200,
-    marginBottom: 28,
+    marginBottom: 8,
     lineHeight: 24,
+  },
+  textAreaError: {
+    borderColor: THEME.colors.error,
+  },
+  errorText: {
+    fontSize: 13,
+    color: THEME.colors.error,
+    marginBottom: 20,
   },
   actions: {
     flexDirection: "row",

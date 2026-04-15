@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Image,
   Dimensions,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -26,6 +25,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { THEME, COLORS } from "@/constants/theme";
 import Toast from "@/components/Toast";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+import { Button } from "@/components/reacticx/button";
 
 const { width } = Dimensions.get("window");
 
@@ -162,20 +162,15 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
       };
 
       await publicacionesService.crearPublicacion(publicacionData);
-
-      setToast({
-        visible: true,
-        message: "Publicación creada exitosamente",
-        type: "success",
-      });
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      onClose();
     } catch (error) {
       console.error("Error:", error);
       setToast({
         visible: true,
-        message: "No se pudo crear la publicación. Intenta nuevamente.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "No se pudo crear la publicación",
         type: "error",
       });
     } finally {
@@ -201,6 +196,17 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
 
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
+
+      const MAX_SIZE = 5 * 1024 * 1024;
+      if (asset.fileSize && asset.fileSize > MAX_SIZE) {
+        setToast({
+          visible: true,
+          message: "La imagen no puede superar 5MB",
+          type: "warning",
+        });
+        return;
+      }
+
       const newImage = {
         uri: asset.uri,
         name: `imagen_${Date.now()}.jpg`,
@@ -230,6 +236,7 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
               { paddingBottom: 20 + insets.bottom },
             ]}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             {/* Categoría */}
             <View style={styles.fieldGroup}>
@@ -311,18 +318,30 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
               )}
               <View style={styles.negociableContainer}>
                 <TouchableOpacity
-                  style={[styles.checkbox, negociable && styles.checkboxActivo]}
+                  style={[
+                    styles.negociableChip,
+                    negociable && styles.negociableChipActivo,
+                  ]}
                   onPress={() => setNegociable(!negociable)}
                 >
-                  {negociable && (
-                    <Ionicons
-                      name="checkmark"
-                      size={16}
-                      color={THEME.colors.text.inverse}
-                    />
-                  )}
+                  <Ionicons
+                    name={negociable ? "checkmark-circle" : "ellipse-outline"}
+                    size={18}
+                    color={
+                      negociable
+                        ? THEME.colors.text.inverse
+                        : THEME.colors.text.secondary
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.negociableText,
+                      negociable && styles.negociableTextActivo,
+                    ]}
+                  >
+                    Precio negociable
+                  </Text>
                 </TouchableOpacity>
-                <Text style={styles.negociableText}>Precio negociable</Text>
               </View>
             </View>
 
@@ -384,30 +403,26 @@ export default function CrearAnuncioForm({ onClose }: CrearAnuncioFormProps) {
 
             {/* Botón Publicar */}
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[styles.publishButton, loading && styles.buttonDisabled]}
+              <Button
                 onPress={crearPublicacion}
-                disabled={loading}
+                isLoading={loading}
+                backgroundColor={THEME.colors.primary}
+                loadingTextBackgroundColor={THEME.colors.primaryDark}
+                loadingText="Publicando..."
+                loadingTextColor={THEME.colors.text.inverse}
+                loadingTextSize={16}
+                height={52}
+                borderRadius={12}
+                fullWidth
               >
-                {loading ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={THEME.colors.text.inverse}
-                  />
-                ) : (
-                  <>
-                    <Ionicons
-                      name="checkmark-circle-outline"
-                      size={20}
-                      color={THEME.colors.text.inverse}
-                      style={{ marginRight: 8 }}
-                    />
-                    <Text style={styles.publishButtonText}>
-                      Publicar Anuncio
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={20}
+                  color={THEME.colors.text.inverse}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={styles.publishButtonText}>Publicar Anuncio</Text>
+              </Button>
             </View>
           </ScrollView>
         </LinearGradient>
@@ -564,28 +579,31 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   negociableContainer: {
-    flexDirection: "row",
-    alignItems: "center",
     paddingVertical: THEME.spacing.xs,
   },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderWidth: 2,
-    borderColor: THEME.colors.border,
-    borderRadius: 6,
-    marginRight: THEME.spacing.sm,
-    justifyContent: "center",
+  negociableChip: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.surface,
+    alignSelf: "flex-start",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: THEME.colors.surfaceLight,
+    borderWidth: 1.5,
+    borderColor: THEME.colors.border,
+    gap: 8,
   },
-  checkboxActivo: {
+  negociableChipActivo: {
     backgroundColor: THEME.colors.primary,
     borderColor: THEME.colors.primary,
   },
   negociableText: {
     fontSize: 14,
-    color: THEME.colors.text.heading,
+    fontWeight: "600",
+    color: THEME.colors.text.secondary,
+  },
+  negociableTextActivo: {
+    color: THEME.colors.text.inverse,
   },
   fotosGrid: {
     flexDirection: "row",
@@ -615,26 +633,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 24,
   },
-  publishButton: {
-    backgroundColor: THEME.colors.primary,
-    borderRadius: 12,
-    paddingVertical: 16,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: THEME.colors.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
   publishButtonText: {
     color: THEME.colors.text.inverse,
     fontSize: 16,
     fontWeight: "700",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
   },
   deleteButton: {
     position: "absolute",

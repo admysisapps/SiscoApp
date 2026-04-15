@@ -10,7 +10,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { publicacionesService } from "@/services/publicacionesService";
-import { Publicacion, EstadoPublicacion } from "@/types/publicaciones";
+import {
+  Publicacion,
+  EstadoPublicacion,
+  TipoPublicacion,
+} from "@/types/publicaciones";
 import { s3Service } from "@/services/s3Service";
 import { useProject } from "@/contexts/ProjectContext";
 import Toast from "@/components/Toast";
@@ -23,7 +27,7 @@ const PublicacionImage = memo(function PublicacionImage({
   style,
 }: {
   archivos: string[] | null;
-  tipo: string;
+  tipo: TipoPublicacion;
   style?: any;
 }) {
   const { selectedProject } = useProject();
@@ -37,7 +41,7 @@ const PublicacionImage = memo(function PublicacionImage({
       try {
         const result = await s3Service.getPublicacionImageUrl(
           nit,
-          tipo as any,
+          tipo,
           archivos[0]
         );
         if (result.success && result.url) {
@@ -72,27 +76,26 @@ export default function MisPublicaciones() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [expandedReasons, setExpandedReasons] = useState<Set<number>>(
-    new Set()
-  );
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
-  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>(
-    {}
-  );
+  const [loadingStates, setLoadingStates] = useState<
+    Record<number, EstadoPublicacion | null>
+  >({});
 
   const cargarMisPublicaciones = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await publicacionesService.listarMisPublicaciones();
-      if (response.success && response.publicaciones) {
-        setPublicaciones(response.publicaciones);
-      }
+      setPublicaciones(response.publicaciones);
     } catch {
-      console.error("Error cargando mis publicaciones");
+      setToast({
+        visible: true,
+        message: "No se pudieron cargar tus publicaciones",
+        type: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -100,24 +103,6 @@ export default function MisPublicaciones() {
 
   useEffect(() => {
     cargarMisPublicaciones();
-
-    const handlePublicacionCreated = (publicacion: Publicacion) => {
-      setPublicaciones((prev) => [publicacion, ...prev]);
-    };
-
-    const handlePublicacionUpdated = (publicacion: Publicacion) => {
-      setPublicaciones((prev) =>
-        prev.map((p) => (p.id === publicacion.id ? publicacion : p))
-      );
-    };
-
-    eventBus.on(EVENTS.PUBLICACION_CREATED, handlePublicacionCreated);
-    eventBus.on(EVENTS.PUBLICACION_UPDATED, handlePublicacionUpdated);
-
-    return () => {
-      eventBus.off(EVENTS.PUBLICACION_CREATED, handlePublicacionCreated);
-      eventBus.off(EVENTS.PUBLICACION_UPDATED, handlePublicacionUpdated);
-    };
   }, [cargarMisPublicaciones]);
 
   const handleRefresh = useCallback(async () => {
@@ -128,24 +113,27 @@ export default function MisPublicaciones() {
 
   const cambiarEstado = useCallback(
     async (publicacionId: number, nuevoEstado: EstadoPublicacion) => {
-      setLoadingStates((prev) => ({ ...prev, [publicacionId]: true }));
+      setLoadingStates((prev) => ({ ...prev, [publicacionId]: nuevoEstado }));
       try {
-        const response = await publicacionesService.cambiarEstadoPublicacion(
+        await publicacionesService.cambiarEstadoPublicacion(
           publicacionId,
           nuevoEstado
         );
-        if (response.success) {
-          setPublicaciones((prev) =>
-            prev.map((p) =>
-              p.id === publicacionId ? { ...p, estado: nuevoEstado } : p
-            )
-          );
-          setToast({
-            visible: true,
-            message: "Estado actualizado correctamente",
-            type: "success",
+        setPublicaciones((prev) =>
+          prev.map((p) =>
+            p.id === publicacionId ? { ...p, estado: nuevoEstado } : p
+          )
+        );
+        if (nuevoEstado !== "activa") {
+          eventBus.emit(EVENTS.PUBLICACION_REMOVED_FROM_FEED, {
+            id: publicacionId,
           });
         }
+        setToast({
+          visible: true,
+          message: "Estado actualizado correctamente",
+          type: "success",
+        });
       } catch {
         setToast({
           visible: true,
@@ -153,7 +141,7 @@ export default function MisPublicaciones() {
           type: "error",
         });
       } finally {
-        setLoadingStates((prev) => ({ ...prev, [publicacionId]: false }));
+        setLoadingStates((prev) => ({ ...prev, [publicacionId]: null }));
       }
     },
     []
@@ -168,11 +156,11 @@ export default function MisPublicaciones() {
       case "finalizada":
         return THEME.colors.text.secondary;
       case "bloqueada":
-        return THEME.colors.error;
+        return THEME.colors.text.muted;
       case "expirada":
         return THEME.colors.text.muted;
       default:
-        return THEME.colors.error;
+        return THEME.colors.text.muted;
     }
   };
 
@@ -200,7 +188,7 @@ export default function MisPublicaciones() {
       case "servicios":
         return "construct-outline";
       case "productos":
-        return "cube-outline";
+        return "bag-handle-outline";
       default:
         return "pricetag-outline";
     }
@@ -289,7 +277,7 @@ export default function MisPublicaciones() {
             <View style={styles.metaRow}>
               <View style={styles.metaItem}>
                 <Ionicons
-                  name={getTipoIcon(publicacion.tipo) as any}
+                  name={getTipoIcon(publicacion.tipo)}
                   size={12}
                   color={THEME.colors.text.muted}
                 />
@@ -320,50 +308,20 @@ export default function MisPublicaciones() {
             </View>
 
             {publicacion.estado === "bloqueada" && (
-              <View style={styles.blockedBanner}>
-                <Ionicons name="ban" size={14} color={THEME.colors.error} />
-                <Text style={styles.blockedMainText}>
-                  Bloqueada por administración
-                </Text>
-              </View>
-            )}
-
-            {publicacion.estado === "bloqueada" &&
-              publicacion.razon_bloqueo && (
-                <TouchableOpacity
-                  style={styles.reasonRow}
-                  onPress={() => {
-                    setExpandedReasons((prev) => {
-                      const newSet = new Set(prev);
-                      if (newSet.has(publicacion.id)) {
-                        newSet.delete(publicacion.id);
-                      } else {
-                        newSet.add(publicacion.id);
-                      }
-                      return newSet;
-                    });
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={styles.reasonText}
-                    numberOfLines={
-                      expandedReasons.has(publicacion.id) ? undefined : 2
-                    }
-                  >
+              <View style={styles.blockedSection}>
+                <View style={styles.blockedHeader}>
+                  <Ionicons name="ban" size={14} color={THEME.colors.error} />
+                  <Text style={styles.blockedTitle}>
+                    Bloqueada por administración
+                  </Text>
+                </View>
+                {publicacion.razon_bloqueo && (
+                  <Text style={styles.blockedReason}>
                     {publicacion.razon_bloqueo}
                   </Text>
-                  <Ionicons
-                    name={
-                      expandedReasons.has(publicacion.id)
-                        ? "chevron-up"
-                        : "chevron-down"
-                    }
-                    size={12}
-                    color={THEME.colors.error}
-                  />
-                </TouchableOpacity>
-              )}
+                )}
+              </View>
+            )}
           </View>
         </View>
 
@@ -374,9 +332,9 @@ export default function MisPublicaciones() {
               <TouchableOpacity
                 style={[styles.compactButton, styles.pauseButton]}
                 onPress={() => cambiarEstado(publicacion.id, "pausada")}
-                disabled={loadingStates[publicacion.id]}
+                disabled={!!loadingStates[publicacion.id]}
               >
-                {loadingStates[publicacion.id] ? (
+                {loadingStates[publicacion.id] === "pausada" ? (
                   <ActivityIndicator size="small" color="white" />
                 ) : (
                   <>
@@ -391,9 +349,9 @@ export default function MisPublicaciones() {
               <TouchableOpacity
                 style={[styles.compactButton, styles.activateButton]}
                 onPress={() => cambiarEstado(publicacion.id, "activa")}
-                disabled={loadingStates[publicacion.id]}
+                disabled={!!loadingStates[publicacion.id]}
               >
-                {loadingStates[publicacion.id] ? (
+                {loadingStates[publicacion.id] === "activa" ? (
                   <ActivityIndicator size="small" color="white" />
                 ) : (
                   <>
@@ -409,9 +367,9 @@ export default function MisPublicaciones() {
               <TouchableOpacity
                 style={[styles.compactButton, styles.finalizeButton]}
                 onPress={() => cambiarEstado(publicacion.id, "finalizada")}
-                disabled={loadingStates[publicacion.id]}
+                disabled={!!loadingStates[publicacion.id]}
               >
-                {loadingStates[publicacion.id] ? (
+                {loadingStates[publicacion.id] === "finalizada" ? (
                   <ActivityIndicator size="small" color="white" />
                 ) : (
                   <>
@@ -425,7 +383,7 @@ export default function MisPublicaciones() {
         )}
       </View>
     ),
-    [cambiarEstado, expandedReasons, loadingStates]
+    [cambiarEstado, loadingStates]
   );
 
   const keyExtractor = useCallback(
@@ -553,7 +511,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tipoText: {
-    fontSize: 11,
+    fontSize: 13,
     color: THEME.colors.text.secondary,
     fontWeight: "500",
     textTransform: "capitalize",
@@ -570,7 +528,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   dateText: {
-    fontSize: 11,
+    fontSize: 13,
     color: THEME.colors.text.muted,
   },
   expirationRow: {
@@ -580,38 +538,33 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   expirationText: {
-    fontSize: 11,
+    fontSize: 13,
     color: THEME.colors.warning,
     fontWeight: "500",
   },
-  blockedBanner: {
+  blockedSection: {
+    backgroundColor: THEME.colors.error + "10",
+
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 8,
+    gap: 4,
+  },
+  blockedHeader: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: THEME.colors.error + "10",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    gap: 4,
-    marginTop: 6,
+    gap: 6,
   },
-  blockedMainText: {
+  blockedTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: THEME.colors.error,
+  },
+  blockedReason: {
     fontSize: 12,
     color: THEME.colors.error,
-    fontWeight: "600",
-  },
-  reasonRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 4,
-    marginTop: 4,
-    paddingLeft: 4,
-  },
-  reasonText: {
-    flex: 1,
-    fontSize: 11,
-    color: THEME.colors.error,
-    fontWeight: "400",
-    lineHeight: 14,
+    lineHeight: 18,
+    opacity: 0.85,
   },
   actionsRow: {
     flexDirection: "row",

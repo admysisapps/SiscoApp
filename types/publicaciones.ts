@@ -1,3 +1,11 @@
+export type MotivoReporte =
+  | "spam"
+  | "fraude"
+  | "inapropiado"
+  | "duplicado"
+  | "precio_falso"
+  | "otro";
+
 export type TipoPublicacion = "inmuebles" | "servicios" | "productos";
 
 export type EstadoPublicacion =
@@ -20,6 +28,7 @@ export interface Publicacion {
   estado: EstadoPublicacion;
   usuario_documento: string;
   archivos_nombres: string[] | null;
+  reportes_count?: number;
   // Información del usuario (desde JOIN)
   usuario?: {
     nombre: string;

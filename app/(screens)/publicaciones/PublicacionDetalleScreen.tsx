@@ -16,8 +16,10 @@ import { THEME } from "@/constants/theme";
 import { useProject } from "@/contexts/ProjectContext";
 import { s3Service } from "@/services/s3Service";
 import { publicacionesService } from "@/services/publicacionesService";
-import { Publicacion } from "@/types/publicaciones";
+import { Publicacion, MotivoReporte } from "@/types/publicaciones";
+import { eventBus, EVENTS } from "@/utils/eventBus";
 import BloquearPublicacionModal from "@/components/publicaciones/BloquearPublicacionModal";
+import ReportarPublicacionModal from "@/components/publicaciones/ReportarPublicacionModal";
 import PublicacionInfoSection from "@/components/publicaciones/PublicacionInfoSection";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
 
@@ -29,6 +31,7 @@ export default function PublicacionDetalleScreen() {
   const [anuncio, setAnuncio] = useState<Publicacion | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [showBlockModal, setShowBlockModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -78,6 +81,20 @@ export default function PublicacionDetalleScreen() {
     };
   }, [anuncio, selectedProject?.nit]);
 
+  const handleConfirmReport = async (motivo: MotivoReporte) => {
+    if (!anuncio) return;
+    try {
+      await publicacionesService.reportarPublicacion(anuncio.id, motivo);
+      setSuccessMessage("Tu reporte fue enviado correctamente");
+      setShowSuccessModal(true);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo enviar el reporte";
+      setErrorMessage(message);
+      setShowErrorModal(true);
+    }
+  };
+
   const handleBlock = () => {
     setShowBlockModal(true);
   };
@@ -90,21 +107,18 @@ export default function PublicacionDetalleScreen() {
   const handleConfirmBlock = async (razon: string) => {
     if (!anuncio) return;
     try {
-      const response = await publicacionesService.bloquearPublicacion(
-        anuncio.id,
-        razon
-      );
-
-      if (response.success) {
-        setSuccessMessage("Publicación bloqueada correctamente");
-        setShowSuccessModal(true);
-      } else {
-        setErrorMessage(response.error || "No se pudo bloquear la publicación");
-        setShowErrorModal(true);
-      }
-    } catch {
-      setErrorMessage("No se pudo bloquear la publicación");
+      await publicacionesService.bloquearPublicacion(anuncio.id, razon);
+      eventBus.emit(EVENTS.PUBLICACION_REMOVED_FROM_FEED, { id: anuncio.id });
+      setSuccessMessage("Publicación bloqueada correctamente");
+      setShowSuccessModal(true);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No se pudo bloquear la publicación";
+      setErrorMessage(message);
       setShowErrorModal(true);
+      throw error;
     }
   };
 
@@ -196,6 +210,7 @@ export default function PublicacionDetalleScreen() {
         <PublicacionInfoSection
           anuncio={anuncio}
           onBlock={handleBlock}
+          onReport={() => setShowReportModal(true)}
           onShowError={handleShowError}
         />
       </ScrollView>
@@ -204,6 +219,13 @@ export default function PublicacionDetalleScreen() {
         visible={showBlockModal}
         onClose={() => setShowBlockModal(false)}
         onConfirm={handleConfirmBlock}
+        publicacionTitulo={anuncio.titulo}
+      />
+
+      <ReportarPublicacionModal
+        visible={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onConfirm={handleConfirmReport}
         publicacionTitulo={anuncio.titulo}
       />
 

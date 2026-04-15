@@ -14,12 +14,14 @@ import { Publicacion } from "@/types/publicaciones";
 interface PublicacionInfoSectionProps {
   anuncio: Publicacion;
   onBlock?: () => void;
+  onReport?: () => void;
   onShowError: (message: string) => void;
 }
 
 export default function PublicacionInfoSection({
   anuncio,
   onBlock,
+  onReport,
   onShowError,
 }: PublicacionInfoSectionProps) {
   const { isAdmin } = useRole();
@@ -127,6 +129,17 @@ export default function PublicacionInfoSection({
         <TouchableOpacity style={styles.blockButton} onPress={onBlock}>
           <Ionicons name="ban" size={18} color={THEME.colors.error} />
           <Text style={styles.blockButtonText}>Bloquear Publicación</Text>
+        </TouchableOpacity>
+      )}
+
+      {!isAdmin && onReport && (
+        <TouchableOpacity style={styles.reportButton} onPress={onReport}>
+          <Ionicons
+            name="flag-outline"
+            size={18}
+            color={THEME.colors.text.secondary}
+          />
+          <Text style={styles.reportButtonText}>Reportar publicación</Text>
         </TouchableOpacity>
       )}
 
@@ -296,6 +309,18 @@ const styles = StyleSheet.create({
     color: THEME.colors.error,
     fontSize: THEME.fontSize.sm,
     fontWeight: "600",
+  },
+  reportButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    marginTop: THEME.spacing.sm,
+  },
+  reportButtonText: {
+    fontSize: 15,
+    color: THEME.colors.text.secondary,
   },
   moderationInfo: {
     marginTop: THEME.spacing.md,

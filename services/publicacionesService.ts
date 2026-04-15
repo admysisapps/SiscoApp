@@ -2,45 +2,53 @@ import {
   CreatePublicacionRequest,
   TipoPublicacion,
   EstadoPublicacion,
+  MotivoReporte,
+  Publicacion,
 } from "@/types/publicaciones";
 import { apiService } from "./apiService";
 
+interface BaseResponse {
+  success: boolean;
+  error?: string;
+}
+
+interface ListarPublicacionesResponse extends BaseResponse {
+  publicaciones: Publicacion[];
+  hay_mas: boolean;
+  pagina: number;
+}
+
+interface ListarMisPublicacionesResponse extends BaseResponse {
+  publicaciones: Publicacion[];
+}
+
+function assertSuccess(response: BaseResponse, contexto: string): void {
+  if (!response.success) {
+    throw new Error(response.error ?? `Error en ${contexto}`);
+  }
+}
+
 export const publicacionesService = {
-  //Crear nueva publicación
-
-  async crearPublicacion(data: CreatePublicacionRequest) {
-    try {
-      return await apiService.makeRequestWithContextType(
-        "/publicaciones/crear",
-        data,
-        "PUBLICACIONES_CREATE"
-      );
-    } catch (error: any) {
-      throw error;
-    }
+  async crearPublicacion(data: CreatePublicacionRequest): Promise<void> {
+    const response = (await apiService.makeRequestWithContextType(
+      "/publicaciones/crear",
+      data,
+      "PUBLICACIONES_CREATE"
+    )) as BaseResponse;
+    assertSuccess(response, "crearPublicacion");
   },
-
-  // Cambiar estado de publicación (pausar/activar/finalizar)
 
   async cambiarEstadoPublicacion(
     publicacionId: number,
     nuevoEstado: EstadoPublicacion
-  ) {
-    try {
-      return await apiService.makeRequestWithContextType(
-        "/publicaciones/cambiar-estado",
-        {
-          publicacion_id: publicacionId,
-          nuevo_estado: nuevoEstado,
-        },
-        "PUBLICACIONES_UPDATE_STATE"
-      );
-    } catch (error: any) {
-      throw error;
-    }
+  ): Promise<void> {
+    const response = (await apiService.makeRequestWithContextType(
+      "/publicaciones/cambiar-estado",
+      { publicacion_id: publicacionId, nuevo_estado: nuevoEstado },
+      "PUBLICACIONES_UPDATE_STATE"
+    )) as BaseResponse;
+    assertSuccess(response, "cambiarEstadoPublicacion");
   },
-
-  // Listar publicaciones con paginación
 
   async listarPublicaciones({
     pagina = 1,
@@ -54,50 +62,47 @@ export const publicacionesService = {
       estado?: EstadoPublicacion;
       mis_publicaciones?: boolean;
     };
-  } = {}) {
-    try {
-      return await apiService.makeRequestWithContextType(
-        "/publicaciones/listar",
-        {
-          pagina,
-          limite,
-          filtros,
-        },
-        "PUBLICACIONES_LIST"
-      );
-    } catch (error: any) {
-      throw error;
-    }
+  } = {}): Promise<ListarPublicacionesResponse> {
+    const response = (await apiService.makeRequestWithContextType(
+      "/publicaciones/listar",
+      { pagina, limite, filtros },
+      "PUBLICACIONES_LIST"
+    )) as ListarPublicacionesResponse;
+    assertSuccess(response, "listarPublicaciones");
+    return response;
   },
 
-  //Listar mis publicaciones
-
-  async listarMisPublicaciones() {
-    try {
-      return await apiService.makeRequestWithContextType(
-        "/publicaciones/listar-por-usuario",
-        {},
-        "PUBLICACIONES_LIST"
-      );
-    } catch (error: any) {
-      throw error;
-    }
+  async listarMisPublicaciones(): Promise<ListarMisPublicacionesResponse> {
+    const response = (await apiService.makeRequestWithContextType(
+      "/publicaciones/listar-por-usuario",
+      {},
+      "PUBLICACIONES_LIST"
+    )) as ListarMisPublicacionesResponse;
+    assertSuccess(response, "listarMisPublicaciones");
+    return response;
   },
 
-  //  Bloquear publicación (solo admin)
+  async bloquearPublicacion(
+    publicacionId: number,
+    razonBloqueo: string
+  ): Promise<void> {
+    const response = (await apiService.makeRequestWithContextType(
+      "/publicaciones/bloquear",
+      { publicacion_id: publicacionId, razon_bloqueo: razonBloqueo },
+      "PUBLICACIONES_UPDATE_STATE_ADMIN"
+    )) as BaseResponse;
+    assertSuccess(response, "bloquearPublicacion");
+  },
 
-  async bloquearPublicacion(publicacionId: number, razonBloqueo: string) {
-    try {
-      return await apiService.makeRequestWithContextType(
-        "/publicaciones/bloquear",
-        {
-          publicacion_id: publicacionId,
-          razon_bloqueo: razonBloqueo,
-        },
-        "PUBLICACIONES_UPDATE_STATE_ADMIN"
-      );
-    } catch (error: any) {
-      throw error;
-    }
+  async reportarPublicacion(
+    publicacionId: number,
+    motivo: MotivoReporte
+  ): Promise<void> {
+    const response = (await apiService.makeRequestWithContextType(
+      "/publicaciones/reportar",
+      { publicacion_id: publicacionId, motivo },
+      "PUBLICACIONES_REPORT"
+    )) as BaseResponse;
+    assertSuccess(response, "reportarPublicacion");
   },
 };
