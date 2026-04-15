@@ -134,6 +134,8 @@ export const CONTEXT_TYPES = {
     "rol",
   ],
 
+  PUBLICACIONES_REPORT: ["documento", "copropiedad", "proyecto_nit", "rol"],
+
   //cambio de correo(falta agregarlo a auth)
   CHANGE_EMAIL: ["copropiedad", "documento", "proyecto_nit"],
 

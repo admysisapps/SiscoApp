@@ -330,12 +330,30 @@ CREATE TABLE `publicaciones` (
   `archivos_nombres` text,
   `fecha_moderacion` timestamp NULL DEFAULT NULL,
   `razon_bloqueo` text,
+  `reportes_count` int DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_tipo` (`tipo`),
   KEY `idx_estado` (`estado`),
   KEY `idx_usuario` (`usuario_documento`),
   KEY `idx_fecha_expiracion` (`fecha_expiracion`),
   CONSTRAINT `publicaciones_ibfk_1` FOREIGN KEY (`usuario_documento`) REFERENCES `usuarios` (`documento`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Tabla: publicacion_reportes
+DROP TABLE IF EXISTS `publicacion_reportes`;
+
+CREATE TABLE `publicacion_reportes` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `publicacion_id` bigint NOT NULL,
+  `usuario_documento` varchar(20) NOT NULL,
+  `motivo` enum('spam','fraude','inapropiado','duplicado','precio_falso','otro') NOT NULL,
+  `fecha_reporte` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_reporte` (`publicacion_id`,`usuario_documento`),
+  KEY `idx_publicacion` (`publicacion_id`),
+  KEY `idx_usuario` (`usuario_documento`),
+  CONSTRAINT `publicacion_reportes_ibfk_1` FOREIGN KEY (`publicacion_id`) REFERENCES `publicaciones` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
