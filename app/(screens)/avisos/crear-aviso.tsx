@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
@@ -52,6 +52,10 @@ const prioridades = [
   { value: "alta", label: "Alta" },
   { value: "urgente", label: "Urgente" },
 ] as const;
+
+const MAX_FILES = 5;
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export default function CrearAvisoScreen() {
   const crearAvisoMutation = useCrearAviso();
@@ -106,7 +110,7 @@ export default function CrearAvisoScreen() {
     setToast({ visible: false, message: "", type: "success" });
   };
 
-  const validateField = (field: string, value: any) => {
+  const validateField = (field: string, value: string) => {
     const newErrors = { ...errors };
 
     switch (field) {
@@ -207,7 +211,7 @@ export default function CrearAvisoScreen() {
       }
     }
   };
-  const handleDateChange = (event: any, date?: Date) => {
+  const handleDateChange = (event: DateTimePickerEvent, date?: Date) => {
     setShowDatePicker(false);
     if (date) {
       setSelectedDate(date);
@@ -231,8 +235,11 @@ export default function CrearAvisoScreen() {
   };
 
   const selectImage = async () => {
+    if (selectedFiles.length >= MAX_FILES) {
+      showToast(`Máximo ${MAX_FILES} archivos por comunicado`, "warning");
+      return;
+    }
     try {
-      // Solicitar permisos
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -252,7 +259,26 @@ export default function CrearAvisoScreen() {
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
+        const fileSizeMB = asset.fileSize
+          ? (asset.fileSize / 1024 / 1024).toFixed(2)
+          : "desconocido";
 
+        console.log("[selectImage] Imagen seleccionada:", {
+          name: asset.fileName,
+          size: `${fileSizeMB} MB`,
+          type: asset.type,
+          uri: asset.uri,
+        });
+
+        if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE_BYTES) {
+          console.warn(
+            `[selectImage] Imagen rechazada: ${fileSizeMB} MB supera el límite de ${MAX_FILE_SIZE_MB} MB`
+          );
+          showToast(`La imagen supera el límite de ${MAX_FILE_SIZE_MB} MB`, "warning");
+          return;
+        }
+
+        console.log("[selectImage] Imagen aceptada, agregando a lista");
         setSelectedFiles((prev) => [
           ...prev,
           {
@@ -264,12 +290,16 @@ export default function CrearAvisoScreen() {
         ]);
       }
     } catch (error) {
-      console.error("Error en selectImage:", error);
+      console.error("[selectImage] Error:", error);
       Alert.alert("Error", "No se pudo abrir la galería: " + error);
     }
   };
 
   const selectDocument = async () => {
+    if (selectedFiles.length >= MAX_FILES) {
+      showToast(`Máximo ${MAX_FILES} archivos por comunicado`, "warning");
+      return;
+    }
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
@@ -278,13 +308,23 @@ export default function CrearAvisoScreen() {
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
+        const fileSizeMB = asset.size
+          ? (asset.size / 1024 / 1024).toFixed(2)
+          : "desconocido";
 
-        // Validar que no sea un archivo de video
+        console.log("[selectDocument] Documento seleccionado:", {
+          name: asset.name,
+          size: `${fileSizeMB} MB`,
+          mimeType: asset.mimeType,
+          uri: asset.uri,
+        });
+
         const isVideo =
           asset.mimeType?.startsWith("video/") ||
           asset.name.match(/\.(mp4|avi|mov|wmv|flv|webm|mkv|m4v)$/i);
 
         if (isVideo) {
+          console.warn("[selectDocument] Archivo rechazado: es un video");
           Alert.alert(
             "Archivo no soportado",
             "Los archivos de video no están permitidos. Solo se permiten documentos e imágenes."
@@ -292,6 +332,15 @@ export default function CrearAvisoScreen() {
           return;
         }
 
+        if (asset.size && asset.size > MAX_FILE_SIZE_BYTES) {
+          console.warn(
+            `[selectDocument] Archivo rechazado: ${fileSizeMB} MB supera el límite de ${MAX_FILE_SIZE_MB} MB`
+          );
+          showToast(`El archivo supera el límite de ${MAX_FILE_SIZE_MB} MB`, "warning");
+          return;
+        }
+
+        console.log("[selectDocument] Documento aceptado, agregando a lista");
         setSelectedFiles([
           ...selectedFiles,
           {
@@ -303,7 +352,7 @@ export default function CrearAvisoScreen() {
         ]);
       }
     } catch (error) {
-      console.error("Error selecting document:", error);
+      console.error("[selectDocument] Error:", error);
       Alert.alert("Error", "No se pudo abrir el selector de documentos");
     }
   };
@@ -342,7 +391,7 @@ export default function CrearAvisoScreen() {
                         isSelected && { borderColor: color },
                       ]}
                       onPress={() =>
-                        setFormData({ ...formData, tipo: tipo.value as any })
+                        setFormData({ ...formData, tipo: tipo.value })
                       }
                     >
                       <Ionicons
@@ -384,7 +433,7 @@ export default function CrearAvisoScreen() {
                       onPress={() =>
                         setFormData({
                           ...formData,
-                          prioridad: prioridad.value as any,
+                          prioridad: prioridad.value,
                         })
                       }
                     >
@@ -565,7 +614,7 @@ export default function CrearAvisoScreen() {
                 loadingTextBackgroundColor={getAvisoColor(formData.prioridad)}
                 height={56}
                 borderRadius={12}
-                style={{ width: "100%" }}
+                fullWidth
               >
                 <Text style={styles.submitText}>Enviar Comunicado</Text>
               </Button>
@@ -598,16 +647,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  buttonContainer: {
-    paddingHorizontal: THEME.spacing.md,
-    paddingVertical: THEME.spacing.lg,
-    alignItems: "center",
-  },
-  saveButtonText: {
-    color: THEME.colors.text.inverse,
-    fontSize: THEME.fontSize.md,
-    fontWeight: "600",
   },
   scrollContent: {
     paddingHorizontal: 20,
