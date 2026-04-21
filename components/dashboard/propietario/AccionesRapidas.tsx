@@ -31,7 +31,7 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
     {
       id: "1",
       title: "Crear PQR",
-      subtitle: "Nueva solicitud",
+      subtitle: "Reporta un problema o solicitud",
       icon: "add-circle",
       color: "#3B82F6",
       onPress: () => router.push("/(screens)/pqr/CrearPqrScreen"),
@@ -47,7 +47,7 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
     {
       id: "3",
       title: "Comunicados",
-      subtitle: "Ver avisos importantes",
+      subtitle: "Mantente al día con tu Copropiedad",
       icon: "megaphone",
       color: "#F59E0B",
       onPress: () => router.push("/(screens)/avisos/AvisosScreen"),
@@ -60,14 +60,20 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
       color: "#10B981",
       onPress: () => openPaymentMethods(),
     },
+    {
+      id: "5",
+      title: "Mi Perfil",
+      subtitle: "Cuenta y configuración",
+      icon: "person-circle-outline",
+      color: THEME.colors.primary,
+      onPress: () => router.push("/(tabs)/perfil"),
+    },
   ];
 
   return (
     <>
       <View style={styles.wrapper}>
         <View style={styles.container}>
-          <Text style={styles.title}>Acciones Rápidas</Text>
-
           <View style={styles.actionsGrid}>
             {quickActions.map((action) => (
               <TouchableOpacity

@@ -1,27 +1,55 @@
-import { useMemo } from "react";
-import { useApartment } from "@/contexts/ApartmentContext";
-import { mockCuentaCobro1, mockCuentaCobro2 } from "@/data/cuentaCobroMock";
+import { useQuery } from "@tanstack/react-query";
+import { apiService } from "@/services/apiService";
 import { CuentaCobro } from "@/types/cuentaCobro";
 
-export function useCuentaCobro(): { cuentaCobro: CuentaCobro | null } {
-  const { selectedApartment } = useApartment();
+const SW_URL =
+  "https://ykhlian2yj.execute-api.us-east-1.amazonaws.com/TESTAPI/getdatasw";
 
-  const cuentaCobro = useMemo(() => {
-    if (!selectedApartment?.codigo_apt) return null;
+// TODO: reemplazar con selectedProject.nit, selectedApartment.codigo_apt y año dinámico
+const MOCK_NIT = "777777777";
+const MOCK_CODIGO = "1";
+const MOCK_YEAR = "2026";
 
-    const numero = parseInt(
-      selectedApartment.codigo_apt.replace(/\D/g, ""),
-      10
-    );
-    const base =
-      isNaN(numero) || numero % 2 === 0 ? mockCuentaCobro1 : mockCuentaCobro2;
+export function useCuentaCobro(): {
+  cuentaCobro: CuentaCobro | null;
+  isLoading: boolean;
+  error: Error | null;
+} {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["cuenta-cobro", MOCK_NIT, MOCK_CODIGO, MOCK_YEAR],
+    queryFn: async (): Promise<CuentaCobro> => {
+      const token = await apiService.getAuthToken();
 
-    return {
-      ...base,
-      unidad:
-        parseInt(selectedApartment.numero, 10) || selectedApartment.numero,
-    } as unknown as CuentaCobro;
-  }, [selectedApartment?.codigo_apt]);
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
 
-  return { cuentaCobro };
+      const response = await fetch(SW_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          nit: MOCK_NIT,
+          codigo: MOCK_CODIGO,
+          year: MOCK_YEAR,
+          c_cobr: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status} al cargar cuenta de cobro`);
+      }
+
+      const json: CuentaCobro = await response.json();
+
+      if (!json.unidad || json.tipo !== "Cuenta de Cobro") {
+        throw new Error("Respuesta inválida del servidor");
+      }
+
+      return json;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return { cuentaCobro: data ?? null, isLoading, error: error as Error | null };
 }

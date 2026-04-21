@@ -1,12 +1,9 @@
 import { THEME } from "@/constants/theme";
-import { CuentaCobro } from "@/types/cuentaCobro";
 import React, { useMemo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { DetalleCuentaModal } from "../DetalleCuentaModal";
 import { useCuentaCobro } from "@/hooks/useCuentaCobro";
-
-// Mock data - Ejemplo con fechas actuales (Enero 2026)
-// TODO: eliminar cuando exista el endpoint real
+import { router } from "expo-router";
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("es-CO", {
@@ -16,6 +13,9 @@ const formatCurrency = (amount: number) => {
     maximumFractionDigits: 0,
   }).format(amount);
 };
+
+const toNumber = (val: number | string): number =>
+  typeof val === "number" ? val : parseFloat(val) || 0;
 
 const calcularDescuento = (fechaDesc: string) => {
   const hoy = new Date();
@@ -30,13 +30,15 @@ const calcularDescuento = (fechaDesc: string) => {
 
 const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
   const [modalVisible, setModalVisible] = useState(false);
-  const { cuentaCobro } = useCuentaCobro();
+  const { cuentaCobro, isLoading, error } = useCuentaCobro();
 
   const {
     descuentoActivo,
     ahorro,
     movimiento,
     subtotalConceptos,
+    saldoSinDesc,
+    saldoConDesc,
     serviciosBasicos,
     extras,
   } = useMemo(() => {
@@ -47,17 +49,38 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
         movimiento: null,
         subtotalConceptos: 0,
         diasRestantes: 0,
+        saldoSinDesc: 0,
+        saldoConDesc: 0,
         serviciosBasicos: [],
         extras: [],
       };
 
-    const { activo: descuentoActivo, diasRestantes } = calcularDescuento(
-      cuentaCobro.param.fecha_desc
+    const fechaDesc = cuentaCobro.param.fecha_desc;
+    const { activo: descuentoActivo, diasRestantes } = fechaDesc
+      ? calcularDescuento(fechaDesc)
+      : { activo: false, diasRestantes: 0 };
+
+    // Último movimiento = deuda más reciente
+    const movimiento =
+      cuentaCobro.movimientos[cuentaCobro.movimientos.length - 1];
+
+    // El saldo total ya viene calculado en el último movimiento
+    const ultimoSaldo = parseFloat(
+      movimiento?.detalle[movimiento.detalle.length - 1]?.saldo ?? "0"
     );
-    const ahorro = cuentaCobro.saldo_sin_desc - cuentaCobro.saldo_con_desc;
-    const movimiento = cuentaCobro.movimientos[0];
     const subtotalConceptos =
-      movimiento?.detalle.reduce((sum, item) => sum + item.cuota, 0) || 0;
+      movimiento?.detalle.reduce(
+        (sum, item) => sum + toNumber(item.cuota),
+        0
+      ) || 0;
+    const totalDescuento =
+      movimiento?.detalle.reduce(
+        (sum, item) => sum + toNumber(item.descuento ?? 0),
+        0
+      ) || 0;
+    const saldoSinDesc = ultimoSaldo;
+    const saldoConDesc = saldoSinDesc - totalDescuento;
+    const ahorro = totalDescuento;
 
     const serviciosBasicos =
       movimiento?.detalle.filter(
@@ -79,10 +102,44 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
       movimiento,
       subtotalConceptos,
       diasRestantes,
+      saldoSinDesc,
+      saldoConDesc,
       serviciosBasicos,
       extras,
     };
   }, [cuentaCobro]);
+
+  if (isLoading)
+    return (
+      <View style={styles.container}>
+        <View
+          style={[
+            styles.statusCard,
+            { alignItems: "center", justifyContent: "center", minHeight: 120 },
+          ]}
+        >
+          <Text style={{ color: THEME.colors.text.secondary }}>
+            Cargando cuenta de cobro...
+          </Text>
+        </View>
+      </View>
+    );
+
+  if (error)
+    return (
+      <View style={styles.container}>
+        <View
+          style={[
+            styles.statusCard,
+            { alignItems: "center", justifyContent: "center", minHeight: 120 },
+          ]}
+        >
+          <Text style={{ color: "#EF4444" }}>
+            Error al cargar la cuenta de cobro
+          </Text>
+        </View>
+      </View>
+    );
 
   if (!cuentaCobro) return null;
 
@@ -116,7 +173,7 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
                   {item.descrip}
                 </Text>
                 <Text style={styles.receiptValue}>
-                  {formatCurrency(item.cuota)}
+                  {formatCurrency(toNumber(item.cuota))}
                 </Text>
               </View>
             ))}
@@ -132,41 +189,24 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
                   {item.descrip}
                 </Text>
                 <Text style={styles.receiptValue}>
-                  {formatCurrency(item.cuota)}
+                  {formatCurrency(toNumber(item.cuota))}
                 </Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* Deuda y saldos */}
-        {((movimiento?.saldo_ini_deuda ?? 0) > 0 ||
-          (movimiento?.saldo_ini_ant ?? 0) < 0) && (
+        {/* Saldo inicial (deuda anterior) */}
+        {parseFloat(cuentaCobro.saldo_inicial) > 0 && (
           <View style={styles.section}>
-            {(movimiento?.saldo_ini_deuda ?? 0) > 0 && (
-              <View style={styles.receiptRow}>
-                <Text style={[styles.receiptLabel, { color: "#EF4444" }]}>
-                  Deuda anterior
-                </Text>
-                <Text style={[styles.receiptValue, { color: "#EF4444" }]}>
-                  {formatCurrency(movimiento?.saldo_ini_deuda ?? 0)}
-                </Text>
-              </View>
-            )}
-            {(movimiento?.saldo_ini_ant ?? 0) < 0 && (
-              <View style={styles.receiptRow}>
-                <Text
-                  style={[styles.receiptLabel, { color: THEME.colors.success }]}
-                >
-                  Saldo a favor
-                </Text>
-                <Text
-                  style={[styles.receiptValue, { color: THEME.colors.success }]}
-                >
-                  -{formatCurrency(Math.abs(movimiento?.saldo_ini_ant ?? 0))}
-                </Text>
-              </View>
-            )}
+            <View style={styles.receiptRow}>
+              <Text style={[styles.receiptLabel, { color: "#EF4444" }]}>
+                Saldo anterior
+              </Text>
+              <Text style={[styles.receiptValue, { color: "#EF4444" }]}>
+                {formatCurrency(parseFloat(cuentaCobro.saldo_inicial))}
+              </Text>
+            </View>
           </View>
         )}
 
@@ -182,7 +222,7 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
             </View>
             <Text style={styles.discountHint}>
               Válido hasta el{" "}
-              {cuentaCobro.param.fecha_desc.split("-").reverse().join("/")}
+              {cuentaCobro.param.fecha_desc?.split("-").reverse().join("/")}
             </Text>
           </View>
         )}
@@ -190,26 +230,46 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
         <View style={styles.dashedLine} />
 
         {/* Total */}
-        <View style={styles.totalSection}>
-          <Text style={styles.receiptTotalLabel}>TOTAL A PAGAR</Text>
-          <Text style={styles.receiptTotalValue}>
-            {formatCurrency(
-              descuentoActivo
-                ? cuentaCobro.saldo_con_desc
-                : cuentaCobro.saldo_sin_desc
-            )}
-          </Text>
-        </View>
+        {(() => {
+          const total = descuentoActivo ? saldoConDesc : saldoSinDesc;
+          const aFavor = total <= 0;
+          return (
+            <View style={styles.totalSection}>
+              <Text
+                style={[
+                  styles.receiptTotalLabel,
+                  aFavor && { color: "#10B981" },
+                ]}
+              >
+                {aFavor ? "SALDO A FAVOR" : "TOTAL A PAGAR"}
+              </Text>
+              <Text
+                style={[
+                  styles.receiptTotalValue,
+                  aFavor && { color: "#10B981" },
+                ]}
+              >
+                {formatCurrency(Math.abs(total))}
+              </Text>
+            </View>
+          );
+        })()}
       </TouchableOpacity>
 
       <DetalleCuentaModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
+        onVerEstadoCuenta={() => {
+          setModalVisible(false);
+          router.push("/(screens)/estadoCuenta/EstadoCuentaScreen");
+        }}
         cuentaCobro={cuentaCobro}
         formatCurrency={formatCurrency}
         descuentoActivo={descuentoActivo}
         ahorro={ahorro}
         subtotalConceptos={subtotalConceptos}
+        saldoSinDesc={saldoSinDesc}
+        saldoConDesc={saldoConDesc}
       />
     </View>
   );

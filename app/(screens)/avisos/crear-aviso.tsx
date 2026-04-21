@@ -14,7 +14,9 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
@@ -274,7 +276,10 @@ export default function CrearAvisoScreen() {
           console.warn(
             `[selectImage] Imagen rechazada: ${fileSizeMB} MB supera el límite de ${MAX_FILE_SIZE_MB} MB`
           );
-          showToast(`La imagen supera el límite de ${MAX_FILE_SIZE_MB} MB`, "warning");
+          showToast(
+            `La imagen supera el límite de ${MAX_FILE_SIZE_MB} MB`,
+            "warning"
+          );
           return;
         }
 
@@ -336,7 +341,10 @@ export default function CrearAvisoScreen() {
           console.warn(
             `[selectDocument] Archivo rechazado: ${fileSizeMB} MB supera el límite de ${MAX_FILE_SIZE_MB} MB`
           );
-          showToast(`El archivo supera el límite de ${MAX_FILE_SIZE_MB} MB`, "warning");
+          showToast(
+            `El archivo supera el límite de ${MAX_FILE_SIZE_MB} MB`,
+            "warning"
+          );
           return;
         }
 

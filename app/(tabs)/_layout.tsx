@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRole } from "@/hooks/useRole";
-import CustomTabBar from "@/components/CustomTabBar";
+// import CustomTabBar from "@/components/CustomTabBar";
 
 export default function TabLayout() {
   const { isAdmin } = useRole();
@@ -20,13 +20,7 @@ export default function TabLayout() {
       )}
 
       <Tabs
-        tabBar={(props) => {
-          const currentRoute = props.state.routes[props.state.index];
-          if (currentRoute.name === "(asambleas)") {
-            return null;
-          }
-          return <CustomTabBar {...props} />;
-        }}
+        tabBar={() => null}
         screenOptions={{
           headerShown: false,
         }}

@@ -1,26 +1,23 @@
 export interface DetalleConcepto {
   descrip: string;
-  cuota: number;
-  anticipos: number;
+  cuota: number | string;
+  "pagos/ajustes": number | string;
+  saldo: string;
+  descuento?: number | string;
 }
 
 export interface Movimiento {
   periodo: string;
-  saldo_ini_deuda: number;
-  saldo_ini_ant: number;
   detalle: DetalleConcepto[];
-}
-
-export interface ParametrosDescuento {
-  fecha_desc: string;
-  porcentaje_desc: number;
 }
 
 export interface CuentaCobro {
   unidad: number;
-  tipo: string;
-  param: ParametrosDescuento;
+  tipo: "Cuenta de Cobro" | "Estado de Cuenta";
+  param: {
+    fecha_desc?: string;
+    porcentaje_desc?: string;
+  };
+  saldo_inicial: string;
   movimientos: Movimiento[];
-  saldo_con_desc: number;
-  saldo_sin_desc: number;
 }

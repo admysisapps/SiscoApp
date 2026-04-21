@@ -1,6 +1,6 @@
 import { THEME } from "@/constants/theme";
 import { CuentaCobro } from "@/types/cuentaCobro";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   Modal,
   ScrollView,
@@ -11,30 +11,46 @@ import {
   PanResponder,
   Animated,
 } from "react-native";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface DetalleCuentaModalProps {
   visible: boolean;
   onClose: () => void;
+  onVerEstadoCuenta: () => void;
   cuentaCobro: CuentaCobro;
   formatCurrency: (amount: number) => string;
   descuentoActivo: boolean;
   ahorro: number;
   subtotalConceptos: number;
+  saldoSinDesc: number;
+  saldoConDesc: number;
 }
+
+const toNumber = (val: number | string): number =>
+  typeof val === "number" ? val : parseFloat(val) || 0;
 
 export const DetalleCuentaModal: React.FC<DetalleCuentaModalProps> = ({
   visible,
   onClose,
+  onVerEstadoCuenta,
   cuentaCobro,
   formatCurrency,
   descuentoActivo,
   ahorro,
   subtotalConceptos,
+  saldoSinDesc,
+  saldoConDesc,
 }) => {
   const movimiento = cuentaCobro.movimientos[0];
   const translateY = useRef(new Animated.Value(600)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  const saldoInicial = parseFloat(cuentaCobro.saldo_inicial);
+  const saldoInicialAFavor = saldoInicial < 0;
+  const total = descuentoActivo ? saldoConDesc : saldoSinDesc;
+  const totalAFavor = total <= 0;
 
   useEffect(() => {
     if (visible) {
@@ -123,13 +139,6 @@ export const DetalleCuentaModal: React.FC<DetalleCuentaModalProps> = ({
 
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Detalle Completo</Text>
-              {/* <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <Ionicons
-                  name="close"
-                  size={24}
-                  color={THEME.colors.text.muted}
-                />
-              </TouchableOpacity> */}
             </View>
           </View>
 
@@ -149,36 +158,25 @@ export const DetalleCuentaModal: React.FC<DetalleCuentaModalProps> = ({
               </View>
             </View>
 
-            {/* Saldos Iniciales */}
+            {/* Saldo inicial */}
             <View style={styles.table}>
               <View style={styles.tableRow}>
-                <Text style={styles.tableCellLabel}>SALDOS INICIALES</Text>
+                <Text style={styles.tableCellLabel}>SALDO ANTERIOR</Text>
               </View>
               <View style={styles.tableRow}>
-                <Text style={styles.tableCellText}>Deuda anterior</Text>
                 <Text
                   style={[
                     styles.tableCellAmount,
                     {
-                      color:
-                        (movimiento?.saldo_ini_deuda || 0) > 0
-                          ? "#EF4444"
-                          : THEME.colors.text.muted,
+                      color: saldoInicialAFavor
+                        ? "#10B981"
+                        : saldoInicial === 0
+                          ? THEME.colors.text.primary
+                          : "#EF4444",
                     },
                   ]}
                 >
-                  {formatCurrency(movimiento?.saldo_ini_deuda || 0)}
-                </Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCellText}>Saldo a favor</Text>
-                <Text
-                  style={[
-                    styles.tableCellAmount,
-                    { color: THEME.colors.success },
-                  ]}
-                >
-                  {formatCurrency(Math.abs(movimiento?.saldo_ini_ant || 0))}
+                  {formatCurrency(Math.abs(saldoInicial))}
                 </Text>
               </View>
             </View>
@@ -189,44 +187,55 @@ export const DetalleCuentaModal: React.FC<DetalleCuentaModalProps> = ({
                 <Text style={styles.tableCellLabel}>CONCEPTO</Text>
                 <Text style={styles.tableCellLabel}>VALOR</Text>
               </View>
-              {movimiento?.detalle.map((item, index) => (
-                <View key={index}>
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellText}>{item.descrip}</Text>
-                    <Text style={styles.tableCellAmount}>
-                      {formatCurrency(item.cuota)}
-                    </Text>
-                  </View>
-                  {item.anticipos < 0 && (
-                    <View
-                      style={[
-                        styles.tableRow,
-                        {
-                          backgroundColor: THEME.colors.successLight,
-                          borderTopWidth: 0,
-                        },
-                      ]}
+              {movimiento?.detalle.map((item, index) => {
+                const descuento = toNumber(item.descuento ?? 0);
+                const saldo = parseFloat(item.saldo);
+                const expandido = expandedIndex === index;
+                return (
+                  <View key={index}>
+                    <TouchableOpacity
+                      style={styles.tableRow}
+                      onPress={() => setExpandedIndex(expandido ? null : index)}
+                      activeOpacity={0.6}
                     >
-                      <Text
-                        style={[
-                          styles.tableCellText,
-                          { paddingLeft: 16, color: THEME.colors.success },
-                        ]}
-                      >
-                        Anticipo
+                      <Text style={[styles.tableCellText, { flex: 1 }]}>
+                        {item.descrip}
                       </Text>
-                      <Text
-                        style={[
-                          styles.tableCellAmount,
-                          { color: THEME.colors.success },
-                        ]}
-                      >
-                        -{formatCurrency(Math.abs(item.anticipos))}
+                      <Text style={styles.tableCellAmount}>
+                        {formatCurrency(toNumber(item.cuota))}
                       </Text>
-                    </View>
-                  )}
-                </View>
-              ))}
+                    </TouchableOpacity>
+                    {expandido && (
+                      <View style={styles.detalleExpandido}>
+                        {descuento > 0 && (
+                          <View style={styles.detalleRow}>
+                            <Text style={styles.detalleLabelVerde}>
+                              Descuento pronto pago (
+                              {cuentaCobro.param.porcentaje_desc}%)
+                            </Text>
+                            <Text style={styles.detalleValorVerde}>
+                              -{formatCurrency(descuento)}
+                            </Text>
+                          </View>
+                        )}
+                        <View style={styles.detalleRow}>
+                          <Text style={styles.detalleLabel}>
+                            {saldo <= 0 ? "Saldo a favor" : "Saldo pendiente"}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.detalleValor,
+                              { color: saldo <= 0 ? "#10B981" : "#EF4444" },
+                            ]}
+                          >
+                            {formatCurrency(Math.abs(saldo))}
+                          </Text>
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
               <View style={styles.tableRowTotal}>
                 <Text style={styles.tableCellLabelTotal}>SUBTOTAL</Text>
                 <Text style={styles.tableCellAmountTotal}>
@@ -254,7 +263,7 @@ export const DetalleCuentaModal: React.FC<DetalleCuentaModalProps> = ({
                 <View style={styles.tableRow}>
                   <Text style={styles.tableCellText}>Válido hasta</Text>
                   <Text style={[styles.tableCellAmount, { fontSize: 12 }]}>
-                    {new Date(cuentaCobro.param.fecha_desc).toLocaleDateString(
+                    {new Date(cuentaCobro.param.fecha_desc!).toLocaleDateString(
                       "es-CO"
                     )}
                   </Text>
@@ -264,7 +273,7 @@ export const DetalleCuentaModal: React.FC<DetalleCuentaModalProps> = ({
 
             {/* Total */}
             <View style={styles.table}>
-              {descuentoActivo && cuentaCobro.saldo_sin_desc > 0 && (
+              {descuentoActivo && saldoSinDesc > 0 && (
                 <View style={styles.tableRow}>
                   <Text
                     style={[
@@ -283,20 +292,45 @@ export const DetalleCuentaModal: React.FC<DetalleCuentaModalProps> = ({
                       },
                     ]}
                   >
-                    {formatCurrency(cuentaCobro.saldo_sin_desc)}
+                    {formatCurrency(saldoSinDesc)}
                   </Text>
                 </View>
               )}
-              <View style={styles.tableRowTotal}>
-                <Text style={styles.tableCellLabelTotal}>TOTAL A PAGAR</Text>
-                <Text style={styles.tableCellAmountTotal}>
-                  {formatCurrency(
-                    descuentoActivo
-                      ? cuentaCobro.saldo_con_desc
-                      : cuentaCobro.saldo_sin_desc
-                  )}
+              <View
+                style={[
+                  styles.tableRowTotal,
+                  totalAFavor && { backgroundColor: "#ECFDF5" },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.tableCellLabelTotal,
+                    totalAFavor && { color: "#10B981" },
+                  ]}
+                >
+                  {totalAFavor ? "SALDO A FAVOR" : "TOTAL A PAGAR"}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableCellAmountTotal,
+                    totalAFavor && { color: "#10B981" },
+                  ]}
+                >
+                  {formatCurrency(Math.abs(total))}
                 </Text>
               </View>
+              <TouchableOpacity
+                style={styles.tableRowCta}
+                onPress={onVerEstadoCuenta}
+                activeOpacity={0.6}
+              >
+                <Text style={styles.tableCellCta}>Ver estado de cuenta</Text>
+                <FontAwesome6
+                  name="money-bill-transfer"
+                  size={18}
+                  color="black"
+                />
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </Animated.View>
@@ -403,5 +437,54 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: THEME.colors.text.primary,
     textAlign: "right",
+  },
+  detalleExpandido: {
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: THEME.colors.border,
+    gap: 6,
+  },
+  detalleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
+  detalleLabel: {
+    fontSize: 14,
+    color: THEME.colors.text.secondary,
+    flex: 1,
+  },
+  detalleValor: {
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "right",
+  },
+  detalleLabelVerde: {
+    fontSize: 14,
+    color: "#10B981",
+    flex: 1,
+  },
+  detalleValorVerde: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#10B981",
+  },
+  tableRowCta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: THEME.colors.border,
+  },
+  tableCellCta: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#000000",
+    flex: 1,
   },
 });

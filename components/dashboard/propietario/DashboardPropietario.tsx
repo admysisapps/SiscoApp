@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import ApartmentSelector from "../../ApartmentSelector";
 import AnuncioSistema from "./AnuncioSistema";
-import EstadoPagosUsuario from "./EstadoPagosUsuario";
+import EstadoPagosUsuario from "./CuentaCobro";
 import AccionesRapidas from "./AccionesRapidas";
 
 const DashboardPropietario = React.memo(function DashboardPropietario() {

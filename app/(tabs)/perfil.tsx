@@ -257,6 +257,7 @@ export default function Perfil() {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
+        contentContainerStyle={styles.scrollContent}
       >
         {/* Tarjeta del Conjunto */}
         <View style={styles.projectCard}>
@@ -342,6 +343,9 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 32,
   },
   projectCard: {
     backgroundColor: THEME.colors.surface,

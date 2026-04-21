@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useMemo } from "react";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LottieView from "lottie-react-native";
 import ScreenHeader from "@/components/shared/ScreenHeader";
@@ -9,21 +9,20 @@ import {
   useEstadoCuentaAnioAnterior,
 } from "@/hooks/useEstadoCuenta";
 import { THEME } from "@/constants/theme";
-import { Movimiento } from "@/types/cuentaCobro";
 
-export default function FinancieroScreen() {
+export default function EstadoCuentaScreen() {
   const { estadoCuenta, isLoading, error } = useEstadoCuenta();
   const {
     estadoCuenta: estadoAnterior,
     isLoading: isLoadingAnterior,
-    fetch: fetchRaw,
+    fetch: fetchAnioAnteriorRaw,
   } = useEstadoCuentaAnioAnterior();
 
-  const fetchAnioAnterior = useCallback(() => {
-    void fetchRaw();
-  }, [fetchRaw]);
+  const fetchAnioAnterior = React.useCallback(() => {
+    void fetchAnioAnteriorRaw();
+  }, [fetchAnioAnteriorRaw]);
 
-  const movimientos = useMemo((): Movimiento[] => {
+  const movimientos = useMemo(() => {
     if (!estadoCuenta) return [];
     const todos = estadoAnterior
       ? [...estadoCuenta.movimientos, ...estadoAnterior.movimientos]
@@ -35,11 +34,11 @@ export default function FinancieroScreen() {
   }, [estadoCuenta, estadoAnterior]);
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <ScreenHeader title="Estado de Cuenta" showBackButton={false} />
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Estado de Cuenta" />
 
       {isLoading ? (
-        <View style={styles.centered}>
+        <View style={styles.centerContainer}>
           <LottieView
             source={require("@/assets/lottie/loader.json")}
             autoPlay
@@ -48,7 +47,7 @@ export default function FinancieroScreen() {
           />
         </View>
       ) : error ? (
-        <View style={styles.centered}>
+        <View style={styles.centerContainer}>
           <Text style={styles.errorText}>
             Error al cargar el estado de cuenta
           </Text>
@@ -76,7 +75,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THEME.colors.background,
   },
-  centered: {
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: THEME.spacing.md,
+    paddingBottom: 40,
+  },
+  centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -89,12 +95,5 @@ const styles = StyleSheet.create({
     fontSize: THEME.fontSize.md,
     color: THEME.colors.error,
     textAlign: "center",
-  },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: THEME.spacing.md,
-    paddingBottom: 40,
   },
 });
