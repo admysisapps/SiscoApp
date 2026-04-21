@@ -125,12 +125,26 @@ export const MovimientosList = React.memo(function MovimientosList({
 
   useEffect(() => {
     if (__DEV__) {
-      console.log("[MovimientosList] Recibidos:", movimientos.length, "movimientos");
+      console.log(
+        "[MovimientosList] Recibidos:",
+        movimientos.length,
+        "movimientos"
+      );
       movimientos.forEach((m) => {
-        const saldoFinal = parseFloat(m.detalle[m.detalle.length - 1]?.saldo ?? "0");
-        const totalCuotas = m.detalle.reduce((s, d) => s + toNumber(d.cuota), 0);
-        const totalPagado = m.detalle.reduce((s, d) => s + toNumber(d["pagos/ajustes"]), 0);
-        console.log(`  → [${m.periodo}] cuotas: $${totalCuotas} | pagado: $${totalPagado} | saldo final: $${saldoFinal} | mostrando: ${m.detalle.filter(d => toNumber(d.cuota) > 0).length} conceptos`);
+        const saldoFinal = parseFloat(
+          m.detalle[m.detalle.length - 1]?.saldo ?? "0"
+        );
+        const totalCuotas = m.detalle.reduce(
+          (s, d) => s + toNumber(d.cuota),
+          0
+        );
+        const totalPagado = m.detalle.reduce(
+          (s, d) => s + toNumber(d["pagos/ajustes"]),
+          0
+        );
+        console.log(
+          `  → [${m.periodo}] cuotas: $${totalCuotas} | pagado: $${totalPagado} | saldo final: $${saldoFinal} | mostrando: ${m.detalle.filter((d) => toNumber(d.cuota) > 0).length} conceptos`
+        );
         if (totalCuotas === 0) {
           console.log(`    [RAW ${m.periodo}]:`, JSON.stringify(m.detalle));
         }

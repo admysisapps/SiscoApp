@@ -1,55 +1,32 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiService } from "@/services/apiService";
+import { useProject } from "@/contexts/ProjectContext";
+import { useApartment } from "@/contexts/ApartmentContext";
+import { swService } from "@/services/swService";
 import { CuentaCobro } from "@/types/cuentaCobro";
 
-const SW_URL =
-  "https://ykhlian2yj.execute-api.us-east-1.amazonaws.com/TESTAPI/getdatasw";
-
-// TODO: reemplazar con selectedProject.nit, selectedApartment.codigo_apt y año dinámico
-const MOCK_NIT = "777777777";
-const MOCK_CODIGO = "1";
-const MOCK_YEAR = "2026";
+const CURRENT_YEAR = new Date().getFullYear().toString();
 
 export function useCuentaCobro(): {
   cuentaCobro: CuentaCobro | null;
   isLoading: boolean;
   error: Error | null;
 } {
+  const { selectedProject } = useProject();
+  const { selectedApartment } = useApartment();
+
+  const nit = selectedProject?.nit ?? null;
+  const codigo = selectedApartment?.codigo_apt ?? null;
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["cuenta-cobro", MOCK_NIT, MOCK_CODIGO, MOCK_YEAR],
-    queryFn: async (): Promise<CuentaCobro> => {
-      const token = await apiService.getAuthToken();
-
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (token) headers.Authorization = `Bearer ${token}`;
-
-      const response = await fetch(SW_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          nit: MOCK_NIT,
-          codigo: MOCK_CODIGO,
-          year: MOCK_YEAR,
-          c_cobr: true,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status} al cargar cuenta de cobro`);
-      }
-
-      const json: CuentaCobro = await response.json();
-
-      if (!json.unidad || json.tipo !== "Cuenta de Cobro") {
-        throw new Error("Respuesta inválida del servidor");
-      }
-
-      return json;
-    },
+    queryKey: ["cuenta-cobro", nit, codigo, CURRENT_YEAR],
+    queryFn: () => swService.getCuentaCobro(CURRENT_YEAR),
+    enabled: !!nit && !!codigo,
     staleTime: 5 * 60 * 1000,
   });
 
-  return { cuentaCobro: data ?? null, isLoading, error: error as Error | null };
+  return {
+    cuentaCobro: data ?? null,
+    isLoading,
+    error: error as Error | null,
+  };
 }
