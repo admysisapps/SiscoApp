@@ -19,6 +19,7 @@ import Toast from "@/components/Toast";
 import { THEME } from "@/constants/theme";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Tipo para los items del menú
 interface MenuItemType {
@@ -98,6 +99,7 @@ MenuItem.displayName = "MenuItem";
 export default function Perfil() {
   const { selectedProject, switchProject, proyectos } = useProject();
   const { logout, currentUsername } = useAuth();
+  const insets = useSafeAreaInsets();
   const {
     showModal,
     openPaymentMethods,
@@ -257,7 +259,10 @@ export default function Perfil() {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={{
+          ...styles.scrollContent,
+          paddingBottom: insets.bottom + 16,
+        }}
       >
         {/* Tarjeta del Conjunto */}
         <View style={styles.projectCard}>

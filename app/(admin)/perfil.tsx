@@ -10,7 +10,7 @@ import {
 
 import { router } from "expo-router";
 import { useProject } from "@/contexts/ProjectContext";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 import { notificationService } from "@/services/notificacionesService";
 
@@ -24,6 +24,7 @@ import ScreenHeader from "@/components/shared/ScreenHeader";
 export default function AdminPerfil() {
   const { selectedProject, switchProject, proyectos } = useProject();
   const { logout, currentUsername } = useAuth();
+  const insets = useSafeAreaInsets();
   const [notificationModalVisible, setNotificationModalVisible] =
     useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -124,6 +125,7 @@ export default function AdminPerfil() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
       >
         {/* Tarjeta de Admin con diseño especial */}
         <LinearGradient
