@@ -76,7 +76,6 @@ export default function AdminLayout() {
           }}
         >
           <Tabs.Screen name="index" />
-          <Tabs.Screen name="(financiero-admin)" />
           <Tabs.Screen name="perfil" />
         </Tabs>
       </SafeAreaView>

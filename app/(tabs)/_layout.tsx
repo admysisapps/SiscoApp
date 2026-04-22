@@ -26,7 +26,6 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen name="index" />
-        <Tabs.Screen name="(financiero)" />
         <Tabs.Screen name="(asambleas)" />
         <Tabs.Screen name="perfil" />
       </Tabs>
