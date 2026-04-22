@@ -4,13 +4,17 @@ import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRole } from "@/hooks/useRole";
+import { THEME } from "@/constants/theme";
 // import CustomTabBar from "@/components/CustomTabBar";
 
 export default function TabLayout() {
   const { isAdmin } = useRole();
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: THEME.colors.background }]}
+      edges={["top"]}
+    >
       {/* Indicador de Rol */}
       {isAdmin && (
         <View style={styles.roleIndicator}>
