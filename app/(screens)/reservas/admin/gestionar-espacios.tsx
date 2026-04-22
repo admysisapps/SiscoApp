@@ -16,20 +16,11 @@ import { COLORS, THEME } from "@/constants/theme";
 import { reservaService } from "@/services/reservaService";
 import { useLoading } from "@/contexts/LoadingContext";
 import ScreenHeader from "@/components/shared/ScreenHeader";
-interface EspacioAdmin {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estado: "activa" | "inactiva" | "mantenimiento";
-  tipo_reserva: string;
-  costo: number;
-  capacidad_maxima: number;
-  imagen_nombre?: string;
-}
+import { Espacio } from "@/types/Espacio";
 
 export default function GestionarEspaciosScreen() {
   const [refreshing, setRefreshing] = useState(false);
-  const [espacios, setEspacios] = useState<EspacioAdmin[]>([]);
+  const [espacios, setEspacios] = useState<Espacio[]>([]);
   const [inicializado, setInicializado] = useState(false);
   const { showLoading, hideLoading } = useLoading();
 
@@ -47,16 +38,14 @@ export default function GestionarEspaciosScreen() {
       if (mostrarLoading) {
         showLoadingRef.current("Cargando zonas comunes...");
       }
-
       const response = await reservaService.listarEspaciosFresh({
-        solo_activos: false, // Admin ve todos los espacios
+        solo_activos: false,
       });
-
       if (response?.success) {
         setEspacios(response.espacios || []);
       }
-    } catch {
-      // Error silencioso
+    } catch (e) {
+      console.error("[GestionarEspacios] cargarEspacios ERROR", e);
     } finally {
       if (mostrarLoading) {
         hideLoadingRef.current();
@@ -87,7 +76,7 @@ export default function GestionarEspaciosScreen() {
     router.push("/(screens)/reservas/admin/crear-espacio");
   }, []);
 
-  const handleEditarEspacio = useCallback((espacio: EspacioAdmin) => {
+  const handleEditarEspacio = useCallback((espacio: Espacio) => {
     router.push(`/(screens)/reservas/admin/crear-espacio?id=${espacio.id}`);
   }, []);
 

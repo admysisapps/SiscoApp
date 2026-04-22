@@ -14,7 +14,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,97 +22,60 @@ import { reservaService } from "@/services/reservaService";
 import { s3Service } from "@/services/s3Service";
 import Toast from "@/components/Toast";
 import { useProject } from "@/contexts/ProjectContext";
-import { useLoading } from "@/contexts/LoadingContext";
 import DiaHorarioItem from "@/components/zonasComunes/DiaHorarioItem";
 import dayjs from "dayjs";
-import {
-  HorarioAPI,
-  EspacioAPI,
-  ImagenSeleccionada,
-  HorariosSemanalesMap,
-  FormDataEspacio,
-  ConfiguracionEspacio,
-} from "@/types/Espacio";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 import { Button } from "@/components/reacticx/button";
+import { useCargarEspacio } from "@/hooks/useCargarEspacio";
+import { SelectField, SelectOption } from "@/components/reservas/SelectField";
+
+const OPCIONES_ESTADO: SelectOption<"activa" | "inactiva" | "mantenimiento">[] =
+  [
+    {
+      label: "Activa (disponible para reservas)",
+      value: "activa",
+      icon: "checkmark-circle-outline",
+    },
+    {
+      label: "Inactiva (no disponible)",
+      value: "inactiva",
+      icon: "close-circle-outline",
+    },
+    {
+      label: "En Mantenimiento",
+      value: "mantenimiento",
+      icon: "construct-outline",
+    },
+  ];
+
+const OPCIONES_TIPO_RESERVA: SelectOption<
+  "por_minutos" | "por_horas" | "bloque_fijo" | "gratuito"
+>[] = [
+  {
+    label: "Por Minutos (máxima precisión)",
+    value: "por_minutos",
+    icon: "timer-outline",
+  },
+  { label: "Por Horas (flexible)", value: "por_horas", icon: "time-outline" },
+  {
+    label: "Bloque Fijo (ej: 4 horas)",
+    value: "bloque_fijo",
+    icon: "calendar-outline",
+  },
+  { label: "Gratuito (sin costo)", value: "gratuito", icon: "gift-outline" },
+];
+
+const OPCIONES_ANTELACION: SelectOption[] = [
+  { label: "6 horas de antelación", value: "6" },
+  { label: "12 horas de antelación", value: "12" },
+  { label: "24 horas de antelación (1 día)", value: "24" },
+  { label: "48 horas de antelación (2 días)", value: "48" },
+];
 
 export default function CrearEspacioScreen() {
   const { id } = useLocalSearchParams();
   const isEditMode = !!id;
-  const { showLoading, hideLoading } = useLoading();
   const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState<FormDataEspacio>({
-    nombre: "",
-    descripcion: "",
-    reglas: "",
-    capacidad_maxima: "1",
-    costo: "",
-    hora_inicio: "06:00",
-    hora_fin: "22:00",
-    tiempo_minimo_reserva: "60",
-    tiempo_maximo_reserva: "240",
-    duracion_bloque: "240",
-    tiempo_reserva: "24",
-  });
-
-  const [configuracion, setConfiguracion] = useState<ConfiguracionEspacio>({
-    estado: "activa",
-    tipo_reserva: "por_horas",
-    requiere_aprobacion: false,
-    fecha_mantenimiento: "",
-  });
-
-  // Horarios por día (nueva estructura)
-  const [horariosSemanales, setHorariosSemanales] =
-    useState<HorariosSemanalesMap>({
-      1: {
-        activo: true,
-        hora_inicio: "06:00",
-        hora_fin: "22:00",
-        precio_especial: "",
-      }, // Lunes
-      2: {
-        activo: true,
-        hora_inicio: "06:00",
-        hora_fin: "22:00",
-        precio_especial: "",
-      }, // Martes
-      3: {
-        activo: true,
-        hora_inicio: "06:00",
-        hora_fin: "22:00",
-        precio_especial: "",
-      }, // Miércoles
-      4: {
-        activo: true,
-        hora_inicio: "06:00",
-        hora_fin: "22:00",
-        precio_especial: "",
-      }, // Jueves
-      5: {
-        activo: true,
-        hora_inicio: "06:00",
-        hora_fin: "22:00",
-        precio_especial: "",
-      }, // Viernes
-      6: {
-        activo: true,
-        hora_inicio: "07:00",
-        hora_fin: "23:59",
-        precio_especial: "",
-      }, // Sábado
-      7: {
-        activo: false,
-        hora_inicio: "08:00",
-        hora_fin: "20:00",
-        precio_especial: "",
-      }, // Domingo
-    });
-
-  const [imagen, setImagen] = useState<ImagenSeleccionada | null>(null);
-  const [imagenUrl, setImagenUrl] = useState<string | null>(null);
-  const [imagenEliminada, setImagenEliminada] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [deletingImage] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -128,142 +90,31 @@ export default function CrearEspacioScreen() {
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
 
+  const showToast = useCallback(
+    (message: string, type: "success" | "error" | "warning" = "success") => {
+      setToast({ visible: true, message, type });
+    },
+    []
+  );
+
+  const {
+    formData,
+    setFormData,
+    configuracion,
+    setConfiguracion,
+    horariosSemanales,
+    setHorariosSemanales,
+    imagen,
+    setImagen,
+    imagenUrl,
+    setImagenUrl,
+    imagenEliminada,
+    setImagenEliminada,
+    imagenNombreOriginal,
+  } = useCargarEspacio({ id, isEditMode, showToast });
+
   const { selectedProject } = useProject();
   const scrollViewRef = useRef<ScrollView>(null);
-
-  // Cargar datos del espacio en modo editar
-  React.useEffect(() => {
-    const cargarEspacio = async () => {
-      if (isEditMode && id) {
-        try {
-          showLoading("Cargando zona común...");
-          const response = await reservaService.obtenerEspacio(Number(id));
-
-          if (response.success && response.espacio) {
-            const espacio: EspacioAPI = response.espacio;
-
-            // Llenar formulario con datos existentes
-            setFormData({
-              nombre: espacio.nombre || "",
-              descripcion: espacio.descripcion || "",
-              reglas: espacio.reglas || "",
-              capacidad_maxima: espacio.capacidad_maxima?.toString() || "1",
-              costo: espacio.costo?.toString() || "",
-              hora_inicio: "06:00", // Se usará desde horarios
-              hora_fin: "22:00", // Se usará desde horarios
-              tiempo_minimo_reserva:
-                espacio.tiempo_minimo_reserva?.toString() || "60",
-              tiempo_maximo_reserva:
-                espacio.tiempo_maximo_reserva?.toString() || "240",
-              duracion_bloque: espacio.duracion_bloque?.toString() || "240",
-              tiempo_reserva: espacio.tiempo_reserva?.toString() || "24",
-            });
-
-            setConfiguracion({
-              estado: espacio.estado || "activa",
-              tipo_reserva: espacio.tipo_reserva || "por_horas",
-              requiere_aprobacion: espacio.requiere_aprobacion || false,
-              fecha_mantenimiento: espacio.fecha_mantenimiento || "",
-            });
-
-            // Convertir horarios si existen
-            if (espacio.horarios && espacio.horarios.length > 0) {
-              const horariosMap: HorariosSemanalesMap = {
-                // Inicializar todos los días con valores por defecto
-                1: {
-                  activo: false,
-                  hora_inicio: "06:00",
-                  hora_fin: "22:00",
-                  precio_especial: "",
-                },
-                2: {
-                  activo: false,
-                  hora_inicio: "06:00",
-                  hora_fin: "22:00",
-                  precio_especial: "",
-                },
-                3: {
-                  activo: false,
-                  hora_inicio: "06:00",
-                  hora_fin: "22:00",
-                  precio_especial: "",
-                },
-                4: {
-                  activo: false,
-                  hora_inicio: "06:00",
-                  hora_fin: "22:00",
-                  precio_especial: "",
-                },
-                5: {
-                  activo: false,
-                  hora_inicio: "06:00",
-                  hora_fin: "22:00",
-                  precio_especial: "",
-                },
-                6: {
-                  activo: false,
-                  hora_inicio: "07:00",
-                  hora_fin: "23:59",
-                  precio_especial: "",
-                },
-                7: {
-                  activo: false,
-                  hora_inicio: "08:00",
-                  hora_fin: "20:00",
-                  precio_especial: "",
-                },
-              };
-
-              // Sobrescribir con datos existentes
-              espacio.horarios.forEach((horario: HorarioAPI) => {
-                horariosMap[horario.dia_semana] = {
-                  activo: horario.activo,
-                  hora_inicio: horario.hora_inicio,
-                  hora_fin: horario.hora_fin,
-                  precio_especial: horario.precio_especial?.toString() || "",
-                };
-              });
-              setHorariosSemanales(horariosMap);
-            }
-
-            // Si hay imagen, marcarla como existente y obtener URL
-            if (espacio.imagen_nombre && selectedProject?.nit) {
-              setImagen({
-                name: espacio.imagen_nombre,
-                uploaded: true,
-                existing: true,
-              });
-
-              // Obtener URL firmada de S3
-              const result = await s3Service.getEspacioImageUrl(
-                selectedProject.nit,
-                espacio.imagen_nombre
-              );
-              if (result.success && result.url) {
-                setImagenUrl(result.url);
-              }
-            }
-          } else {
-            showToast(
-              "No pudimos cargar la información de esta zona. Verifica tu conexión e inténtalo nuevamente.",
-              "error"
-            );
-            router.back();
-          }
-        } catch {
-          showToast(
-            "Problema de conexión. No pudimos cargar los datos de la zona.",
-            "error"
-          );
-          router.back();
-        } finally {
-          hideLoading();
-        }
-      }
-    };
-
-    cargarEspacio();
-  }, [isEditMode, id, selectedProject?.nit, showLoading, hideLoading]);
 
   // Validaciones divididas en funciones específicas
   const validateBasicInfo = (errors: { [key: string]: string }) => {
@@ -399,7 +250,6 @@ export default function CrearEspacioScreen() {
     try {
       setUploadingFile(true);
 
-      // Usar ImagePicker con compresión automática
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: "images",
         allowsEditing: true,
@@ -420,7 +270,8 @@ export default function CrearEspacioScreen() {
           uploaded: false,
         });
       }
-    } catch {
+    } catch (e) {
+      console.error("[CrearEspacio] handleSelectImage ERROR", e);
       showToast(
         "No pudimos abrir el selector de imágenes. Inténtalo nuevamente.",
         "error"
@@ -445,10 +296,8 @@ export default function CrearEspacioScreen() {
       setLoading(true);
       let imagenS3Key = null;
 
-      // Eliminar imagen de S3 si fue marcada para eliminar
       if (imagenEliminada && isEditMode) {
-        const response = await reservaService.obtenerEspacio(Number(id));
-        const imagenExistente = response?.espacio?.imagen_nombre;
+        const imagenExistente = imagenNombreOriginal;
 
         if (imagenExistente && selectedProject?.nit) {
           try {
@@ -462,18 +311,13 @@ export default function CrearEspacioScreen() {
         }
       }
 
-      // Subir imagen a S3 si existe
       if (imagen && !imagen.uploaded && imagen.uri) {
-        // Lógica de sobrescritura restaurada
         let nombreArchivo;
 
         if (isEditMode) {
-          // Buscar imagen existente en BD para sobrescribir
-          const response = await reservaService.obtenerEspacio(Number(id));
-          const imagenExistente = response?.espacio?.imagen_nombre;
-
-          if (imagenExistente) {
-            nombreArchivo = imagenExistente;
+          const nombreExistente = imagenNombreOriginal;
+          if (nombreExistente) {
+            nombreArchivo = nombreExistente;
           } else {
             nombreArchivo = `${Date.now()}_${imagen.name}`;
           }
@@ -485,10 +329,10 @@ export default function CrearEspacioScreen() {
           selectedProject.nit,
           {
             uri: imagen.uri,
-            name: imagen.name, // Nombre original del archivo
+            name: imagen.name,
             type: imagen.mimeType,
           },
-          nombreArchivo // Pasar nombre personalizado
+          nombreArchivo
         );
 
         if (uploadResult.success) {
@@ -547,7 +391,8 @@ export default function CrearEspacioScreen() {
             : "No pudimos crear la zona. Verifica los datos e inténtalo nuevamente.");
         showToast(mensajeError, "error");
       }
-    } catch {
+    } catch (e) {
+      console.error("[CrearEspacio] handleSubmit ERROR", e);
       showToast(
         "Problema de conexión. Verifica tu internet e inténtalo nuevamente.",
         "error"
@@ -602,10 +447,13 @@ export default function CrearEspacioScreen() {
     return dayjs(dateString).format("DD/MM/YYYY");
   };
 
+  const datePickerOpenRef = useRef(false);
+
   const handleDatePickerChange = (event: any, selectedDate?: Date) => {
+    if (!datePickerOpenRef.current) return; // ignorar disparo automático de Android
+    datePickerOpenRef.current = false;
     setShowDatePicker(false);
-    if (selectedDate) {
-      // Guardar fecha sin conversión de zona horaria
+    if (event?.type === "set" && selectedDate) {
       const dateString = toLocalDateString(selectedDate);
       setConfiguracion({ ...configuracion, fecha_mantenimiento: dateString });
     }
@@ -658,13 +506,6 @@ export default function CrearEspacioScreen() {
       7: "D",
     };
     return cortos[diaSemana as keyof typeof cortos] || "";
-  };
-
-  const showToast = (
-    message: string,
-    type: "success" | "error" | "warning" = "success"
-  ) => {
-    setToast({ visible: true, message, type });
   };
 
   const hideToast = () => {
@@ -783,25 +624,14 @@ export default function CrearEspacioScreen() {
             </View>
 
             <Text style={styles.label}>Estado del Espacio</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={configuracion.estado}
-                onValueChange={(value) =>
-                  setConfiguracion({ ...configuracion, estado: value })
-                }
-                style={styles.picker}
-              >
-                <Picker.Item
-                  label="Activa (disponible para reservas)"
-                  value="activa"
-                />
-                <Picker.Item
-                  label="Inactiva (no disponible)"
-                  value="inactiva"
-                />
-                <Picker.Item label="En Mantenimiento" value="mantenimiento" />
-              </Picker>
-            </View>
+            <SelectField
+              label="Estado del Espacio"
+              value={configuracion.estado}
+              options={OPCIONES_ESTADO}
+              onChange={(value) => {
+                setConfiguracion({ ...configuracion, estado: value });
+              }}
+            />
 
             {configuracion.estado === "mantenimiento" && (
               <>
@@ -811,7 +641,10 @@ export default function CrearEspacioScreen() {
                     styles.datePickerButton,
                     errors.fecha_mantenimiento && styles.inputError,
                   ]}
-                  onPress={() => setShowDatePicker(true)}
+                  onPress={() => {
+                    datePickerOpenRef.current = true;
+                    setShowDatePicker(true);
+                  }}
                 >
                   <Ionicons
                     name="calendar-outline"
@@ -836,30 +669,17 @@ export default function CrearEspacioScreen() {
             )}
 
             <Text style={styles.label}>Tipo de Reserva</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={configuracion.tipo_reserva}
-                onValueChange={(value) => {
-                  setConfiguracion({ ...configuracion, tipo_reserva: value });
-                  // Si cambia a por_horas, fijar tiempo mínimo en 60
-                  if (value === "por_horas") {
-                    setFormData({ ...formData, tiempo_minimo_reserva: "60" });
-                  }
-                }}
-                style={styles.picker}
-              >
-                <Picker.Item
-                  label="Por Minutos (máxima precisión)"
-                  value="por_minutos"
-                />
-                <Picker.Item label="Por Horas (flexible)" value="por_horas" />
-                <Picker.Item
-                  label="Bloque Fijo (ej: 4 horas)"
-                  value="bloque_fijo"
-                />
-                <Picker.Item label="Gratuito (sin costo)" value="gratuito" />
-              </Picker>
-            </View>
+            <SelectField
+              label="Tipo de Reserva"
+              value={configuracion.tipo_reserva}
+              options={OPCIONES_TIPO_RESERVA}
+              onChange={(value) => {
+                setConfiguracion({ ...configuracion, tipo_reserva: value });
+                if (value === "por_horas") {
+                  setFormData({ ...formData, tiempo_minimo_reserva: "60" });
+                }
+              }}
+            />
 
             {configuracion.tipo_reserva === "bloque_fijo" && (
               <>
@@ -974,26 +794,14 @@ export default function CrearEspacioScreen() {
             )}
 
             <Text style={styles.label}>Tiempo Mínimo de Antelación</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={formData.tiempo_reserva}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, tiempo_reserva: value })
-                }
-                style={styles.picker}
-              >
-                <Picker.Item label="6 horas de antelación" value="6" />
-                <Picker.Item label="12 horas de antelación" value="12" />
-                <Picker.Item
-                  label="24 horas de antelación (1 día)"
-                  value="24"
-                />
-                <Picker.Item
-                  label="48 horas de antelación (2 días)"
-                  value="48"
-                />
-              </Picker>
-            </View>
+            <SelectField
+              label="Tiempo Mínimo de Antelación"
+              value={formData.tiempo_reserva}
+              options={OPCIONES_ANTELACION}
+              onChange={(value) =>
+                setFormData({ ...formData, tiempo_reserva: value })
+              }
+            />
             <Text style={styles.hint}>
               Los usuarios solo podrán reservar horarios disponibles después de
               este tiempo. Ejemplo: Si seleccionas 24 horas, solo verán horarios
@@ -1246,11 +1054,7 @@ export default function CrearEspacioScreen() {
                   />
                 )}
                 <Text style={styles.imageButtonText}>
-                  {uploadingFile
-                    ? "Seleccionando..."
-                    : imagen
-                      ? "Seleccionar Imagen"
-                      : "Seleccionar Imagen"}
+                  {uploadingFile ? "Seleccionando..." : "Seleccionar Imagen"}
                 </Text>
                 <Text style={styles.imageHint}>
                   Opcional - JPG, PNG (Max 5MB)

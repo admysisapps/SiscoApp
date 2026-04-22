@@ -1,4 +1,3 @@
-// contexts/ApartmentContext.tsx
 import {
   createContext,
   useContext,
