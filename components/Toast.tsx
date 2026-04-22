@@ -1,14 +1,8 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  PanResponder,
-  Vibration,
-} from "react-native";
+import { View, Text, StyleSheet, Animated, PanResponder } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 import { THEME } from "@/constants/theme";
 
 interface ToastProps {
@@ -100,7 +94,7 @@ export default function Toast({
 
       // Haptic feedback solo para errores
       if (type === "error") {
-        Vibration.vibrate([0, 100, 50, 100]);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
 
       // Animación de entrada
