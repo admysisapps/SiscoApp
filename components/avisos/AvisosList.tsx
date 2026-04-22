@@ -4,14 +4,12 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
   RefreshControl,
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { Button } from "@/components/reacticx/button";
 import AvisoItem from "./AvisoItem";
 import { Aviso } from "@/types/Avisos";
 import { useAvisos } from "@/hooks/useAvisos";
@@ -63,29 +61,21 @@ export default function AvisosList({
     if (!hasNextPage) return null;
 
     return (
-      <TouchableOpacity
-        onPress={() => fetchNextPage()}
-        disabled={isFetchingNextPage}
-      >
-        <LinearGradient
-          colors={["#013973", "#0095ff", "#0080e6"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.loadMoreButton}
+      <View style={styles.footerContainer}>
+        <Button
+          onPress={() => fetchNextPage()}
+          isLoading={isFetchingNextPage}
+          loadingText="Cargando..."
+          gradientColors={["#013973", "#0095ff", "#0080e6"]}
+          loadingTextBackgroundColor="transparent"
+          fullWidth
+          height={48}
+          disabled={isFetchingNextPage}
         >
-          {isFetchingNextPage ? (
-            <>
-              <ActivityIndicator size="small" color="white" />
-              <Text style={styles.loadMoreText}>Cargando...</Text>
-            </>
-          ) : (
-            <>
-              <Text style={styles.loadMoreText}>Ver más comunicados</Text>
-              <Ionicons name="chevron-down" size={20} color="white" />
-            </>
-          )}
-        </LinearGradient>
-      </TouchableOpacity>
+          <Text style={styles.loadMoreText}>Ver más comunicados</Text>
+          <Ionicons name="chevron-down" size={20} color="white" />
+        </Button>
+      </View>
     );
   };
 
@@ -159,15 +149,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
-  loadMoreButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+  footerContainer: {
     marginVertical: 20,
-    gap: 8,
+    paddingHorizontal: 16,
   },
   loadMoreText: {
     color: "white",

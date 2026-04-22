@@ -16,7 +16,11 @@ export const PqrMainCards: React.FC = () => {
   };
 
   const handleViewDocuments = () => {
-    router.push("/(screens)/documentos/documentos");
+    if (isAdmin) {
+      router.push("/(admin)/documentosAdmin");
+    } else {
+      router.push("/(screens)/documentos/documentos");
+    }
   };
 
   return (
@@ -57,20 +61,20 @@ export const PqrMainCards: React.FC = () => {
         </View>
       </TouchableOpacity>
 
-      {/* Card Documentos - Solo para usuarios */}
-      {!isAdmin && (
-        <TouchableOpacity style={styles.card} onPress={handleViewDocuments}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="document-text" size={26} color="#4F46E5" />
-          </View>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Documentos</Text>
-            <Text style={styles.cardDescription}>
-              Documentos de la copropiedad
-            </Text>
-          </View>
-        </TouchableOpacity>
-      )}
+      {/* Card Documentos - Todos los roles */}
+      <TouchableOpacity style={styles.card} onPress={handleViewDocuments}>
+        <View style={styles.iconContainer}>
+          <Ionicons name="document-text" size={26} color="#4F46E5" />
+        </View>
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>Documentos</Text>
+          <Text style={styles.cardDescription}>
+            {isAdmin
+              ? "Gestiona los documentos de la copropiedad"
+              : "Documentos de la copropiedad"}
+          </Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };

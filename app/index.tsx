@@ -12,7 +12,7 @@ export default function Index() {
 
   */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect } from "expo-router";
 import NetInfo from "@react-native-community/netinfo";
@@ -73,7 +73,7 @@ export default function Index() {
 
         setAppReady(true);
         // console.log(`${LOG_TAG} appReady=true ${elapsed()}`);
-      } catch (error) {
+      } catch {
         // console.error(`${LOG_TAG} ERROR en initializeApp:`, error);
         setOnboardingSeen(true);
         setAppReady(true);

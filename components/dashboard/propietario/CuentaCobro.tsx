@@ -1,6 +1,13 @@
 import { THEME } from "@/constants/theme";
-import React, { useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Animated,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { DetalleCuentaModal } from "../DetalleCuentaModal";
 import { useCuentaCobro } from "@/hooks/useCuentaCobro";
 import { router } from "expo-router";
@@ -30,7 +37,7 @@ const calcularDescuento = (fechaDesc: string) => {
 
 const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
   const [modalVisible, setModalVisible] = useState(false);
-  const { cuentaCobro, isLoading, error } = useCuentaCobro();
+  const { cuentaCobro, isLoading, error, refetch } = useCuentaCobro();
 
   const {
     descuentoActivo,
@@ -39,8 +46,6 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
     subtotalConceptos,
     saldoSinDesc,
     saldoConDesc,
-    serviciosBasicos,
-    extras,
   } = useMemo(() => {
     if (!cuentaCobro)
       return {
@@ -48,98 +53,49 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
         ahorro: 0,
         movimiento: null,
         subtotalConceptos: 0,
-        diasRestantes: 0,
         saldoSinDesc: 0,
         saldoConDesc: 0,
-        serviciosBasicos: [],
-        extras: [],
       };
 
     const fechaDesc = cuentaCobro.param.fecha_desc;
-    const { activo: descuentoActivo, diasRestantes } = fechaDesc
+    const { activo: descuentoActivo } = fechaDesc
       ? calcularDescuento(fechaDesc)
-      : { activo: false, diasRestantes: 0 };
+      : { activo: false };
 
-    // Último movimiento = deuda más reciente
     const movimiento =
       cuentaCobro.movimientos[cuentaCobro.movimientos.length - 1];
 
-    // El saldo total ya viene calculado en el último movimiento
-    const ultimoSaldo = parseFloat(
+    // saldo del último ítem = total acumulado que viene de la API
+    const saldoSinDesc = toNumber(
       movimiento?.detalle[movimiento.detalle.length - 1]?.saldo ?? "0"
     );
+    // suma de cuotas para subtotal
     const subtotalConceptos =
       movimiento?.detalle.reduce(
         (sum, item) => sum + toNumber(item.cuota),
         0
       ) || 0;
-    const totalDescuento =
+    // descuento ya viene calculado por ítem en la API
+    const ahorro =
       movimiento?.detalle.reduce(
         (sum, item) => sum + toNumber(item.descuento ?? 0),
         0
       ) || 0;
-    const saldoSinDesc = ultimoSaldo;
-    const saldoConDesc = saldoSinDesc - totalDescuento;
-    const ahorro = totalDescuento;
-
-    const serviciosBasicos =
-      movimiento?.detalle.filter(
-        (item) =>
-          !item.descrip.toLowerCase().includes("multa") &&
-          !item.descrip.toLowerCase().includes("fondo")
-      ) || [];
-
-    const extras =
-      movimiento?.detalle.filter(
-        (item) =>
-          item.descrip.toLowerCase().includes("multa") ||
-          item.descrip.toLowerCase().includes("fondo")
-      ) || [];
+    const saldoConDesc = saldoSinDesc - ahorro;
 
     return {
       descuentoActivo,
       ahorro,
       movimiento,
       subtotalConceptos,
-      diasRestantes,
       saldoSinDesc,
       saldoConDesc,
-      serviciosBasicos,
-      extras,
     };
   }, [cuentaCobro]);
 
-  if (isLoading)
-    return (
-      <View style={styles.container}>
-        <View
-          style={[
-            styles.statusCard,
-            { alignItems: "center", justifyContent: "center", minHeight: 120 },
-          ]}
-        >
-          <Text style={{ color: THEME.colors.text.secondary }}>
-            Cargando cuenta de cobro...
-          </Text>
-        </View>
-      </View>
-    );
+  if (isLoading) return <CuentaCobroSkeleton />;
 
-  if (error)
-    return (
-      <View style={styles.container}>
-        <View
-          style={[
-            styles.statusCard,
-            { alignItems: "center", justifyContent: "center", minHeight: 120 },
-          ]}
-        >
-          <Text style={{ color: "#EF4444" }}>
-            Error al cargar la cuenta de cobro
-          </Text>
-        </View>
-      </View>
-    );
+  if (error) return <CuentaCobroError onRetry={() => refetch()} />;
 
   if (!cuentaCobro) return null;
 
@@ -164,26 +120,10 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
           </View>
         </View>
 
-        {/* Servicios básicos */}
-        {serviciosBasicos.length > 0 && (
+        {/* Conceptos del detalle directo de la API */}
+        {movimiento?.detalle && movimiento.detalle.length > 0 && (
           <View style={styles.section}>
-            {serviciosBasicos.map((item, index) => (
-              <View key={index} style={styles.receiptRow}>
-                <Text style={styles.receiptLabel} numberOfLines={1}>
-                  {item.descrip}
-                </Text>
-                <Text style={styles.receiptValue}>
-                  {formatCurrency(toNumber(item.cuota))}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Extras y multas */}
-        {extras.length > 0 && (
-          <View style={styles.section}>
-            {extras.map((item, index) => (
+            {movimiento.detalle.map((item, index) => (
               <View key={index} style={styles.receiptRow}>
                 <Text style={styles.receiptLabel} numberOfLines={1}>
                   {item.descrip}
@@ -210,15 +150,18 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
           </View>
         )}
 
-        {/* Descuento */}
-        {descuentoActivo && (
+        {/* Descuento pronto pago */}
+        {descuentoActivo && ahorro > 0 && (
           <View style={styles.discountSection}>
             <View style={styles.discountRow}>
               <View style={styles.discountInfo}>
                 <Text style={styles.discountLabel}>
-                  Descuento {cuentaCobro.param.porcentaje_desc}%
+                  Descuento pronto pago {cuentaCobro.param.porcentaje_desc}%
                 </Text>
               </View>
+              <Text style={styles.discountLabel}>
+                -{formatCurrency(ahorro)}
+              </Text>
             </View>
             <Text style={styles.discountHint}>
               Válido hasta el{" "}
@@ -275,6 +218,137 @@ const EstadoPagosUsuario = React.memo(function EstadoPagosUsuario() {
   );
 });
 
+const CuentaCobroError = ({ onRetry }: { onRetry: () => void }) => (
+  <View style={styles.container}>
+    <View style={styles.statusCard}>
+      {/* Header */}
+      <View style={styles.receiptHeader}>
+        <View style={styles.headerTop}>
+          <View>
+            <View style={styles.errorTitleRow}>
+              <View style={styles.errorIconBadge}>
+                <Ionicons
+                  name="alert-circle"
+                  size={16}
+                  color={THEME.colors.error}
+                />
+              </View>
+              <Text
+                style={[styles.receiptTitle, { color: THEME.colors.error }]}
+              >
+                Sin datos
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* 3 filas placeholder */}
+      {["Administración", "Servicios", "Otros conceptos"].map((label, i) => (
+        <View key={i} style={[styles.receiptRow, { marginBottom: 12 }]}>
+          <View style={styles.errorRowLeft}>
+            <Ionicons
+              name="remove-outline"
+              size={14}
+              color={THEME.colors.text.muted}
+              style={{ marginRight: 6 }}
+            />
+            <Text
+              style={[styles.receiptLabel, { color: THEME.colors.text.muted }]}
+            >
+              {label}
+            </Text>
+          </View>
+          <Text
+            style={[styles.receiptValue, { color: THEME.colors.text.muted }]}
+          >
+            —
+          </Text>
+        </View>
+      ))}
+
+      <View style={styles.dashedLine} />
+
+      {/* Footer con botón reintentar */}
+      <View style={styles.errorFooter}>
+        <Text style={styles.errorFooterText}>No se pudo obtener el total</Text>
+      </View>
+    </View>
+  </View>
+);
+
+const CuentaCobroSkeleton = () => {
+  const pulseAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulseAnim]);
+
+  const opacity = pulseAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.statusCard}>
+        {/* Header */}
+        <View style={{ marginBottom: 16 }}>
+          <Animated.View
+            style={[
+              styles.skeletonBox,
+              { width: 100, height: 18, opacity, marginBottom: 6 },
+            ]}
+          />
+          <Animated.View
+            style={[styles.skeletonBox, { width: 70, height: 13, opacity }]}
+          />
+        </View>
+        {/* 3 conceptos */}
+        {["90%", "75%", "60%"].map((width, i) => (
+          <View key={i} style={[styles.receiptRow, { marginBottom: 12 }]}>
+            <Animated.View
+              style={[
+                styles.skeletonBox,
+                { flex: 1, height: 14, opacity, marginRight: 12 },
+              ]}
+            />
+            <Animated.View
+              style={[styles.skeletonBox, { width: 70, height: 14, opacity }]}
+            />
+          </View>
+        ))}
+        {/* Línea divisoria */}
+        <View style={styles.dashedLine} />
+        {/* Total */}
+        <View style={styles.totalSection}>
+          <Animated.View
+            style={[styles.skeletonBox, { width: 110, height: 15, opacity }]}
+          />
+          <Animated.View
+            style={[styles.skeletonBox, { width: 130, height: 24, opacity }]}
+          />
+        </View>
+      </View>
+    </View>
+  );
+};
+
 export default EstadoPagosUsuario;
 
 const styles = StyleSheet.create({
@@ -309,6 +383,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: THEME.colors.text.secondary,
     marginTop: 2,
+  },
+  skeletonBox: {
+    backgroundColor: THEME.colors.border,
+    borderRadius: 4,
   },
   section: {
     marginBottom: 16,
@@ -383,5 +461,41 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: THEME.colors.text.primary,
     fontVariant: ["tabular-nums"],
+  },
+  errorTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  errorIconBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#FEF2F2",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorRowLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    marginRight: 12,
+  },
+  errorFooter: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  errorFooterText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: THEME.colors.text.muted,
+    letterSpacing: 0.5,
+  },
+
+  retryText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: THEME.colors.error,
   },
 });

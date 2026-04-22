@@ -20,7 +20,7 @@ export function useEstadoCuenta(): {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["estado-cuenta", nit, codigo, CURRENT_YEAR],
-    queryFn: () => swService.getEstadoCuenta(CURRENT_YEAR),
+    queryFn: () => swService.getEstadoCuenta(CURRENT_YEAR, nit!, codigo!),
     enabled: !!nit && !!codigo,
     staleTime: 5 * 60 * 1000,
   });
@@ -46,7 +46,7 @@ export function useEstadoCuentaAnioAnterior(): {
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["estado-cuenta", nit, codigo, PREV_YEAR],
-    queryFn: () => swService.getEstadoCuenta(PREV_YEAR),
+    queryFn: () => swService.getEstadoCuenta(PREV_YEAR, nit!, codigo!),
     enabled: false,
     staleTime: 5 * 60 * 1000,
   });

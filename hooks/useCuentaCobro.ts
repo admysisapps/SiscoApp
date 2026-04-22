@@ -10,6 +10,7 @@ export function useCuentaCobro(): {
   cuentaCobro: CuentaCobro | null;
   isLoading: boolean;
   error: Error | null;
+  refetch: () => void;
 } {
   const { selectedProject } = useProject();
   const { selectedApartment } = useApartment();
@@ -17,9 +18,9 @@ export function useCuentaCobro(): {
   const nit = selectedProject?.nit ?? null;
   const codigo = selectedApartment?.codigo_apt ?? null;
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["cuenta-cobro", nit, codigo, CURRENT_YEAR],
-    queryFn: () => swService.getCuentaCobro(CURRENT_YEAR),
+    queryFn: () => swService.getCuentaCobro(CURRENT_YEAR, nit!, codigo!),
     enabled: !!nit && !!codigo,
     staleTime: 5 * 60 * 1000,
   });
@@ -28,5 +29,6 @@ export function useCuentaCobro(): {
     cuentaCobro: data ?? null,
     isLoading,
     error: error as Error | null,
+    refetch,
   };
 }

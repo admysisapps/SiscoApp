@@ -5,13 +5,13 @@ const SW_URL =
   "https://ykhlian2yj.execute-api.us-east-1.amazonaws.com/TESTAPI/getdatasw";
 
 export const swApiService = {
-  async getDataSW(year: string, cCobr: boolean): Promise<CuentaCobro> {
-    const context = await apiService.getUserContext();
+  async getDataSW(
+    year: string,
+    cCobr: boolean,
+    nit: string,
+    codigo: string
+  ): Promise<CuentaCobro> {
     const token = await apiService.getAuthToken();
-
-    const nit: string = context?.proyecto_nit ?? null;
-    const codigo: string = context?.apartamento_codigo ?? null;
-
     if (!nit || !codigo) {
       throw new Error("Contexto de proyecto o apartamento no disponible");
     }

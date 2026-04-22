@@ -4,12 +4,13 @@ import { Tabs, useRouter } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { THEME } from "@/constants/theme";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import CustomTabBar from "@/components/CustomTabBar";
+// import CustomTabBar from "@/components/CustomTabBar";
 
 export default function AdminLayout() {
   const { isLoading: userLoading } = useUser();
@@ -44,69 +45,42 @@ export default function AdminLayout() {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: THEME.colors.background }]}
-      edges={["top"]}
-    >
-      {/* Indicador de Rol Admin */}
-      <LinearGradient
-        colors={["#DC2626", "#B91C1C"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.roleIndicator}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: THEME.colors.background }]}
+        edges={["top"]}
       >
-        <View style={styles.roleContent}>
-          <View style={styles.iconContainer}>
-            <MaterialIcons
-              name="admin-panel-settings"
-              size={14}
-              color="white"
-            />
+        {/* Indicador de Rol Admin */}
+        <LinearGradient
+          colors={["#DC2626", "#B91C1C"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.roleIndicator}
+        >
+          <View style={styles.roleContent}>
+            <View style={styles.iconContainer}>
+              <MaterialIcons
+                name="admin-panel-settings"
+                size={14}
+                color="white"
+              />
+            </View>
+            <Text style={styles.roleText}>ADMINISTRADOR</Text>
           </View>
-          <Text style={styles.roleText}>ADMINISTRADOR</Text>
-        </View>
-      </LinearGradient>
+        </LinearGradient>
 
-      <Tabs
-        tabBar={(props) => {
-          const currentRoute = props.state.routes[props.state.index];
-
-          // Ocultar tab bar en asambleas
-          if (currentRoute.name === "(asambleas)") {
-            return null;
-          }
-
-          // Ocultar tab bar si hay un estado anidado con la ruta Documentos
-          if (
-            currentRoute.state &&
-            "routes" in currentRoute.state &&
-            "index" in currentRoute.state
-          ) {
-            const nestedRoutes = currentRoute.state.routes;
-            const nestedIndex = currentRoute.state.index;
-            if (nestedRoutes && typeof nestedIndex === "number") {
-              const nestedRoute = nestedRoutes[nestedIndex];
-              if (
-                nestedRoute &&
-                "name" in nestedRoute &&
-                nestedRoute.name === "Documentos"
-              ) {
-                return null;
-              }
-            }
-          }
-
-          return <CustomTabBar {...props} />;
-        }}
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Tabs.Screen name="index" />
-        <Tabs.Screen name="(financiero-admin)" />
-        <Tabs.Screen name="perfil" />
-      </Tabs>
-    </SafeAreaView>
+        <Tabs
+          tabBar={() => null}
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Tabs.Screen name="index" />
+          <Tabs.Screen name="(financiero-admin)" />
+          <Tabs.Screen name="perfil" />
+        </Tabs>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 

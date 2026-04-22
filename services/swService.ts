@@ -2,9 +2,13 @@ import { CuentaCobro } from "@/types/cuentaCobro";
 import { swApiService } from "./swApiService";
 
 export const swService = {
-  async getEstadoCuenta(year: string): Promise<CuentaCobro> {
+  async getEstadoCuenta(
+    year: string,
+    nit: string,
+    codigo: string
+  ): Promise<CuentaCobro> {
     try {
-      return await swApiService.getDataSW(year, false);
+      return await swApiService.getDataSW(year, false, nit, codigo);
     } catch (error: any) {
       if (error.name === "AbortError") {
         throw new Error("Tiempo de espera agotado al cargar estado de cuenta");
@@ -16,9 +20,13 @@ export const swService = {
     }
   },
 
-  async getCuentaCobro(year: string): Promise<CuentaCobro> {
+  async getCuentaCobro(
+    year: string,
+    nit: string,
+    codigo: string
+  ): Promise<CuentaCobro> {
     try {
-      return await swApiService.getDataSW(year, true);
+      return await swApiService.getDataSW(year, true, nit, codigo);
     } catch (error: any) {
       if (error.name === "AbortError") {
         throw new Error("Tiempo de espera agotado al cargar cuenta de cobro");

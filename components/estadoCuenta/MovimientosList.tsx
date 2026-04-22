@@ -2,13 +2,13 @@ import { THEME } from "@/constants/theme";
 import { Movimiento } from "@/types/cuentaCobro";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   LayoutAnimation,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  TouchableOpacity,
 } from "react-native";
+import { Button } from "@/components/reacticx/button";
 import { MovimientoModal } from "./MovimientoModal";
 
 interface MovimientosListProps {
@@ -169,21 +169,21 @@ export const MovimientosList = React.memo(function MovimientosList({
       ))}
 
       {!anioAnteriorCargado && (
-        <TouchableOpacity
-          style={styles.loadMoreBtn}
+        <Button
           onPress={onCargarAnioAnterior}
+          isLoading={isLoadingAnioAnterior}
+          loadingText="Cargando..."
+          loadingTextColor={THEME.colors.text.secondary}
+          backgroundColor={THEME.colors.surface}
+          loadingTextBackgroundColor={THEME.colors.surface}
+          fullWidth
+          height={48}
+          borderRadius={12}
           disabled={isLoadingAnioAnterior}
-          activeOpacity={0.7}
+          style={styles.loadMoreBtn}
         >
-          {isLoadingAnioAnterior ? (
-            <ActivityIndicator
-              size="small"
-              color={THEME.colors.text.secondary}
-            />
-          ) : (
-            <Text style={styles.loadMoreText}>Ver historial {prevYear}</Text>
-          )}
-        </TouchableOpacity>
+          <Text style={styles.loadMoreText}>Ver historial {prevYear}</Text>
+        </Button>
       )}
 
       {selectedMov && (
@@ -295,13 +295,12 @@ const styles = StyleSheet.create({
   loadMoreBtn: {
     borderWidth: 1,
     borderColor: THEME.colors.border,
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: THEME.spacing.md,
-    backgroundColor: THEME.colors.surface,
-    minHeight: 48,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   loadMoreText: {
     fontSize: THEME.fontSize.sm,

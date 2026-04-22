@@ -1,22 +1,21 @@
 import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
-import GraficoPagos from "./GraficoPagos";
-import EstadoFinanciero from "./EstadoFinanciero";
-import ProximosPagos from "./ProximosPagos";
+import { View, StyleSheet } from "react-native";
+import { COLORS } from "../../../constants/theme";
+import ProximosPagos from "./DiponibilidadFondos";
+import AccionesRapidasAdmin from "./AccionesRapidasAdmin";
 
 export default function DashboardAdmin() {
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <GraficoPagos />
-      <EstadoFinanciero />
+    <View style={styles.container}>
       <ProximosPagos />
-    </ScrollView>
+      <AccionesRapidasAdmin />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.background,
   },
 });
