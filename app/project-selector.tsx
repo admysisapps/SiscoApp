@@ -16,7 +16,7 @@ export default function ProjectSelectorScreen() {
   const { loadApartments } = useApartment();
 
   const [isReady, setIsReady] = useState(false);
-  const [loadingNit, setLoadingNit] = useState<string | null>(null);
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -30,8 +30,9 @@ export default function ProjectSelectorScreen() {
   }, [proyectosTyped.length]);
 
   const handleProjectSelected = useCallback(async (proyecto: Proyecto) => {
-    if (loadingNit) return;
-    setLoadingNit(proyecto.nit);
+    const key = `${proyecto.nit}-${proyecto.rolUsuario}`;
+    if (loadingKey) return;
+    setLoadingKey(key);
     setSelectedProject(proyecto);
 
     try {
@@ -44,9 +45,9 @@ export default function ProjectSelectorScreen() {
     } catch (error) {
       console.error("[ProjectSelector] Error al cargar apartamentos:", error);
     } finally {
-      if (isMounted.current) setLoadingNit(null);
+      if (isMounted.current) setLoadingKey(null);
     }
-  }, [loadingNit, setSelectedProject, loadApartments, router]);
+  }, [loadingKey, setSelectedProject, loadApartments, router]);
 
   if (!isReady) {
     return <LoadingScreen />;
@@ -59,7 +60,7 @@ export default function ProjectSelectorScreen() {
   return (
     <ProjectSelector
       onProjectSelected={handleProjectSelected}
-      loadingNit={loadingNit}
+      loadingKey={loadingKey}
     />
   );
 }

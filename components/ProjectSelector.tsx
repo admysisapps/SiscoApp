@@ -19,7 +19,7 @@ const { height } = Dimensions.get("window");
 
 interface ProjectSelectorProps {
   onProjectSelected: (proyecto: Proyecto) => void;
-  loadingNit: string | null;
+  loadingKey: string | null;
 }
 
 const ROLE_CONFIG: Record<string, { icon: React.ComponentProps<typeof MaterialIcons>["name"]; iconSize: number; badge: string; colors: [string, string, string] }> = {
@@ -98,7 +98,7 @@ ProjectCard.displayName = "ProjectCard";
 
 export default function ProjectSelector({
   onProjectSelected,
-  loadingNit,
+  loadingKey,
 }: ProjectSelectorProps) {
   const { proyectos } = useProject();
 
@@ -113,8 +113,8 @@ export default function ProjectSelector({
       item={item}
       index={index}
       onProjectSelected={onProjectSelected}
-      isLoading={loadingNit === item.nit}
-      isDisabled={loadingNit !== null && loadingNit !== item.nit}
+      isLoading={loadingKey === `${item.nit}-${item.rolUsuario}`}
+      isDisabled={loadingKey !== null && loadingKey !== `${item.nit}-${item.rolUsuario}`}
     />
   );
 
