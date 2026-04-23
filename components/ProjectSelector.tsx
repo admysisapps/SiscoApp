@@ -22,10 +22,33 @@ interface ProjectSelectorProps {
   loadingKey: string | null;
 }
 
-const ROLE_CONFIG: Record<string, { icon: React.ComponentProps<typeof MaterialIcons>["name"]; iconSize: number; badge: string; colors: [string, string, string] }> = {
-  admin:       { icon: "admin-panel-settings", iconSize: 35, badge: "ADMIN",       colors: ["#1E40AF", "#3B82F6", "#60A5FA"] },
-  propietario: { icon: "account-circle",       iconSize: 32, badge: "PROPIETARIO", colors: ["#1E3A8A", "#3B82F6", "#60A5FA"] },
-  contador:    { icon: "calculate",            iconSize: 32, badge: "CONTADOR",    colors: ["#065F46", "#059669", "#34D399"] },
+const ROLE_CONFIG: Record<
+  string,
+  {
+    icon: React.ComponentProps<typeof MaterialIcons>["name"];
+    iconSize: number;
+    badge: string;
+    colors: [string, string, string];
+  }
+> = {
+  admin: {
+    icon: "admin-panel-settings",
+    iconSize: 35,
+    badge: "ADMIN",
+    colors: ["#1E40AF", "#3B82F6", "#60A5FA"],
+  },
+  propietario: {
+    icon: "account-circle",
+    iconSize: 32,
+    badge: "PROPIETARIO",
+    colors: ["#1E3A8A", "#3B82F6", "#60A5FA"],
+  },
+  contador: {
+    icon: "calculate",
+    iconSize: 32,
+    badge: "CONTADOR",
+    colors: ["#065F46", "#059669", "#34D399"],
+  },
 };
 
 const DEFAULT_CONFIG = ROLE_CONFIG.propietario;
@@ -114,7 +137,9 @@ export default function ProjectSelector({
       index={index}
       onProjectSelected={onProjectSelected}
       isLoading={loadingKey === `${item.nit}-${item.rolUsuario}`}
-      isDisabled={loadingKey !== null && loadingKey !== `${item.nit}-${item.rolUsuario}`}
+      isDisabled={
+        loadingKey !== null && loadingKey !== `${item.nit}-${item.rolUsuario}`
+      }
     />
   );
 

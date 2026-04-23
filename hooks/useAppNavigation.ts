@@ -31,7 +31,12 @@ export interface NavigationState {
 }
 
 export function resolveDestination(s: NavigationState): AppDestination {
-  if (!s.appReady || s.authLoading || s.onboardingSeen === null || s.isConnected === null) {
+  if (
+    !s.appReady ||
+    s.authLoading ||
+    s.onboardingSeen === null ||
+    s.isConnected === null
+  ) {
     return { type: "splash" };
   }
 

@@ -20,7 +20,9 @@ export default function ProjectSelectorScreen() {
   const isMounted = useRef(true);
 
   useEffect(() => {
-    return () => { isMounted.current = false; };
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -29,25 +31,28 @@ export default function ProjectSelectorScreen() {
     }
   }, [proyectosTyped.length]);
 
-  const handleProjectSelected = useCallback(async (proyecto: Proyecto) => {
-    const key = `${proyecto.nit}-${proyecto.rolUsuario}`;
-    if (loadingKey) return;
-    setLoadingKey(key);
-    setSelectedProject(proyecto);
+  const handleProjectSelected = useCallback(
+    async (proyecto: Proyecto) => {
+      const key = `${proyecto.nit}-${proyecto.rolUsuario}`;
+      if (loadingKey) return;
+      setLoadingKey(key);
+      setSelectedProject(proyecto);
 
-    try {
-      if (proyecto.rolUsuario !== "admin") {
-        await loadApartments(proyecto);
-        router.replace("/(tabs)");
-      } else {
-        router.replace("/(admin)");
+      try {
+        if (proyecto.rolUsuario !== "admin") {
+          await loadApartments(proyecto);
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/(admin)");
+        }
+      } catch (error) {
+        console.error("[ProjectSelector] Error al cargar apartamentos:", error);
+      } finally {
+        if (isMounted.current) setLoadingKey(null);
       }
-    } catch (error) {
-      console.error("[ProjectSelector] Error al cargar apartamentos:", error);
-    } finally {
-      if (isMounted.current) setLoadingKey(null);
-    }
-  }, [loadingKey, setSelectedProject, loadApartments, router]);
+    },
+    [loadingKey, setSelectedProject, loadApartments, router]
+  );
 
   if (!isReady) {
     return <LoadingScreen />;
