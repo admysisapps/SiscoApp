@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import ProjectSelector from "@/components/ProjectSelector";
 import AccessDenied from "@/app/(screens)/AccessDenied";
@@ -12,26 +12,29 @@ import { Proyecto } from "@/types/Proyecto";
 export default function ProjectSelectorScreen() {
   const router = useRouter();
 
-  // Usar proyectos del contexto
   const { proyectos: proyectosTyped, setSelectedProject } = useProject();
   const { loadApartments } = useApartment();
 
-  // Estado para controlar cuándo la interfaz está lista para mostrarse
   const [isReady, setIsReady] = useState(false);
+  const [loadingNit, setLoadingNit] = useState<string | null>(null);
+  const isMounted = useRef(true);
 
-  // Efecto simplificado - solo maneja la UI
+  useEffect(() => {
+    return () => { isMounted.current = false; };
+  }, []);
+
   useEffect(() => {
     if (proyectosTyped.length > 0) {
       setIsReady(true);
     }
   }, [proyectosTyped.length]);
 
-  // Función que maneja la selección manual de un proyecto
-  const handleProjectSelected = async (proyecto: Proyecto) => {
+  const handleProjectSelected = useCallback(async (proyecto: Proyecto) => {
+    if (loadingNit) return;
+    setLoadingNit(proyecto.nit);
     setSelectedProject(proyecto);
 
     try {
-      // Si no es admin, cargar apartamentos antes de navegar
       if (proyecto.rolUsuario !== "admin") {
         await loadApartments(proyecto);
         router.replace("/(tabs)");
@@ -40,21 +43,23 @@ export default function ProjectSelectorScreen() {
       }
     } catch (error) {
       console.error("[ProjectSelector] Error al cargar apartamentos:", error);
+    } finally {
+      if (isMounted.current) setLoadingNit(null);
     }
-  };
+  }, [loadingNit, setSelectedProject, loadApartments, router]);
 
-  // NAVEGACIÓN: Eliminada - ahora se hace en handleProjectSelected
-
-  // LOADING: Si no está listo, no mostrar nada
   if (!isReady) {
     return <LoadingScreen />;
   }
 
-  // ESTADO VACÍO: Usuario sin proyectos asignados
   if (proyectosTyped.length === 0) {
     return <AccessDenied />;
   }
 
-  // SELECTOR: Mostrar lista de proyectos para que el usuario elija
-  return <ProjectSelector onProjectSelected={handleProjectSelected} />;
+  return (
+    <ProjectSelector
+      onProjectSelected={handleProjectSelected}
+      loadingNit={loadingNit}
+    />
+  );
 }

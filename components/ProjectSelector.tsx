@@ -7,6 +7,7 @@ import {
   StyleSheet,
   View,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,7 +19,16 @@ const { height } = Dimensions.get("window");
 
 interface ProjectSelectorProps {
   onProjectSelected: (proyecto: Proyecto) => void;
+  loadingNit: string | null;
 }
+
+const ROLE_CONFIG: Record<string, { icon: React.ComponentProps<typeof MaterialIcons>["name"]; iconSize: number; badge: string; colors: [string, string, string] }> = {
+  admin:       { icon: "admin-panel-settings", iconSize: 35, badge: "ADMIN",       colors: ["#1E40AF", "#3B82F6", "#60A5FA"] },
+  propietario: { icon: "account-circle",       iconSize: 32, badge: "PROPIETARIO", colors: ["#1E3A8A", "#3B82F6", "#60A5FA"] },
+  contador:    { icon: "calculate",            iconSize: 32, badge: "CONTADOR",    colors: ["#065F46", "#059669", "#34D399"] },
+};
+
+const DEFAULT_CONFIG = ROLE_CONFIG.propietario;
 
 // Componente separado para cada proyecto
 const ProjectCard = React.memo(
@@ -26,67 +36,61 @@ const ProjectCard = React.memo(
     item,
     index,
     onProjectSelected,
+    isLoading,
+    isDisabled,
   }: {
     item: Proyecto;
     index: number;
     onProjectSelected: (proyecto: Proyecto) => void;
+    isLoading: boolean;
+    isDisabled: boolean;
   }) => {
-    const isAdmin = item.rolUsuario === "admin";
+    const config = ROLE_CONFIG[item.rolUsuario] ?? DEFAULT_CONFIG;
 
     return (
-      <View style={styles.projectCard}>
-        <TouchableOpacity
-          testID={index === 0 ? "button-select-first-project" : undefined}
-          onPress={() => onProjectSelected(item)}
-          activeOpacity={1}
+      <TouchableOpacity
+        testID={index === 0 ? "button-select-first-project" : undefined}
+        style={styles.projectCard}
+        onPress={() => onProjectSelected(item)}
+        activeOpacity={0.85}
+        disabled={isDisabled}
+      >
+        <LinearGradient
+          colors={config.colors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.cardGradient}
         >
-          <LinearGradient
-            colors={
-              isAdmin
-                ? ["#1E40AF", "#3B82F6", "#60A5FA"]
-                : ["#1E3A8A", "#3B82F6", "#60A5FA"]
-            }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.cardGradient}
-            admin-panel-settingspersonhome-work
-          >
-            <View style={styles.cardContent}>
-              {/* Icono principal */}
-              <View style={styles.iconSection}>
-                <View style={styles.iconContainer}>
-                  {isAdmin ? (
-                    <MaterialIcons
-                      name="admin-panel-settings"
-                      size={35}
-                      color="white"
-                    />
-                  ) : (
-                    <MaterialIcons
-                      name="account-circle"
-                      size={32}
-                      color="white"
-                    />
-                  )}
-                </View>
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
-                    {isAdmin ? "ADMIN" : "PROPIETARIO"}
-                  </Text>
-                </View>
+          <View style={styles.cardContent}>
+            <View style={styles.iconSection}>
+              <View style={styles.iconContainer}>
+                <MaterialIcons
+                  name={config.icon}
+                  size={config.iconSize}
+                  color="white"
+                />
+                {isLoading && (
+                  <ActivityIndicator
+                    size={58}
+                    color={THEME.colors.text.inverse}
+                    style={styles.iconSpinner}
+                  />
+                )}
               </View>
-
-              {/* Información */}
-              <View style={styles.infoSection}>
-                <Text style={styles.projectName} numberOfLines={1}>
-                  {item.nombre}
-                </Text>
-                <Text style={styles.nitText}>NIT: {item.nit}</Text>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{config.badge}</Text>
               </View>
             </View>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
+
+            <View style={styles.infoSection}>
+              <Text style={styles.projectName} numberOfLines={1}>
+                {item.nombre}
+              </Text>
+              <Text style={styles.nitText}>NIT: {item.nit}</Text>
+            </View>
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
     );
   }
 );
@@ -94,12 +98,9 @@ ProjectCard.displayName = "ProjectCard";
 
 export default function ProjectSelector({
   onProjectSelected,
+  loadingNit,
 }: ProjectSelectorProps) {
   const { proyectos } = useProject();
-
-  const handleProjectSelected = (proyecto: Proyecto) => {
-    onProjectSelected(proyecto);
-  };
 
   const renderProyecto = ({
     item,
@@ -111,7 +112,9 @@ export default function ProjectSelector({
     <ProjectCard
       item={item}
       index={index}
-      onProjectSelected={handleProjectSelected}
+      onProjectSelected={onProjectSelected}
+      isLoading={loadingNit === item.nit}
+      isDisabled={loadingNit !== null && loadingNit !== item.nit}
     />
   );
 
@@ -247,6 +250,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: THEME.spacing.sm,
+  },
+  iconSpinner: {
+    position: "absolute",
+    width: 56,
+    height: 56,
   },
   badge: {
     backgroundColor: "rgba(255, 255, 255, 0.25)",
