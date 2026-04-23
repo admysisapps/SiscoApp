@@ -26,48 +26,42 @@ export const apiService = {
 
   async getAuthToken() {
     try {
-      // Validar si el token en cache aún es válido
       if (tokenCache) {
-        const now = Date.now();
-        const timeUntilExpiry = tokenCache.expiry - now;
-
-        // Si el token expira en más de 5 minutos, usarlo
+        const timeUntilExpiry = tokenCache.expiry - Date.now();
         if (timeUntilExpiry > 300000) {
           return tokenCache.token;
         }
+        const isExpired = timeUntilExpiry <= 0;
+        const { fetchAuthSession } = await import("aws-amplify/auth");
+        const session = await fetchAuthSession({ forceRefresh: isExpired });
+        const token = session.tokens?.accessToken?.toString();
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            tokenCache = { token, expiry: payload.exp * 1000 };
+          } catch {
+            tokenCache = { token, expiry: Date.now() + 3600000 };
+          }
+        } else {
+          tokenCache = null;
+        }
+        return token || null;
       }
 
-      // Obtener nuevo token
       const { fetchAuthSession } = await import("aws-amplify/auth");
       const session = await fetchAuthSession();
       const token = session.tokens?.accessToken?.toString();
-
       if (token) {
-        // Decodificar token para obtener tiempo de expiración real
         try {
           const payload = JSON.parse(atob(token.split(".")[1]));
-          const expiry = payload.exp * 1000; // Convertir a milisegundos
-
-          // Cachear token con tiempo de expiración real del JWT
-          tokenCache = {
-            token,
-            expiry: expiry,
-          };
+          tokenCache = { token, expiry: payload.exp * 1000 };
         } catch {
-          console.warn(
-            "[AUTH] No se pudo decodificar token, usando expiry por defecto"
-          );
-          // Fallback: asumir 1 hora de expiración
-          tokenCache = {
-            token,
-            expiry: Date.now() + 3600000,
-          };
+          tokenCache = { token, expiry: Date.now() + 3600000 };
         }
       } else {
         console.warn("[AUTH] No se pudo obtener token");
         tokenCache = null;
       }
-
       return token || null;
     } catch (error) {
       console.error("[AUTH] Error obteniendo token:", error);
@@ -130,7 +124,7 @@ export const apiService = {
         });
 
         if (response.status === 401 || response.status === 403) {
-          console.error(`[API] Unauthorized en ${endpoint}`);
+          tokenCache = null;
           const crashlytics = getCrashlytics();
           log(crashlytics, `API Unauthorized: ${endpoint}`);
         }
