@@ -1,13 +1,14 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { COLORS } from "../../../constants/theme";
-import ProximosPagos from "./DiponibilidadFondos";
+import { THEME } from "@/constants/theme";
 import AccionesRapidasAdmin from "./AccionesRapidasAdmin";
+
+import IndicadoresCopropiedad from "./IndicadoresCopropiedad";
 
 export default function DashboardAdmin() {
   return (
     <View style={styles.container}>
-      <ProximosPagos />
+      <IndicadoresCopropiedad />
       <AccionesRapidasAdmin />
     </View>
   );
@@ -16,6 +17,6 @@ export default function DashboardAdmin() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: THEME.colors.background,
   },
 });
