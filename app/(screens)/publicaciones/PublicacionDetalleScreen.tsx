@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Image,
   Dimensions,
   Modal,
 } from "react-native";
+import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -160,7 +160,8 @@ export default function PublicacionDetalleScreen() {
               <Image
                 source={{ uri: imageUrls[selectedImageIndex] }}
                 style={styles.mainImage}
-                resizeMode="contain"
+                contentFit="contain"
+                transition={200}
               />
             </TouchableOpacity>
 
@@ -184,7 +185,8 @@ export default function PublicacionDetalleScreen() {
                       <Image
                         source={{ uri: url }}
                         style={styles.thumbnailImage}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        transition={150}
                       />
                     </TouchableOpacity>
                   ))}
@@ -249,7 +251,7 @@ export default function PublicacionDetalleScreen() {
           <Image
             source={{ uri: imageUrls[selectedImageIndex] }}
             style={styles.fullScreenImage}
-            resizeMode="contain"
+            contentFit="contain"
           />
         </View>
       </Modal>

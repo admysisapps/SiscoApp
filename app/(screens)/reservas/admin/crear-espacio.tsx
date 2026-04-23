@@ -9,8 +9,8 @@ import {
   Alert,
   Switch,
   ActivityIndicator,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -77,7 +77,6 @@ export default function CrearEspacioScreen() {
   const isEditMode = !!id;
   const [loading, setLoading] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
-  const [deletingImage] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showTimePicker, setShowTimePicker] = useState<{
     dia: number;
@@ -1067,7 +1066,8 @@ export default function CrearEspacioScreen() {
                     imagen.uri ? { uri: imagen.uri } : { uri: imagenUrl || "" }
                   }
                   style={styles.imagePreview}
-                  resizeMode="cover"
+                  contentFit="cover"
+                  transition={200}
                 />
                 <View style={styles.imageOverlay}>
                   <TouchableOpacity
@@ -1084,16 +1084,11 @@ export default function CrearEspacioScreen() {
                       setImagen(null);
                       setImagenUrl(null);
                     }}
-                    disabled={deletingImage}
                   >
-                    {deletingImage ? (
-                      <ActivityIndicator size="small" color="white" />
-                    ) : (
-                      <>
-                        <Ionicons name="trash" size={20} color="white" />
-                        <Text style={styles.imageActionText}>Eliminar</Text>
-                      </>
-                    )}
+                    <>
+                      <Ionicons name="trash" size={20} color="white" />
+                      <Text style={styles.imageActionText}>Eliminar</Text>
+                    </>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1271,18 +1266,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: THEME.colors.error,
     marginTop: 6,
-  },
-  pickerContainer: {
-    backgroundColor: THEME.colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    borderRadius: THEME.borderRadius.md,
-    marginBottom: THEME.spacing.sm,
-    overflow: "hidden",
-  },
-  picker: {
-    height: 50,
-    color: THEME.colors.text.primary,
   },
   switchRow: {
     flexDirection: "row",

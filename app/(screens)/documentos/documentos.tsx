@@ -6,8 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { THEME } from "@/constants/theme";
@@ -135,7 +135,8 @@ export default function DocumentosScreen() {
             <Image
               source={require("@/assets/images/Documentos.webp")}
               style={styles.emptyImage}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={200}
             />
             <Text style={styles.emptyText}>No hay documentos</Text>
           </View>

@@ -6,8 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
@@ -206,7 +206,8 @@ export default function PQRListScreen() {
             <Image
               source={require("@/assets/images/Qqr.webp")}
               style={styles.emptyImage}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={200}
             />
             <Text style={styles.emptyText}>No hay solicitudes</Text>
             <Text style={styles.emptySubtext}>
@@ -274,19 +275,6 @@ const styles = StyleSheet.create({
   },
   activeFilterText: {
     color: "white",
-  },
-  countContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  countText: {
-    fontSize: 14,
-    color: "#64748B",
-  },
-  paginationText: {
-    fontSize: 12,
-    color: "#64748B",
-    marginTop: 4,
   },
   listContainer: {
     flex: 1,

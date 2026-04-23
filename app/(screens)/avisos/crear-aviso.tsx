@@ -8,10 +8,10 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Image,
   Alert,
   Keyboard,
 } from "react-native";
+import { Image } from "expo-image";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker, {
@@ -261,21 +261,8 @@ export default function CrearAvisoScreen() {
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
-        const fileSizeMB = asset.fileSize
-          ? (asset.fileSize / 1024 / 1024).toFixed(2)
-          : "desconocido";
-
-        console.log("[selectImage] Imagen seleccionada:", {
-          name: asset.fileName,
-          size: `${fileSizeMB} MB`,
-          type: asset.type,
-          uri: asset.uri,
-        });
 
         if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE_BYTES) {
-          console.warn(
-            `[selectImage] Imagen rechazada: ${fileSizeMB} MB supera el límite de ${MAX_FILE_SIZE_MB} MB`
-          );
           showToast(
             `La imagen supera el límite de ${MAX_FILE_SIZE_MB} MB`,
             "warning"
@@ -283,7 +270,6 @@ export default function CrearAvisoScreen() {
           return;
         }
 
-        console.log("[selectImage] Imagen aceptada, agregando a lista");
         setSelectedFiles((prev) => [
           ...prev,
           {
@@ -313,23 +299,12 @@ export default function CrearAvisoScreen() {
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
-        const fileSizeMB = asset.size
-          ? (asset.size / 1024 / 1024).toFixed(2)
-          : "desconocido";
-
-        console.log("[selectDocument] Documento seleccionado:", {
-          name: asset.name,
-          size: `${fileSizeMB} MB`,
-          mimeType: asset.mimeType,
-          uri: asset.uri,
-        });
 
         const isVideo =
           asset.mimeType?.startsWith("video/") ||
           asset.name.match(/\.(mp4|avi|mov|wmv|flv|webm|mkv|m4v)$/i);
 
         if (isVideo) {
-          console.warn("[selectDocument] Archivo rechazado: es un video");
           Alert.alert(
             "Archivo no soportado",
             "Los archivos de video no están permitidos. Solo se permiten documentos e imágenes."
@@ -338,9 +313,6 @@ export default function CrearAvisoScreen() {
         }
 
         if (asset.size && asset.size > MAX_FILE_SIZE_BYTES) {
-          console.warn(
-            `[selectDocument] Archivo rechazado: ${fileSizeMB} MB supera el límite de ${MAX_FILE_SIZE_MB} MB`
-          );
           showToast(
             `El archivo supera el límite de ${MAX_FILE_SIZE_MB} MB`,
             "warning"
@@ -348,7 +320,6 @@ export default function CrearAvisoScreen() {
           return;
         }
 
-        console.log("[selectDocument] Documento aceptado, agregando a lista");
         setSelectedFiles([
           ...selectedFiles,
           {
@@ -587,6 +558,7 @@ export default function CrearAvisoScreen() {
                     <Image
                       source={{ uri: file.uri }}
                       style={styles.filePreview}
+                      contentFit="cover"
                     />
                   ) : (
                     <Ionicons

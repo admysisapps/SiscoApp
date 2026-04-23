@@ -7,12 +7,12 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS, THEME } from "@/constants/theme";
+import { THEME } from "@/constants/theme";
 import { reservaService } from "@/services/reservaService";
 import { useLoading } from "@/contexts/LoadingContext";
 import ScreenHeader from "@/components/shared/ScreenHeader";
@@ -142,7 +142,11 @@ export default function GestionarEspaciosScreen() {
               end={{ x: 1, y: 1 }}
               style={styles.gradientButton}
             >
-              <Ionicons name="add" size={20} color={COLORS.text.inverse} />
+              <Ionicons
+                name="add"
+                size={20}
+                color={THEME.colors.text.inverse}
+              />
               <Text style={styles.createButtonText}>Crear Zona Común</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -215,7 +219,8 @@ export default function GestionarEspaciosScreen() {
                   <Image
                     source={require("@/assets/images/ZonasComunes.webp")}
                     style={styles.emptyImage}
-                    resizeMode="contain"
+                    contentFit="contain"
+                    transition={200}
                   />
                   <Text style={styles.emptyTitle}>No hay zonas comunes</Text>
                   <Text style={styles.emptyText}>
@@ -364,7 +369,7 @@ const styles = StyleSheet.create({
     gap: THEME.spacing.xs,
   },
   createButtonText: {
-    color: COLORS.text.inverse,
+    color: THEME.colors.text.inverse,
     fontSize: THEME.fontSize.md,
     fontWeight: "600",
   },

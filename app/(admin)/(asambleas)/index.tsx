@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { router, useFocusEffect } from "expo-router";
 import LottieView from "lottie-react-native";
 import { useAsambleas } from "@/hooks/useAsambleas";
@@ -78,7 +78,8 @@ export default function AsambleasScreen() {
             <Image
               source={require("@/assets/images/Asambleas.webp")}
               style={styles.emptyImage}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={200}
             />
             <Text style={styles.emptyTitle}>No hay asambleas</Text>
             <Text style={styles.emptyText}>

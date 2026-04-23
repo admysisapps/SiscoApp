@@ -7,8 +7,8 @@ import {
   ScrollView,
   ActivityIndicator,
   Modal,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -309,7 +309,8 @@ export default function Documentos() {
               <Image
                 source={require("@/assets/images/Documentos.webp")}
                 style={styles.emptyImage}
-                resizeMode="contain"
+                contentFit="contain"
+                transition={200}
               />
               <Text style={styles.emptyText}>No hay documentos</Text>
             </View>
