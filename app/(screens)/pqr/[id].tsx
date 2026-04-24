@@ -153,7 +153,7 @@ export default function PQRDetailScreen() {
         if (!notificationsEnabled) {
           interval = setInterval(() => {
             cargarMensajes();
-          }, 10 * 1000);
+          }, 5000);
         }
       }
     };
