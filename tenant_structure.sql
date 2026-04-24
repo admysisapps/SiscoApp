@@ -418,6 +418,7 @@ CREATE TABLE `usuarios` (
   `email` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `estado` enum('activo','inactivo') NOT NULL DEFAULT 'activo',
+  `rol` varchar(20) NOT NULL DEFAULT 'propietario',
   `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_documento` (`documento`),
