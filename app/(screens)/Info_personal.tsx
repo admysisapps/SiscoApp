@@ -9,14 +9,12 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   ActivityIndicator,
   TextInput,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   TouchableOpacity,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -268,271 +266,250 @@ export default function PersonalInfo() {
     <SafeAreaView style={styles.container} edges={["top"]} mode="padding">
       <ScreenHeader title="Información Personal" />
 
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      <KeyboardAwareScrollView
+        style={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          style={styles.content}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+        {/* Sección: Datos Personales */}
+        <TouchableOpacity
+          style={styles.sectionHeader}
+          onPress={() => {
+            setPersonalDataExpanded(!personalDataExpanded);
+            if (!personalDataExpanded) {
+              setContactInfoExpanded(false);
+            }
+          }}
+          activeOpacity={0.7}
         >
-          {/* Sección: Datos Personales */}
-          <TouchableOpacity
-            style={styles.sectionHeader}
-            onPress={() => {
-              setPersonalDataExpanded(!personalDataExpanded);
-              if (!personalDataExpanded) {
-                setContactInfoExpanded(false);
-              }
-            }}
-            activeOpacity={0.7}
-          >
-            <View style={styles.sectionHeaderLeft}>
-              <View style={styles.sectionBorder} />
-              <Text style={styles.sectionTitle}>Datos Personales</Text>
-            </View>
-            <Ionicons
-              name={personalDataExpanded ? "chevron-up" : "chevron-down"}
-              size={24}
-              color={THEME.colors.text.secondary}
-            />
-          </TouchableOpacity>
+          <View style={styles.sectionHeaderLeft}>
+            <View style={styles.sectionBorder} />
+            <Text style={styles.sectionTitle}>Datos Personales</Text>
+          </View>
+          <Ionicons
+            name={personalDataExpanded ? "chevron-up" : "chevron-down"}
+            size={24}
+            color={THEME.colors.text.secondary}
+          />
+        </TouchableOpacity>
 
-          {personalDataExpanded && (
-            <View style={styles.sectionContent}>
-              {/* Nombre */}
-              <View style={styles.fieldContainer}>
-                <Text style={styles.fieldLabel}>Nombre</Text>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    style={styles.input}
-                    value={nombre}
-                    onChangeText={setNombre}
-                    placeholder="Ingresa tu nombre"
-                    placeholderTextColor={THEME.colors.text.muted}
-                    editable={!isLoadingFullData}
-                  />
-                  {isLoadingFullData && (
-                    <ActivityIndicator
-                      size="small"
-                      color={THEME.colors.primary}
-                      style={styles.inputLoader}
-                    />
-                  )}
-                </View>
-              </View>
-
-              {/* Apellido */}
-              <View style={styles.fieldContainer}>
-                <Text style={styles.fieldLabel}>Apellidos</Text>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    style={styles.input}
-                    value={apellido}
-                    onChangeText={setApellido}
-                    placeholder="Ingresa tus apellidos"
-                    placeholderTextColor={THEME.colors.text.muted}
-                    editable={!isLoadingFullData}
-                  />
-                  {isLoadingFullData && (
-                    <ActivityIndicator
-                      size="small"
-                      color={THEME.colors.primary}
-                      style={styles.inputLoader}
-                    />
-                  )}
-                </View>
-              </View>
-
-              {/* Documento */}
-              <View style={styles.fieldContainer}>
-                <Text style={styles.fieldLabel}>Número de documento</Text>
-                <TextInput
-                  style={[styles.input, styles.inputDisabled]}
-                  value={user?.documento || user?.usuario || ""}
-                  editable={false}
-                  placeholderTextColor={THEME.colors.text.muted}
-                />
-                <Text style={styles.helperText}>
-                  Este campo no se puede modificar
-                </Text>
-              </View>
-
-              {/* Botón Guardar Datos Personales */}
-              <TouchableOpacity
-                style={[
-                  styles.saveButton,
-                  (!hasPersonalDataChanges || isSaving) &&
-                    styles.saveButtonDisabled,
-                ]}
-                onPress={handleSavePersonalData}
-                disabled={!hasPersonalDataChanges || isSaving}
-                activeOpacity={0.8}
-              >
-                {isSaving ? (
-                  <ActivityIndicator color="white" size="small" />
-                ) : (
-                  <Text style={styles.saveButtonText}>Guardar información</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* Sección: Información de contacto */}
-          <TouchableOpacity
-            style={styles.sectionHeader}
-            onPress={() => {
-              setContactInfoExpanded(!contactInfoExpanded);
-              if (!contactInfoExpanded) {
-                setPersonalDataExpanded(false);
-              }
-            }}
-            activeOpacity={0.7}
-          >
-            <View style={styles.sectionHeaderLeft}>
-              <View style={styles.sectionBorder} />
-              <Text style={styles.sectionTitle}>Información de contacto</Text>
-            </View>
-            <Ionicons
-              name={contactInfoExpanded ? "chevron-up" : "chevron-down"}
-              size={24}
-              color={THEME.colors.text.secondary}
-            />
-          </TouchableOpacity>
-
-          {contactInfoExpanded && (
-            <View style={styles.sectionContent}>
-              {/* Correo */}
-              <View style={styles.fieldContainer}>
-                <View style={styles.fieldLabelRow}>
-                  <Ionicons
-                    name="mail"
-                    size={20}
-                    color={THEME.colors.primary}
-                  />
-                  <Text style={styles.fieldLabel}>Correo electrónico</Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.inputWithIcon}
-                  onPress={() => router.push("/(screens)/CambiarCorreo")}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.input, styles.inputWithIconPadding]}>
-                    <Text
-                      style={[
-                        styles.inputText,
-                        !email && styles.placeholderText,
-                      ]}
-                    >
-                      {email || "correo@ejemplo.com"}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.editIconButton}
-                    onPress={() => router.push("/(screens)/CambiarCorreo")}
-                  >
-                    <Feather
-                      name="edit"
-                      size={20}
-                      color={THEME.colors.primary}
-                    />
-                  </TouchableOpacity>
-                </TouchableOpacity>
-              </View>
-
-              {/* Teléfono */}
-              <View style={styles.fieldContainer}>
-                <View style={styles.fieldLabelRow}>
-                  <Ionicons
-                    name="call"
-                    size={20}
-                    color={THEME.colors.primary}
-                  />
-                  <Text style={styles.fieldLabel}>Celular</Text>
-                </View>
+        {personalDataExpanded && (
+          <View style={styles.sectionContent}>
+            {/* Nombre */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.fieldLabel}>Nombre</Text>
+              <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  value={telefono}
-                  onChangeText={setTelefono}
-                  placeholder="3001234567"
+                  value={nombre}
+                  onChangeText={setNombre}
+                  placeholder="Ingresa tu nombre"
                   placeholderTextColor={THEME.colors.text.muted}
-                  keyboardType="phone-pad"
                   editable={!isLoadingFullData}
                 />
-              </View>
-
-              {/* Botón Guardar Información de contacto */}
-              <TouchableOpacity
-                style={[
-                  styles.saveButton,
-                  (!hasContactInfoChanges || isSaving) &&
-                    styles.saveButtonDisabled,
-                ]}
-                onPress={handleSaveContactInfo}
-                disabled={!hasContactInfoChanges || isSaving}
-                activeOpacity={0.8}
-              >
-                {isSaving ? (
-                  <ActivityIndicator color="white" size="small" />
-                ) : (
-                  <Text style={styles.saveButtonText}>Guardar información</Text>
+                {isLoadingFullData && (
+                  <ActivityIndicator
+                    size="small"
+                    color={THEME.colors.primary}
+                    style={styles.inputLoader}
+                  />
                 )}
-              </TouchableOpacity>
+              </View>
             </View>
-          )}
 
-          {/* Sección: Eliminar cuenta - Oculto para admin */}
-          {!isAdmin && (
-            <>
+            {/* Apellido */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.fieldLabel}>Apellidos</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  value={apellido}
+                  onChangeText={setApellido}
+                  placeholder="Ingresa tus apellidos"
+                  placeholderTextColor={THEME.colors.text.muted}
+                  editable={!isLoadingFullData}
+                />
+                {isLoadingFullData && (
+                  <ActivityIndicator
+                    size="small"
+                    color={THEME.colors.primary}
+                    style={styles.inputLoader}
+                  />
+                )}
+              </View>
+            </View>
+
+            {/* Documento */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.fieldLabel}>Número de documento</Text>
+              <TextInput
+                style={[styles.input, styles.inputDisabled]}
+                value={user?.documento || user?.usuario || ""}
+                editable={false}
+                placeholderTextColor={THEME.colors.text.muted}
+              />
+              <Text style={styles.helperText}>
+                Este campo no se puede modificar
+              </Text>
+            </View>
+
+            {/* Botón Guardar Datos Personales */}
+            <TouchableOpacity
+              style={[
+                styles.saveButton,
+                (!hasPersonalDataChanges || isSaving) &&
+                  styles.saveButtonDisabled,
+              ]}
+              onPress={handleSavePersonalData}
+              disabled={!hasPersonalDataChanges || isSaving}
+              activeOpacity={0.8}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text style={styles.saveButtonText}>Guardar información</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Sección: Información de contacto */}
+        <TouchableOpacity
+          style={styles.sectionHeader}
+          onPress={() => {
+            setContactInfoExpanded(!contactInfoExpanded);
+            if (!contactInfoExpanded) {
+              setPersonalDataExpanded(false);
+            }
+          }}
+          activeOpacity={0.7}
+        >
+          <View style={styles.sectionHeaderLeft}>
+            <View style={styles.sectionBorder} />
+            <Text style={styles.sectionTitle}>Información de contacto</Text>
+          </View>
+          <Ionicons
+            name={contactInfoExpanded ? "chevron-up" : "chevron-down"}
+            size={24}
+            color={THEME.colors.text.secondary}
+          />
+        </TouchableOpacity>
+
+        {contactInfoExpanded && (
+          <View style={styles.sectionContent}>
+            {/* Correo */}
+            <View style={styles.fieldContainer}>
+              <View style={styles.fieldLabelRow}>
+                <Ionicons name="mail" size={20} color={THEME.colors.primary} />
+                <Text style={styles.fieldLabel}>Correo electrónico</Text>
+              </View>
               <TouchableOpacity
-                style={[styles.sectionHeader, styles.dangerSectionHeader]}
-                onPress={() => {
-                  setDeleteAccountExpanded(!deleteAccountExpanded);
-                  if (!deleteAccountExpanded) {
-                    setPersonalDataExpanded(false);
-                    setContactInfoExpanded(false);
-                  }
-                }}
+                style={styles.inputWithIcon}
+                onPress={() => router.push("/(screens)/CambiarCorreo")}
                 activeOpacity={0.7}
               >
-                <View style={styles.sectionHeaderLeft}>
-                  <View style={[styles.sectionBorder, styles.dangerBorder]} />
-                  <Text style={[styles.sectionTitle, styles.dangerTitle]}>
-                    Eliminar cuenta
-                  </Text>
-                </View>
-                <Ionicons
-                  name={deleteAccountExpanded ? "chevron-up" : "chevron-down"}
-                  size={24}
-                  color={THEME.colors.error}
-                />
-              </TouchableOpacity>
-
-              {deleteAccountExpanded && (
-                <View style={styles.sectionContent}>
-                  <Text style={styles.deleteDescription}>
-                    ¿Estás seguro de que deseas eliminar tu cuenta?
-                  </Text>
-                  <Text style={styles.deleteDescriptionBold}>
-                    Perderás el acceso a todos los servicios y datos asociados a
-                    esta cuenta.
-                  </Text>
-
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => setShowDeleteModal(true)}
-                    activeOpacity={0.8}
+                <View style={[styles.input, styles.inputWithIconPadding]}>
+                  <Text
+                    style={[styles.inputText, !email && styles.placeholderText]}
                   >
-                    <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
-                  </TouchableOpacity>
+                    {email || "correo@ejemplo.com"}
+                  </Text>
                 </View>
+                <TouchableOpacity
+                  style={styles.editIconButton}
+                  onPress={() => router.push("/(screens)/CambiarCorreo")}
+                >
+                  <Feather name="edit" size={20} color={THEME.colors.primary} />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
+
+            {/* Teléfono */}
+            <View style={styles.fieldContainer}>
+              <View style={styles.fieldLabelRow}>
+                <Ionicons name="call" size={20} color={THEME.colors.primary} />
+                <Text style={styles.fieldLabel}>Celular</Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                value={telefono}
+                onChangeText={setTelefono}
+                placeholder="3001234567"
+                placeholderTextColor={THEME.colors.text.muted}
+                keyboardType="phone-pad"
+                editable={!isLoadingFullData}
+              />
+            </View>
+
+            {/* Botón Guardar Información de contacto */}
+            <TouchableOpacity
+              style={[
+                styles.saveButton,
+                (!hasContactInfoChanges || isSaving) &&
+                  styles.saveButtonDisabled,
+              ]}
+              onPress={handleSaveContactInfo}
+              disabled={!hasContactInfoChanges || isSaving}
+              activeOpacity={0.8}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text style={styles.saveButtonText}>Guardar información</Text>
               )}
-            </>
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Sección: Eliminar cuenta - Oculto para admin */}
+        {!isAdmin && (
+          <>
+            <TouchableOpacity
+              style={[styles.sectionHeader, styles.dangerSectionHeader]}
+              onPress={() => {
+                setDeleteAccountExpanded(!deleteAccountExpanded);
+                if (!deleteAccountExpanded) {
+                  setPersonalDataExpanded(false);
+                  setContactInfoExpanded(false);
+                }
+              }}
+              activeOpacity={0.7}
+            >
+              <View style={styles.sectionHeaderLeft}>
+                <View style={[styles.sectionBorder, styles.dangerBorder]} />
+                <Text style={[styles.sectionTitle, styles.dangerTitle]}>
+                  Eliminar cuenta
+                </Text>
+              </View>
+              <Ionicons
+                name={deleteAccountExpanded ? "chevron-up" : "chevron-down"}
+                size={24}
+                color={THEME.colors.error}
+              />
+            </TouchableOpacity>
+
+            {deleteAccountExpanded && (
+              <View style={styles.sectionContent}>
+                <Text style={styles.deleteDescription}>
+                  ¿Estás seguro de que deseas eliminar tu cuenta?
+                </Text>
+                <Text style={styles.deleteDescriptionBold}>
+                  Perderás el acceso a todos los servicios y datos asociados a
+                  esta cuenta.
+                </Text>
+
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => setShowDeleteModal(true)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        )}
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -557,9 +534,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  keyboardView: {
-    flex: 1,
   },
   content: {
     flex: 1,

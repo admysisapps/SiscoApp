@@ -13,6 +13,8 @@ import { UserProvider } from "@/contexts/UserContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { fcmService } from "@/services/fcmService";
 
+import { KeyboardProvider } from "react-native-keyboard-controller";
+
 import outputs from "@/amplify_outputs.json";
 
 Amplify.configure(outputs);
@@ -92,21 +94,23 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <LoadingProvider>
-          <AuthProvider>
-            <UserProvider>
-              <ProjectProvider>
-                <ApartmentProvider>
-                  <NotificationProvider>
-                    <RootNavigator />
-                  </NotificationProvider>
-                </ApartmentProvider>
-              </ProjectProvider>
-            </UserProvider>
-          </AuthProvider>
-        </LoadingProvider>
-      </QueryClientProvider>
+      <KeyboardProvider>
+        <QueryClientProvider client={queryClient}>
+          <LoadingProvider>
+            <AuthProvider>
+              <UserProvider>
+                <ProjectProvider>
+                  <ApartmentProvider>
+                    <NotificationProvider>
+                      <RootNavigator />
+                    </NotificationProvider>
+                  </ApartmentProvider>
+                </ProjectProvider>
+              </UserProvider>
+            </AuthProvider>
+          </LoadingProvider>
+        </QueryClientProvider>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,8 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -44,29 +42,10 @@ export default function CreatePQRScreen() {
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
-  const [behavior, setBehavior] = useState<"padding" | "height" | undefined>(
-    Platform.OS === "ios" ? "padding" : "height"
-  );
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Ref para controlar si la descripción fue editada manualmente
   const descripcionEditadaManualmente = useRef(false);
-
-  useEffect(() => {
-    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setBehavior(Platform.OS === "ios" ? "padding" : "height");
-    });
-
-    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setBehavior(undefined);
-    });
-
-    return () => {
-      keyboardShowListener.remove();
-      keyboardHideListener.remove();
-    };
-  }, []);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -233,7 +212,7 @@ export default function CreatePQRScreen() {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Nueva PQR" onBackPress={handleBackPress} />
 
-      <KeyboardAvoidingView style={styles.keyboardView} behavior={behavior}>
+      <KeyboardAvoidingView style={styles.keyboardView} behavior="padding">
         <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
           <ScrollView
             style={styles.content}

@@ -7,10 +7,9 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
+  ScrollViewProps,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
@@ -32,7 +31,6 @@ const ParticipantesListaScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
   const stats = {
@@ -74,6 +72,13 @@ const ParticipantesListaScreen: React.FC = () => {
     setRefreshing(false);
   }, [loadParticipantes]);
 
+  const renderScrollComponent = useCallback(
+    (props: ScrollViewProps) => (
+      <KeyboardAwareScrollView {...props} bottomOffset={24} />
+    ),
+    []
+  );
+
   useEffect(() => {
     loadParticipantes();
 
@@ -87,28 +92,6 @@ const ParticipantesListaScreen: React.FC = () => {
   useEffect(() => {
     applyFilters();
   }, [applyFilters]);
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      () => {
-        setKeyboardVisible(true);
-        flatListRef.current?.scrollToOffset({ offset: 300, animated: true });
-      }
-    );
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardVisible(false);
-      }
-    );
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
 
   const renderParticipante = ({ item }: { item: Participante }) => (
     <View style={styles.participanteCard}>
@@ -222,44 +205,38 @@ const ParticipantesListaScreen: React.FC = () => {
         )}
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <FlatList
-          ref={flatListRef}
-          data={filteredParticipantes}
-          renderItem={renderParticipante}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={[
-            styles.listContainer,
-            keyboardVisible && { paddingBottom: THEME.spacing.xl * 4 },
-          ]}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          ListHeaderComponent={
-            <>
-              <AsistenciaChart
-                presentes={stats.presentes}
-                ausentes={stats.ausentes}
-              />
-              {participantes.length > 0 && (
-                <PoderVotoChart participantes={participantes} />
-              )}
-            </>
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                {loading
-                  ? "Cargando participantes..."
-                  : "No se encontraron participantes"}
-              </Text>
-            </View>
-          }
-        />
-      </KeyboardAvoidingView>
+      <FlatList
+        ref={flatListRef}
+        data={filteredParticipantes}
+        renderItem={renderParticipante}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContainer}
+        keyboardShouldPersistTaps="handled"
+        renderScrollComponent={renderScrollComponent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListHeaderComponent={
+          <>
+            <AsistenciaChart
+              presentes={stats.presentes}
+              ausentes={stats.ausentes}
+            />
+            {participantes.length > 0 && (
+              <PoderVotoChart participantes={participantes} />
+            )}
+          </>
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              {loading
+                ? "Cargando participantes..."
+                : "No se encontraron participantes"}
+            </Text>
+          </View>
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -268,9 +245,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.surface,
-  },
-  flex: {
-    flex: 1,
   },
   searchContainer: {
     flexDirection: "row",

@@ -6,10 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
@@ -188,166 +186,161 @@ export default function ResetPassword() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerContent}>
-              <Text style={styles.title}>Nueva Contraseña</Text>
-              <Text style={styles.subtitle}>
-                Ingresa el código y tu nueva contraseña
-              </Text>
-            </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Nueva Contraseña</Text>
+            <Text style={styles.subtitle}>
+              Ingresa el código y tu nueva contraseña
+            </Text>
+          </View>
+        </View>
+
+        {/* Formulario */}
+        <View style={styles.form}>
+          {/* Usuario */}
+          <View style={styles.inputCard}>
+            <Text style={styles.label}>Usuario: {username}</Text>
           </View>
 
-          {/* Formulario */}
-          <View style={styles.form}>
-            {/* Usuario */}
-            <View style={styles.inputCard}>
-              <Text style={styles.label}>Usuario: {username}</Text>
-            </View>
+          {/* Código */}
+          <View style={styles.otpContainer}>
+            <OTPInput
+              value={code}
+              onChange={(newCode) => {
+                setCode(newCode);
+                if (fieldErrors.code) clearFieldError("code");
+              }}
+              error={fieldErrors.code}
+              disabled={loading}
+            />
+          </View>
 
-            {/* Código */}
-            <View style={styles.otpContainer}>
-              <OTPInput
-                value={code}
-                onChange={(newCode) => {
-                  setCode(newCode);
-                  if (fieldErrors.code) clearFieldError("code");
-                }}
-                error={fieldErrors.code}
-                disabled={loading}
+          {/* Nueva contraseña */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.newPassword && styles.inputError,
+                code.join("").length !== 6 && styles.inputContainerDisabled,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={
+                  fieldErrors.newPassword ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
               />
-            </View>
-
-            {/* Nueva contraseña */}
-            <View>
-              <View
+              <TextInput
                 style={[
-                  styles.inputContainer,
-                  fieldErrors.newPassword && styles.inputError,
-                  code.join("").length !== 6 && styles.inputContainerDisabled,
+                  styles.input,
+                  code.join("").length !== 6 && styles.inputDisabled,
                 ]}
+                placeholder="Nueva contraseña"
+                placeholderTextColor={COLORS.text.muted}
+                value={newPassword}
+                onChangeText={(text) => {
+                  setNewPassword(text);
+                  if (fieldErrors.newPassword) clearFieldError("newPassword");
+                }}
+                secureTextEntry={!showNewPassword}
+                editable={code.join("").length === 6}
+              />
+              <TouchableOpacity
+                onPress={() => setShowNewPassword(!showNewPassword)}
+                style={styles.eyeButton}
+                disabled={code.join("").length !== 6}
               >
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={
-                    fieldErrors.newPassword
-                      ? COLORS.error
-                      : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
+                <Entypo
+                  name={showNewPassword ? "lock-open" : "lock"}
+                  size={18}
+                  color={COLORS.text.secondary}
                 />
-                <TextInput
-                  style={[
-                    styles.input,
-                    code.join("").length !== 6 && styles.inputDisabled,
-                  ]}
-                  placeholder="Nueva contraseña"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={newPassword}
-                  onChangeText={(text) => {
-                    setNewPassword(text);
-                    if (fieldErrors.newPassword) clearFieldError("newPassword");
-                  }}
-                  secureTextEntry={!showNewPassword}
-                  editable={code.join("").length === 6}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowNewPassword(!showNewPassword)}
-                  style={styles.eyeButton}
-                  disabled={code.join("").length !== 6}
-                >
-                  <Entypo
-                    name={showNewPassword ? "lock-open" : "lock"}
-                    size={18}
-                    color={COLORS.text.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {fieldErrors.newPassword && (
-                <Text style={styles.errorText}>{fieldErrors.newPassword}</Text>
-              )}
+              </TouchableOpacity>
             </View>
-
-            {/* Confirmar contraseña */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.confirmPassword && styles.inputError,
-                  code.join("").length !== 6 && styles.inputContainerDisabled,
-                ]}
-              >
-                <Ionicons
-                  name="checkmark-circle-outline"
-                  size={20}
-                  color={
-                    fieldErrors.confirmPassword
-                      ? COLORS.error
-                      : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={[
-                    styles.input,
-                    code.join("").length !== 6 && styles.inputDisabled,
-                  ]}
-                  placeholder="Confirmar nueva contraseña"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={confirmPassword}
-                  onChangeText={(text) => {
-                    setConfirmPassword(text);
-                    if (fieldErrors.confirmPassword)
-                      clearFieldError("confirmPassword");
-                  }}
-                  secureTextEntry={!showConfirmPassword}
-                  editable={code.join("").length === 6}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={styles.eyeButton}
-                  disabled={code.join("").length !== 6}
-                >
-                  <Entypo
-                    name={showConfirmPassword ? "lock-open" : "lock"}
-                    size={18}
-                    color={COLORS.text.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {fieldErrors.confirmPassword && (
-                <Text style={styles.errorText}>
-                  {fieldErrors.confirmPassword}
-                </Text>
-              )}
-            </View>
-
-            {/* Botón restablecer */}
-            <TouchableOpacity
-              style={styles.resetButton}
-              onPress={handleResetPassword}
-            >
-              <Text style={styles.resetButtonText}>Restablecer Contraseña</Text>
-            </TouchableOpacity>
-
-            {/* Link a login */}
-            <TouchableOpacity
-              style={styles.loginLink}
-              onPress={() => router.push("/(auth)/login")}
-            >
-              <Text style={styles.loginLinkText}>
-                Volver al inicio de sesión
-              </Text>
-            </TouchableOpacity>
+            {fieldErrors.newPassword && (
+              <Text style={styles.errorText}>{fieldErrors.newPassword}</Text>
+            )}
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          {/* Confirmar contraseña */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.confirmPassword && styles.inputError,
+                code.join("").length !== 6 && styles.inputContainerDisabled,
+              ]}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={20}
+                color={
+                  fieldErrors.confirmPassword
+                    ? COLORS.error
+                    : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  code.join("").length !== 6 && styles.inputDisabled,
+                ]}
+                placeholder="Confirmar nueva contraseña"
+                placeholderTextColor={COLORS.text.muted}
+                value={confirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  if (fieldErrors.confirmPassword)
+                    clearFieldError("confirmPassword");
+                }}
+                secureTextEntry={!showConfirmPassword}
+                editable={code.join("").length === 6}
+              />
+              <TouchableOpacity
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={styles.eyeButton}
+                disabled={code.join("").length !== 6}
+              >
+                <Entypo
+                  name={showConfirmPassword ? "lock-open" : "lock"}
+                  size={18}
+                  color={COLORS.text.secondary}
+                />
+              </TouchableOpacity>
+            </View>
+            {fieldErrors.confirmPassword && (
+              <Text style={styles.errorText}>
+                {fieldErrors.confirmPassword}
+              </Text>
+            )}
+          </View>
+
+          {/* Botón restablecer */}
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleResetPassword}
+          >
+            <Text style={styles.resetButtonText}>Restablecer Contraseña</Text>
+          </TouchableOpacity>
+
+          {/* Link a login */}
+          <TouchableOpacity
+            style={styles.loginLink}
+            onPress={() => router.push("/(auth)/login")}
+          >
+            <Text style={styles.loginLinkText}>Volver al inicio de sesión</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -425,9 +418,6 @@ const styles = StyleSheet.create({
     fontSize: THEME.fontSize.sm,
     color: COLORS.text.secondary,
     textAlign: "left",
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

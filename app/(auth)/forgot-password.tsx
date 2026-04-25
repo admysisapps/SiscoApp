@@ -6,10 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
@@ -114,83 +112,80 @@ export default function ForgotPassword() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.content}>
-            {/* Header */}
-            <View style={styles.header}>
-              <Text style={styles.title}>Cambiar contraseña</Text>
-              {/* <Text style={styles.subtitle}>
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Cambiar contraseña</Text>
+            {/* <Text style={styles.subtitle}>
                 Ingresa tu documento o correo para continuar
               </Text> */}
-            </View>
-
-            {/* Formulario */}
-            <View style={styles.form}>
-              <View style={styles.inputCard}>
-                <View style={styles.inputIconContainer}>
-                  <Ionicons
-                    name="person-outline"
-                    size={20}
-                    color={COLORS.primary}
-                  />
-                </View>
-                <View style={styles.inputContent}>
-                  <Text style={styles.label}>
-                    Documento o correo electrónico
-                  </Text>
-                  <TextInput
-                    style={[styles.input, fieldError && styles.inputError]}
-                    placeholder="Ingresa tu cédula o email"
-                    placeholderTextColor={COLORS.text.muted}
-                    value={username}
-                    onChangeText={(text) => {
-                      setUsername(text);
-                      if (fieldError) setFieldError("");
-                    }}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </View>
-              </View>
-              {fieldError && <Text style={styles.errorText}>{fieldError}</Text>}
-
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleForgotPassword}
-              >
-                <Text style={styles.sendButtonText}>Enviar código</Text>
-              </TouchableOpacity>
-
-              <View style={styles.helpCard}>
-                <Ionicons
-                  name="information-circle-outline"
-                  size={18}
-                  color={COLORS.primary}
-                  style={styles.helpIcon}
-                />
-                <Text style={styles.helpText}>
-                  Ingresa tu cédula o correo. Si usas tu cédula, el código se
-                  enviará al correo asociado a tu cuenta.
-                </Text>
-              </View>
-            </View>
-
-            {/* Footer */}
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.push("/(auth)/login")}
-            >
-              <Text style={styles.backButtonText}>
-                Volver al inicio de sesión
-              </Text>
-            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          {/* Formulario */}
+          <View style={styles.form}>
+            <View style={styles.inputCard}>
+              <View style={styles.inputIconContainer}>
+                <Ionicons
+                  name="person-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
+              </View>
+              <View style={styles.inputContent}>
+                <Text style={styles.label}>Documento o correo electrónico</Text>
+                <TextInput
+                  style={[styles.input, fieldError && styles.inputError]}
+                  placeholder="Ingresa tu cédula o email"
+                  placeholderTextColor={COLORS.text.muted}
+                  value={username}
+                  onChangeText={(text) => {
+                    setUsername(text);
+                    if (fieldError) setFieldError("");
+                  }}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+            </View>
+            {fieldError && <Text style={styles.errorText}>{fieldError}</Text>}
+
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={handleForgotPassword}
+            >
+              <Text style={styles.sendButtonText}>Enviar código</Text>
+            </TouchableOpacity>
+
+            <View style={styles.helpCard}>
+              <Ionicons
+                name="information-circle-outline"
+                size={18}
+                color={COLORS.primary}
+                style={styles.helpIcon}
+              />
+              <Text style={styles.helpText}>
+                Ingresa tu cédula o correo. Si usas tu cédula, el código se
+                enviará al correo asociado a tu cuenta.
+              </Text>
+            </View>
+          </View>
+
+          {/* Footer */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.push("/(auth)/login")}
+          >
+            <Text style={styles.backButtonText}>
+              Volver al inicio de sesión
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -239,9 +234,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     top: 300,
     right: -60,
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

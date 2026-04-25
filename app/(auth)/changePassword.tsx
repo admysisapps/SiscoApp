@@ -6,10 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
@@ -183,224 +181,217 @@ export default function ChangePassword() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={COLORS.text.primary}
-              />
-            </TouchableOpacity>
-            <View style={styles.headerContent}>
-              <Text style={styles.title}>Cambiar Contraseña</Text>
-              <Text style={styles.subtitle}>
-                Actualiza tu contraseña de forma segura
-              </Text>
-            </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color={COLORS.text.primary} />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Cambiar Contraseña</Text>
+            <Text style={styles.subtitle}>
+              Actualiza tu contraseña de forma segura
+            </Text>
+          </View>
+        </View>
+
+        {/* Formulario */}
+        <View style={styles.form}>
+          {/* Información */}
+          <View style={styles.infoContainer}>
+            <MaterialIcons
+              name="password"
+              size={48}
+              color={COLORS.primary}
+              style={styles.shieldIcon}
+            />
+            <Text style={styles.infoText}>
+              Por seguridad, necesitamos verificar tu contraseña actual antes de
+              establecer una nueva
+            </Text>
           </View>
 
-          {/* Formulario */}
-          <View style={styles.form}>
-            {/* Información */}
-            <View style={styles.infoContainer}>
-              <MaterialIcons
-                name="password"
-                size={48}
-                color={COLORS.primary}
-                style={styles.shieldIcon}
-              />
-              <Text style={styles.infoText}>
-                Por seguridad, necesitamos verificar tu contraseña actual antes
-                de establecer una nueva
-              </Text>
-            </View>
-
-            {/* Contraseña actual */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.currentPassword && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="lock-closed"
-                  size={20}
-                  color={
-                    fieldErrors.currentPassword
-                      ? COLORS.error
-                      : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Contraseña actual"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={currentPassword}
-                  onChangeText={(text) => {
-                    setCurrentPassword(text);
-                    if (fieldErrors.currentPassword)
-                      clearFieldError("currentPassword");
-                  }}
-                  secureTextEntry={!showCurrentPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                  style={styles.eyeButton}
-                >
-                  <Entypo
-                    name={showCurrentPassword ? "lock-open" : "lock"}
-                    size={18}
-                    color={COLORS.text.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {fieldErrors.currentPassword && (
-                <Text style={styles.errorText}>
-                  {fieldErrors.currentPassword}
-                </Text>
-              )}
-            </View>
-
-            {/* Nueva contraseña */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.newPassword && styles.inputError,
-                  currentPassword.length < 8 && styles.inputContainerDisabled,
-                ]}
-              >
-                <Ionicons
-                  name="lock-open-outline"
-                  size={20}
-                  color={
-                    fieldErrors.newPassword
-                      ? COLORS.error
-                      : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={[
-                    styles.input,
-                    currentPassword.length < 8 && styles.inputDisabled,
-                  ]}
-                  placeholder="Nueva contraseña"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={newPassword}
-                  onChangeText={(text) => {
-                    setNewPassword(text);
-                    if (fieldErrors.newPassword) clearFieldError("newPassword");
-                  }}
-                  secureTextEntry={!showNewPassword}
-                  editable={currentPassword.length >= 8}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowNewPassword(!showNewPassword)}
-                  style={styles.eyeButton}
-                  disabled={currentPassword.length < 8}
-                >
-                  <Entypo
-                    name={showNewPassword ? "lock-open" : "lock"}
-                    size={18}
-                    color={COLORS.text.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {fieldErrors.newPassword && (
-                <Text style={styles.errorText}>{fieldErrors.newPassword}</Text>
-              )}
-            </View>
-
-            {/* Confirmar nueva contraseña */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.confirmPassword && styles.inputError,
-                  currentPassword.length < 8 && styles.inputContainerDisabled,
-                ]}
-              >
-                <Ionicons
-                  name="checkmark-circle-outline"
-                  size={20}
-                  color={
-                    fieldErrors.confirmPassword
-                      ? COLORS.error
-                      : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={[
-                    styles.input,
-                    currentPassword.length < 8 && styles.inputDisabled,
-                  ]}
-                  placeholder="Confirmar nueva contraseña"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={confirmPassword}
-                  onChangeText={(text) => {
-                    setConfirmPassword(text);
-                    if (fieldErrors.confirmPassword)
-                      clearFieldError("confirmPassword");
-                  }}
-                  secureTextEntry={!showConfirmPassword}
-                  editable={currentPassword.length >= 8}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={styles.eyeButton}
-                  disabled={currentPassword.length < 8}
-                >
-                  <Entypo
-                    name={showConfirmPassword ? "lock-open" : "lock"}
-                    size={18}
-                    color={COLORS.text.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {fieldErrors.confirmPassword && (
-                <Text style={styles.errorText}>
-                  {fieldErrors.confirmPassword}
-                </Text>
-              )}
-            </View>
-
-            {/* Botón cambiar */}
-            <TouchableOpacity
-              style={styles.changeButton}
-              onPress={handleChangePassword}
+          {/* Contraseña actual */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.currentPassword && styles.inputError,
+              ]}
             >
-              <Text style={styles.changeButtonText}>Cambiar Contraseña</Text>
-            </TouchableOpacity>
-
-            {/* Información adicional */}
-            <View style={styles.helpContainer}>
               <Ionicons
-                name="information-circle-outline"
-                size={16}
-                color={COLORS.text.secondary}
-                style={styles.helpIcon}
+                name="lock-closed"
+                size={20}
+                color={
+                  fieldErrors.currentPassword
+                    ? COLORS.error
+                    : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
               />
-              <Text style={styles.helpText}>
-                Tu nueva contraseña debe tener al menos 8 caracteres, incluyendo
-                mayúsculas, minúsculas, números y símbolos
-              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Contraseña actual"
+                placeholderTextColor={COLORS.text.muted}
+                value={currentPassword}
+                onChangeText={(text) => {
+                  setCurrentPassword(text);
+                  if (fieldErrors.currentPassword)
+                    clearFieldError("currentPassword");
+                }}
+                secureTextEntry={!showCurrentPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                style={styles.eyeButton}
+              >
+                <Entypo
+                  name={showCurrentPassword ? "lock-open" : "lock"}
+                  size={18}
+                  color={COLORS.text.secondary}
+                />
+              </TouchableOpacity>
             </View>
+            {fieldErrors.currentPassword && (
+              <Text style={styles.errorText}>
+                {fieldErrors.currentPassword}
+              </Text>
+            )}
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          {/* Nueva contraseña */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.newPassword && styles.inputError,
+                currentPassword.length < 8 && styles.inputContainerDisabled,
+              ]}
+            >
+              <Ionicons
+                name="lock-open-outline"
+                size={20}
+                color={
+                  fieldErrors.newPassword ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  currentPassword.length < 8 && styles.inputDisabled,
+                ]}
+                placeholder="Nueva contraseña"
+                placeholderTextColor={COLORS.text.muted}
+                value={newPassword}
+                onChangeText={(text) => {
+                  setNewPassword(text);
+                  if (fieldErrors.newPassword) clearFieldError("newPassword");
+                }}
+                secureTextEntry={!showNewPassword}
+                editable={currentPassword.length >= 8}
+              />
+              <TouchableOpacity
+                onPress={() => setShowNewPassword(!showNewPassword)}
+                style={styles.eyeButton}
+                disabled={currentPassword.length < 8}
+              >
+                <Entypo
+                  name={showNewPassword ? "lock-open" : "lock"}
+                  size={18}
+                  color={COLORS.text.secondary}
+                />
+              </TouchableOpacity>
+            </View>
+            {fieldErrors.newPassword && (
+              <Text style={styles.errorText}>{fieldErrors.newPassword}</Text>
+            )}
+          </View>
+
+          {/* Confirmar nueva contraseña */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.confirmPassword && styles.inputError,
+                currentPassword.length < 8 && styles.inputContainerDisabled,
+              ]}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={20}
+                color={
+                  fieldErrors.confirmPassword
+                    ? COLORS.error
+                    : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  currentPassword.length < 8 && styles.inputDisabled,
+                ]}
+                placeholder="Confirmar nueva contraseña"
+                placeholderTextColor={COLORS.text.muted}
+                value={confirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  if (fieldErrors.confirmPassword)
+                    clearFieldError("confirmPassword");
+                }}
+                secureTextEntry={!showConfirmPassword}
+                editable={currentPassword.length >= 8}
+              />
+              <TouchableOpacity
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={styles.eyeButton}
+                disabled={currentPassword.length < 8}
+              >
+                <Entypo
+                  name={showConfirmPassword ? "lock-open" : "lock"}
+                  size={18}
+                  color={COLORS.text.secondary}
+                />
+              </TouchableOpacity>
+            </View>
+            {fieldErrors.confirmPassword && (
+              <Text style={styles.errorText}>
+                {fieldErrors.confirmPassword}
+              </Text>
+            )}
+          </View>
+
+          {/* Botón cambiar */}
+          <TouchableOpacity
+            style={styles.changeButton}
+            onPress={handleChangePassword}
+          >
+            <Text style={styles.changeButtonText}>Cambiar Contraseña</Text>
+          </TouchableOpacity>
+
+          {/* Información adicional */}
+          <View style={styles.helpContainer}>
+            <Ionicons
+              name="information-circle-outline"
+              size={16}
+              color={COLORS.text.secondary}
+              style={styles.helpIcon}
+            />
+            <Text style={styles.helpText}>
+              Tu nueva contraseña debe tener al menos 8 caracteres, incluyendo
+              mayúsculas, minúsculas, números y símbolos
+            </Text>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -479,9 +470,6 @@ const styles = StyleSheet.create({
     color: COLORS.text.secondary,
     textAlign: "left",
     lineHeight: 20,
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

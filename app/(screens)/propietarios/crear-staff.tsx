@@ -5,12 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AntDesign,Ionicons } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { THEME, COLORS } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { useLoading } from "@/contexts/LoadingContext";
@@ -110,7 +108,9 @@ export default function CrearStaffScreen() {
     if (!formData.email) {
       setFieldError("email", "Ingresa el correo");
       hasErrors = true;
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)
+    ) {
       setFieldError("email", "Verifica el correo");
       hasErrors = true;
     }
@@ -156,255 +156,253 @@ export default function CrearStaffScreen() {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScreenHeader title="Crear Staff" onBackPress={() => router.back()} />
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      <KeyboardAwareScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
-        <ScrollView
-          style={styles.content}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Selector de rol */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <AntDesign name="usergroup-add" size={20} color={COLORS.primary} />
-              <Text style={styles.cardTitle}>Tipo de usuario</Text>
-            </View>
-
-            {fieldErrors.rol && (
-              <Text style={styles.errorText}>{fieldErrors.rol}</Text>
-            )}
-
-            {ROLES_STAFF.map((rol) => (
-              <TouchableOpacity
-                key={rol.key}
-                style={[
-                  styles.rolCard,
-                  formData.rol === rol.key && styles.rolCardActive,
-                ]}
-                onPress={() => handleInputChange("rol", rol.key)}
-                activeOpacity={0.8}
-              >
-                <View
-                  style={[
-                    styles.rolIconContainer,
-                    formData.rol === rol.key && styles.rolIconContainerActive,
-                  ]}
-                >
-                  <Ionicons
-                    name={rol.icon}
-                    size={22}
-                    color={
-                      formData.rol === rol.key ? "white" : COLORS.primary
-                    }
-                  />
-                </View>
-                <View style={styles.rolInfo}>
-                  <Text
-                    style={[
-                      styles.rolLabel,
-                      formData.rol === rol.key && styles.rolLabelActive,
-                    ]}
-                  >
-                    {rol.label}
-                  </Text>
-                  <Text style={styles.rolDescripcion}>{rol.descripcion}</Text>
-                </View>
-                {formData.rol === rol.key && (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={22}
-                    color={COLORS.primary}
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
+        {/* Selector de rol */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <AntDesign name="usergroup-add" size={20} color={COLORS.primary} />
+            <Text style={styles.cardTitle}>Tipo de usuario</Text>
           </View>
 
-          {/* Datos personales */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
+          {fieldErrors.rol && (
+            <Text style={styles.errorText}>{fieldErrors.rol}</Text>
+          )}
+
+          {ROLES_STAFF.map((rol) => (
+            <TouchableOpacity
+              key={rol.key}
+              style={[
+                styles.rolCard,
+                formData.rol === rol.key && styles.rolCardActive,
+              ]}
+              onPress={() => handleInputChange("rol", rol.key)}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.rolIconContainer,
+                  formData.rol === rol.key && styles.rolIconContainerActive,
+                ]}
+              >
+                <Ionicons
+                  name={rol.icon}
+                  size={22}
+                  color={formData.rol === rol.key ? "white" : COLORS.primary}
+                />
+              </View>
+              <View style={styles.rolInfo}>
+                <Text
+                  style={[
+                    styles.rolLabel,
+                    formData.rol === rol.key && styles.rolLabelActive,
+                  ]}
+                >
+                  {rol.label}
+                </Text>
+                <Text style={styles.rolDescripcion}>{rol.descripcion}</Text>
+              </View>
+              {formData.rol === rol.key && (
+                <Ionicons
+                  name="checkmark-circle"
+                  size={22}
+                  color={COLORS.primary}
+                />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Datos personales */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="person-outline" size={20} color={COLORS.primary} />
+            <Text style={styles.cardTitle}>Datos personales</Text>
+          </View>
+
+          {/* Documento */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.documento && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="card-outline"
+                size={20}
+                color={
+                  fieldErrors.documento ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Número de cédula"
+                placeholderTextColor={COLORS.text.muted}
+                value={formData.documento}
+                onChangeText={(v) => handleInputChange("documento", v)}
+                keyboardType="numeric"
+                maxLength={11}
+              />
+            </View>
+            {fieldErrors.documento && (
+              <Text style={styles.errorText}>{fieldErrors.documento}</Text>
+            )}
+          </View>
+
+          {/* Nombre */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.nombre && styles.inputError,
+              ]}
+            >
               <Ionicons
                 name="person-outline"
                 size={20}
-                color={COLORS.primary}
+                color={
+                  fieldErrors.nombre ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
               />
-              <Text style={styles.cardTitle}>Datos personales</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre"
+                placeholderTextColor={COLORS.text.muted}
+                value={formData.nombre}
+                onChangeText={(v) => handleInputChange("nombre", v)}
+                autoCapitalize="words"
+              />
             </View>
-
-            {/* Documento */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.documento && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="card-outline"
-                  size={20}
-                  color={fieldErrors.documento ? COLORS.error : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Número de cédula"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={formData.documento}
-                  onChangeText={(v) => handleInputChange("documento", v)}
-                  keyboardType="numeric"
-                  maxLength={11}
-                />
-              </View>
-              {fieldErrors.documento && (
-                <Text style={styles.errorText}>{fieldErrors.documento}</Text>
-              )}
-            </View>
-
-            {/* Nombre */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.nombre && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="person-outline"
-                  size={20}
-                  color={fieldErrors.nombre ? COLORS.error : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nombre"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={formData.nombre}
-                  onChangeText={(v) => handleInputChange("nombre", v)}
-                  autoCapitalize="words"
-                />
-              </View>
-              {fieldErrors.nombre && (
-                <Text style={styles.errorText}>{fieldErrors.nombre}</Text>
-              )}
-            </View>
-
-            {/* Apellido */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.apellido && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="person-outline"
-                  size={20}
-                  color={fieldErrors.apellido ? COLORS.error : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Apellido"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={formData.apellido}
-                  onChangeText={(v) => handleInputChange("apellido", v)}
-                  autoCapitalize="words"
-                />
-              </View>
-              {fieldErrors.apellido && (
-                <Text style={styles.errorText}>{fieldErrors.apellido}</Text>
-              )}
-            </View>
-
-            {/* Email */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.email && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={fieldErrors.email ? COLORS.error : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="correo@ejemplo.com"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={formData.email}
-                  onChangeText={(v) => handleInputChange("email", v)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-              {fieldErrors.email && (
-                <Text style={styles.errorText}>{fieldErrors.email}</Text>
-              )}
-            </View>
-
-            {/* Teléfono */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.telefono && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="call-outline"
-                  size={20}
-                  color={fieldErrors.telefono ? COLORS.error : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Teléfono (opcional)"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={formData.telefono}
-                  onChangeText={(v) => handleInputChange("telefono", v)}
-                  keyboardType="phone-pad"
-                  maxLength={10}
-                />
-              </View>
-              {fieldErrors.telefono && (
-                <Text style={styles.errorText}>{fieldErrors.telefono}</Text>
-              )}
-            </View>
+            {fieldErrors.nombre && (
+              <Text style={styles.errorText}>{fieldErrors.nombre}</Text>
+            )}
           </View>
 
-          {/* Info */}
-          <View style={styles.infoCard}>
-            <Ionicons
-              name="information-circle-outline"
-              size={18}
-              color={COLORS.primary}
-            />
-            <Text style={styles.infoText}>
-              El usuario recibirá sus credenciales de acceso al correo registrado.
-            </Text>
+          {/* Apellido */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.apellido && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color={
+                  fieldErrors.apellido ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Apellido"
+                placeholderTextColor={COLORS.text.muted}
+                value={formData.apellido}
+                onChangeText={(v) => handleInputChange("apellido", v)}
+                autoCapitalize="words"
+              />
+            </View>
+            {fieldErrors.apellido && (
+              <Text style={styles.errorText}>{fieldErrors.apellido}</Text>
+            )}
           </View>
 
-          {/* Botón */}
-          <TouchableOpacity
-            style={[
-              styles.createButton,
-              (!formData.rol || !formData.documento) && styles.createButtonDisabled,
-            ]}
-            onPress={crearStaff}
-            disabled={!formData.rol || !formData.documento}
-          >
-            <AntDesign name="usergroup-add" size={20} color="white" />
-            <Text style={styles.createButtonText}>Crear Usuario</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          {/* Email */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.email && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={fieldErrors.email ? COLORS.error : COLORS.text.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="correo@ejemplo.com"
+                placeholderTextColor={COLORS.text.muted}
+                value={formData.email}
+                onChangeText={(v) => handleInputChange("email", v)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+            {fieldErrors.email && (
+              <Text style={styles.errorText}>{fieldErrors.email}</Text>
+            )}
+          </View>
+
+          {/* Teléfono */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.telefono && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="call-outline"
+                size={20}
+                color={
+                  fieldErrors.telefono ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Teléfono (opcional)"
+                placeholderTextColor={COLORS.text.muted}
+                value={formData.telefono}
+                onChangeText={(v) => handleInputChange("telefono", v)}
+                keyboardType="phone-pad"
+                maxLength={10}
+              />
+            </View>
+            {fieldErrors.telefono && (
+              <Text style={styles.errorText}>{fieldErrors.telefono}</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Info */}
+        <View style={styles.infoCard}>
+          <Ionicons
+            name="information-circle-outline"
+            size={18}
+            color={COLORS.primary}
+          />
+          <Text style={styles.infoText}>
+            El usuario recibirá sus credenciales de acceso al correo registrado.
+          </Text>
+        </View>
+
+        {/* Botón */}
+        <TouchableOpacity
+          style={[
+            styles.createButton,
+            (!formData.rol || !formData.documento) &&
+              styles.createButtonDisabled,
+          ]}
+          onPress={crearStaff}
+          disabled={!formData.rol || !formData.documento}
+        >
+          <AntDesign name="usergroup-add" size={20} color="white" />
+          <Text style={styles.createButtonText}>Crear Usuario</Text>
+        </TouchableOpacity>
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -420,9 +418,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   content: {
     flex: 1,

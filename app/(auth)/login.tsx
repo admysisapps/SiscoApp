@@ -6,12 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Animated,
   Dimensions,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
@@ -308,148 +306,144 @@ const Login = React.memo(function Login() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* HEADER ANIMADO */}
-          <Animated.View
-            style={[
-              styles.header,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              },
-            ]}
+        {/* HEADER ANIMADO */}
+        <Animated.View
+          style={[
+            styles.header,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.title}>Bienvenido</Text>
+          <Text style={styles.subtitle}>
+            Ingresa con tu cuenta de propietario
+          </Text>
+        </Animated.View>
+
+        {/* FORMULARIO */}
+        <View style={styles.form}>
+          {/* Input Usuario */}
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="person-outline"
+              size={20}
+              color={COLORS.text.secondary}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              testID="input-username"
+              style={styles.input}
+              placeholder="Cédula o correo electrónico"
+              placeholderTextColor={COLORS.text.muted}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </View>
+
+          {/* Input Contraseña */}
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color={COLORS.text.secondary}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              testID="input-password"
+              style={styles.input}
+              placeholder="Contraseña"
+              placeholderTextColor={COLORS.text.muted}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeButton}
+            >
+              <Entypo
+                name={showPassword ? "lock-open" : "lock"}
+                size={20}
+                color={showPassword ? COLORS.primary : COLORS.text.secondary}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Forgot Password */}
+          <TouchableOpacity
+            style={styles.forgotPassword}
+            onPress={handleForgotPassword}
           >
-            <Text style={styles.title}>Bienvenido</Text>
-            <Text style={styles.subtitle}>
-              Ingresa con tu cuenta de propietario
+            <Text style={styles.forgotPasswordText}>
+              ¿Olvidaste tu contraseña?
             </Text>
+          </TouchableOpacity>
+
+          {/* Botón Login */}
+          <TouchableOpacity
+            testID="button-login"
+            style={styles.loginButton}
+            onPress={handleLogin}
+          >
+            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+          </TouchableOpacity>
+
+          {/* Sign Up */}
+          <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
+            <Text style={styles.signupButtonText}>
+              ¿No tienes cuenta? Regístrate
+            </Text>
+          </TouchableOpacity>
+
+          {/* SEPARADOR ANIMADO */}
+          <Animated.View style={[styles.separator, { opacity: fadeAnim }]}>
+            <View style={styles.line} />
+            <Text style={styles.separatorText}>o</Text>
+            <View style={styles.line} />
           </Animated.View>
 
-          {/* FORMULARIO */}
-          <View style={styles.form}>
-            {/* Input Usuario */}
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={COLORS.text.secondary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                testID="input-username"
-                style={styles.input}
-                placeholder="Cédula o correo electrónico"
-                placeholderTextColor={COLORS.text.muted}
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-            </View>
-
-            {/* Input Contraseña */}
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={COLORS.text.secondary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                testID="input-password"
-                style={styles.input}
-                placeholder="Contraseña"
-                placeholderTextColor={COLORS.text.muted}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeButton}
+          {/* BOTÓN APODERADO ANIMADO */}
+          <Animated.View
+            style={[
+              { opacity: fadeAnim },
+              { transform: [{ translateY: slideAnim }] },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.apoderadoButton}
+              onPress={handleApoderadoLogin}
+              disabled={isCheckingSession}
+            >
+              <Animated.View
+                style={{
+                  transform: [{ scale: iconPulseAnim }],
+                }}
               >
-                <Entypo
-                  name={showPassword ? "lock-open" : "lock"}
+                <Fontisto
+                  name="persons"
                   size={20}
-                  color={showPassword ? COLORS.primary : COLORS.text.secondary}
+                  color={
+                    isCheckingSession ? COLORS.primaryLight : COLORS.primary
+                  }
+                  style={styles.apoderadoIcon}
                 />
-              </TouchableOpacity>
-            </View>
-
-            {/* Forgot Password */}
-            <TouchableOpacity
-              style={styles.forgotPassword}
-              onPress={handleForgotPassword}
-            >
-              <Text style={styles.forgotPasswordText}>
-                ¿Olvidaste tu contraseña?
+              </Animated.View>
+              <Text style={styles.apoderadoButtonText}>
+                Ingresar como Apoderado
               </Text>
             </TouchableOpacity>
-
-            {/* Botón Login */}
-            <TouchableOpacity
-              testID="button-login"
-              style={styles.loginButton}
-              onPress={handleLogin}
-            >
-              <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-            </TouchableOpacity>
-
-            {/* Sign Up */}
-            <TouchableOpacity
-              style={styles.signupButton}
-              onPress={handleSignUp}
-            >
-              <Text style={styles.signupButtonText}>
-                ¿No tienes cuenta? Regístrate
-              </Text>
-            </TouchableOpacity>
-
-            {/* SEPARADOR ANIMADO */}
-            <Animated.View style={[styles.separator, { opacity: fadeAnim }]}>
-              <View style={styles.line} />
-              <Text style={styles.separatorText}>o</Text>
-              <View style={styles.line} />
-            </Animated.View>
-
-            {/* BOTÓN APODERADO ANIMADO */}
-            <Animated.View
-              style={[
-                { opacity: fadeAnim },
-                { transform: [{ translateY: slideAnim }] },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.apoderadoButton}
-                onPress={handleApoderadoLogin}
-                disabled={isCheckingSession}
-              >
-                <Animated.View
-                  style={{
-                    transform: [{ scale: iconPulseAnim }],
-                  }}
-                >
-                  <Fontisto
-                    name="persons"
-                    size={20}
-                    color={
-                      isCheckingSession ? COLORS.primaryLight : COLORS.primary
-                    }
-                    style={styles.apoderadoIcon}
-                  />
-                </Animated.View>
-                <Text style={styles.apoderadoButtonText}>
-                  Ingresar como Apoderado
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </Animated.View>
+        </View>
+      </KeyboardAwareScrollView>
 
       {/* Modal de confirmación */}
       <ConfirmationModal
@@ -530,9 +524,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     top: height * 0.4,
     right: -60,
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

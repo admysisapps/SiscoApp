@@ -10,6 +10,7 @@ import {
   Switch,
   ActivityIndicator,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -518,629 +519,645 @@ export default function CrearEspacioScreen() {
         onBackPress={handleBackPress}
       />
 
-      <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Información Básica */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons
-                name="document-text"
-                size={20}
-                color={THEME.colors.success}
-              />
-              <Text style={styles.sectionTitle}>Información Básica</Text>
-            </View>
-
-            <Text style={styles.label}>Nombre de la zona comun *</Text>
-            <TextInput
-              style={[styles.input, errors.nombre && styles.inputError]}
-              value={formData.nombre}
-              onChangeText={(text) =>
-                setFormData({ ...formData, nombre: text })
-              }
-              placeholder="Ej: Salón Social, Cancha Múltiple"
-              placeholderTextColor={THEME.colors.text.muted}
-            />
-            {errors.nombre && (
-              <Text style={styles.errorText}>{errors.nombre}</Text>
-            )}
-
-            <Text style={styles.label}>Descripción *</Text>
-            <TextInput
-              style={[
-                styles.input,
-                styles.textArea,
-                errors.descripcion && styles.inputError,
-              ]}
-              value={formData.descripcion}
-              onChangeText={(text) =>
-                setFormData({ ...formData, descripcion: text })
-              }
-              placeholder="Describe el espacio y sus características"
-              placeholderTextColor={THEME.colors.text.muted}
-              multiline
-              numberOfLines={3}
-            />
-            {errors.descripcion && (
-              <Text style={styles.errorText}>{errors.descripcion}</Text>
-            )}
-
-            <Text style={styles.label}>Reglas de Uso (Opcional)</Text>
-            <TextInput
-              style={[styles.input, styles.textAreaLarge]}
-              value={formData.reglas}
-              onChangeText={(text) =>
-                setFormData({ ...formData, reglas: text })
-              }
-              placeholder="Ej: No fumar, No mascotas,
-            Limpiar después del uso, etc."
-              placeholderTextColor={THEME.colors.text.muted}
-              multiline
-              numberOfLines={4}
-              maxLength={2500}
-            />
-            <Text style={styles.characterCount}>
-              {formData.reglas.length}/2500 caracteres
-            </Text>
-            <Text style={styles.hint}>
-              Especifica reglas claras: horarios especiales, restricciones,
-              limpieza, etc.
-            </Text>
-
-            <Text style={styles.label}>Capacidad Máxima *</Text>
-            <TextInput
-              style={[
-                styles.input,
-                errors.capacidad_maxima && styles.inputError,
-              ]}
-              value={formData.capacidad_maxima}
-              onChangeText={(text) =>
-                setFormData({ ...formData, capacidad_maxima: text })
-              }
-              placeholder="Número de personas"
-              placeholderTextColor={THEME.colors.text.muted}
-              keyboardType="number-pad"
-            />
-            {errors.capacidad_maxima && (
-              <Text style={styles.errorText}>{errors.capacidad_maxima}</Text>
-            )}
-          </View>
-
-          {/* Configuración de Reservas */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons
-                name="settings"
-                size={20}
-                color={THEME.colors.success}
-              />
-              <Text style={styles.sectionTitle}>Configuración de Reservas</Text>
-            </View>
-
-            <Text style={styles.label}>Estado del Espacio</Text>
-            <SelectField
-              label="Estado del Espacio"
-              value={configuracion.estado}
-              options={OPCIONES_ESTADO}
-              onChange={(value) => {
-                setConfiguracion({ ...configuracion, estado: value });
-              }}
-            />
-
-            {configuracion.estado === "mantenimiento" && (
-              <>
-                <Text style={styles.label}>Fecha de Mantenimiento *</Text>
-                <TouchableOpacity
-                  style={[
-                    styles.datePickerButton,
-                    errors.fecha_mantenimiento && styles.inputError,
-                  ]}
-                  onPress={() => {
-                    datePickerOpenRef.current = true;
-                    setShowDatePicker(true);
-                  }}
-                >
-                  <Ionicons
-                    name="calendar-outline"
-                    size={20}
-                    color={THEME.colors.primary}
-                  />
-                  <Text style={styles.datePickerText}>
-                    {configuracion.fecha_mantenimiento
-                      ? toDisplayDate(configuracion.fecha_mantenimiento)
-                      : "Seleccionar fecha"}
-                  </Text>
-                </TouchableOpacity>
-                {errors.fecha_mantenimiento && (
-                  <Text style={styles.errorText}>
-                    {errors.fecha_mantenimiento}
-                  </Text>
-                )}
-                <Text style={styles.hint}>
-                  Fecha requerida para indicar cuándo estará en mantenimiento.
-                </Text>
-              </>
-            )}
-
-            <Text style={styles.label}>Tipo de Reserva</Text>
-            <SelectField
-              label="Tipo de Reserva"
-              value={configuracion.tipo_reserva}
-              options={OPCIONES_TIPO_RESERVA}
-              onChange={(value) => {
-                setConfiguracion({ ...configuracion, tipo_reserva: value });
-                if (value === "por_horas") {
-                  setFormData({ ...formData, tiempo_minimo_reserva: "60" });
-                }
-              }}
-            />
-
-            {configuracion.tipo_reserva === "bloque_fijo" && (
-              <>
-                <Text style={styles.label}>Duración del Bloque (minutos)</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.duracion_bloque}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, duracion_bloque: text })
-                  }
-                  keyboardType="number-pad"
-                  placeholder="Ej: 240 (4 horas)"
+      <KeyboardAvoidingView behavior="padding" style={styles.gradient}>
+        <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.content}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Información Básica */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons
+                  name="document-text"
+                  size={20}
+                  color={THEME.colors.success}
                 />
-              </>
-            )}
+                <Text style={styles.sectionTitle}>Información Básica</Text>
+              </View>
 
-            {/* Límites de Reserva - Solo para por_minutos y por_horas */}
-            {(configuracion.tipo_reserva === "por_minutos" ||
-              configuracion.tipo_reserva === "por_horas") && (
-              <>
-                <Text style={styles.sectionSubtitle}>Límites de Reserva</Text>
-
-                <View style={styles.timeRow}>
-                  <View style={styles.timeInput}>
-                    <Text style={styles.label}>Tiempo Mínimo (min)</Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        errors.tiempo_minimo && styles.inputError,
-                        configuracion.tipo_reserva === "por_horas" &&
-                          styles.inputDisabled,
-                      ]}
-                      value={formData.tiempo_minimo_reserva}
-                      onChangeText={(text) =>
-                        setFormData({
-                          ...formData,
-                          tiempo_minimo_reserva: text,
-                        })
-                      }
-                      keyboardType="number-pad"
-                      placeholder="60"
-                      placeholderTextColor={THEME.colors.text.muted}
-                      editable={configuracion.tipo_reserva !== "por_horas"}
-                    />
-                    <Text style={styles.hint}>
-                      {configuracion.tipo_reserva === "por_minutos"
-                        ? "Mín: 15 min"
-                        : "Fijo: 60 min (1 hora)"}
-                    </Text>
-                    {errors.tiempo_minimo && (
-                      <Text style={styles.errorText}>
-                        {errors.tiempo_minimo}
-                      </Text>
-                    )}
-                  </View>
-
-                  <View style={styles.timeInput}>
-                    <Text style={styles.label}>Tiempo Máximo (min)</Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        errors.tiempo_maximo && styles.inputError,
-                      ]}
-                      value={formData.tiempo_maximo_reserva}
-                      onChangeText={(text) =>
-                        setFormData({
-                          ...formData,
-                          tiempo_maximo_reserva: text,
-                        })
-                      }
-                      keyboardType="number-pad"
-                      placeholder="240"
-                      placeholderTextColor={THEME.colors.text.muted}
-                    />
-                    <Text style={styles.hint}>
-                      {configuracion.tipo_reserva === "por_minutos"
-                        ? "Máx: 120 min (2h)"
-                        : "Máx: 240 min (4h)"}
-                    </Text>
-                    {errors.tiempo_maximo && (
-                      <Text style={styles.errorText}>
-                        {errors.tiempo_maximo}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-
-                <View style={styles.limitsPreview}>
-                  <Text style={styles.limitsPreviewTitle}>
-                    Resumen de Límites:
-                  </Text>
-                  <Text style={styles.limitsPreviewText}>
-                    • Reserva mínima: {formData.tiempo_minimo_reserva || "60"}{" "}
-                    minutos (
-                    {Math.floor(
-                      (parseInt(formData.tiempo_minimo_reserva) || 60) / 60
-                    )}
-                    h {(parseInt(formData.tiempo_minimo_reserva) || 60) % 60}
-                    min)
-                  </Text>
-                  <Text style={styles.limitsPreviewText}>
-                    • Reserva máxima: {formData.tiempo_maximo_reserva || "240"}{" "}
-                    minutos (
-                    {Math.floor(
-                      (parseInt(formData.tiempo_maximo_reserva) || 240) / 60
-                    )}
-                    h {(parseInt(formData.tiempo_maximo_reserva) || 240) % 60}
-                    min)
-                  </Text>
-                </View>
-              </>
-            )}
-
-            <Text style={styles.label}>Tiempo Mínimo de Antelación</Text>
-            <SelectField
-              label="Tiempo Mínimo de Antelación"
-              value={formData.tiempo_reserva}
-              options={OPCIONES_ANTELACION}
-              onChange={(value) =>
-                setFormData({ ...formData, tiempo_reserva: value })
-              }
-            />
-            <Text style={styles.hint}>
-              Los usuarios solo podrán reservar horarios disponibles después de
-              este tiempo. Ejemplo: Si seleccionas 24 horas, solo verán horarios
-              desde mañana en adelante.
-            </Text>
-
-            <View style={styles.switchRow}>
-              <Text style={styles.label}>Requiere Aprobación del Admin</Text>
-              <Switch
-                value={configuracion.requiere_aprobacion}
-                onValueChange={(value) =>
-                  setConfiguracion({
-                    ...configuracion,
-                    requiere_aprobacion: value,
-                  })
+              <Text style={styles.label}>Nombre de la zona comun *</Text>
+              <TextInput
+                style={[styles.input, errors.nombre && styles.inputError]}
+                value={formData.nombre}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, nombre: text })
                 }
-                trackColor={{
-                  false: THEME.colors.border,
-                  true: THEME.colors.success,
+                placeholder="Ej: Salón Social, Cancha Múltiple"
+                placeholderTextColor={THEME.colors.text.muted}
+              />
+              {errors.nombre && (
+                <Text style={styles.errorText}>{errors.nombre}</Text>
+              )}
+
+              <Text style={styles.label}>Descripción *</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.textArea,
+                  errors.descripcion && styles.inputError,
+                ]}
+                value={formData.descripcion}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, descripcion: text })
+                }
+                placeholder="Describe el espacio y sus características"
+                placeholderTextColor={THEME.colors.text.muted}
+                multiline
+                numberOfLines={3}
+              />
+              {errors.descripcion && (
+                <Text style={styles.errorText}>{errors.descripcion}</Text>
+              )}
+
+              <Text style={styles.label}>Reglas de Uso (Opcional)</Text>
+              <TextInput
+                style={[styles.input, styles.textAreaLarge]}
+                value={formData.reglas}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, reglas: text })
+                }
+                placeholder="Ej: No fumar, No mascotas,
+            Limpiar después del uso, etc."
+                placeholderTextColor={THEME.colors.text.muted}
+                multiline
+                numberOfLines={4}
+                maxLength={2500}
+              />
+              <Text style={styles.characterCount}>
+                {formData.reglas.length}/2500 caracteres
+              </Text>
+              <Text style={styles.hint}>
+                Especifica reglas claras: horarios especiales, restricciones,
+                limpieza, etc.
+              </Text>
+
+              <Text style={styles.label}>Capacidad Máxima *</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  errors.capacidad_maxima && styles.inputError,
+                ]}
+                value={formData.capacidad_maxima}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, capacidad_maxima: text })
+                }
+                placeholder="Número de personas"
+                placeholderTextColor={THEME.colors.text.muted}
+                keyboardType="number-pad"
+              />
+              {errors.capacidad_maxima && (
+                <Text style={styles.errorText}>{errors.capacidad_maxima}</Text>
+              )}
+            </View>
+
+            {/* Configuración de Reservas */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons
+                  name="settings"
+                  size={20}
+                  color={THEME.colors.success}
+                />
+                <Text style={styles.sectionTitle}>
+                  Configuración de Reservas
+                </Text>
+              </View>
+
+              <Text style={styles.label}>Estado del Espacio</Text>
+              <SelectField
+                label="Estado del Espacio"
+                value={configuracion.estado}
+                options={OPCIONES_ESTADO}
+                onChange={(value) => {
+                  setConfiguracion({ ...configuracion, estado: value });
                 }}
               />
-            </View>
-          </View>
 
-          {/* Horarios por Día de la Semana */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="time" size={20} color={THEME.colors.success} />
-              <Text style={styles.sectionTitle}>Horarios por Día</Text>
-            </View>
-
-            <Text style={styles.sectionDescription}>
-              Configura horarios específicos para cada día de la semana. Puedes
-              tener horarios diferentes por día.
-            </Text>
-
-            {/* Vista rápida de días activos */}
-            <Text style={styles.label}>Días Activos:</Text>
-            <View style={styles.diasGrid}>
-              {Object.entries(horariosSemanales).map(([diaSemana, horario]) => (
-                <TouchableOpacity
-                  key={diaSemana}
-                  style={[
-                    styles.diaButton,
-                    horario.activo && styles.diaButtonActive,
-                  ]}
-                  onPress={() => toggleDiaActivo(parseInt(diaSemana))}
-                >
-                  <Text
+              {configuracion.estado === "mantenimiento" && (
+                <>
+                  <Text style={styles.label}>Fecha de Mantenimiento *</Text>
+                  <TouchableOpacity
                     style={[
-                      styles.diaText,
-                      horario.activo && styles.diaTextActive,
+                      styles.datePickerButton,
+                      errors.fecha_mantenimiento && styles.inputError,
                     ]}
-                  >
-                    {getDiaCorto(parseInt(diaSemana))}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            {errors.dias && <Text style={styles.errorText}>{errors.dias}</Text>}
-
-            {/* Configuración detallada por día */}
-            <Text style={styles.label}>Configuración Detallada:</Text>
-            {Object.entries(horariosSemanales).map(([diaSemana, horario]) => (
-              <DiaHorarioItem
-                key={diaSemana}
-                diaSemana={parseInt(diaSemana)}
-                horario={horario}
-                onToggle={() => toggleDiaActivo(parseInt(diaSemana))}
-                onUpdateHorario={(campo, valor) =>
-                  updateHorarioDia(parseInt(diaSemana), campo, valor)
-                }
-                onOpenTimePicker={(tipo) =>
-                  openTimePicker(parseInt(diaSemana), tipo)
-                }
-                error={errors[`horario_${diaSemana}`]}
-                mostrarPrecio={configuracion.tipo_reserva !== "gratuito"}
-              />
-            ))}
-          </View>
-
-          {/* Costos */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="cash" size={20} color={THEME.colors.success} />
-              <Text style={styles.sectionTitle}>Configuración de Costos</Text>
-            </View>
-
-            {/* Costo según tipo de reserva */}
-            {configuracion.tipo_reserva === "por_minutos" && (
-              <>
-                <Text style={styles.label}>Costo por Minuto *</Text>
-                <TextInput
-                  style={[styles.input, errors.costo && styles.inputError]}
-                  value={formData.costo}
-                  onChangeText={(text) => {
-                    const cleaned = text.replace(/[^0-9]/g, "");
-                    setFormData({ ...formData, costo: cleaned });
-                  }}
-                  placeholder="250"
-                  placeholderTextColor={THEME.colors.text.muted}
-                  keyboardType="number-pad"
-                />
-                <Text style={styles.hint}>
-                  Los usuarios pagarán ${formData.costo || "250"} por cada
-                  minuto
-                </Text>
-                {formData.costo && (
-                  <View style={styles.examples}>
-                    <Text style={styles.exampleTitle}>Ejemplos:</Text>
-                    <Text style={styles.exampleText}>
-                      • 30 min = $
-                      {(Number(formData.costo) * 30).toLocaleString()}
-                    </Text>
-                    <Text style={styles.exampleText}>
-                      • 60 min = $
-                      {(Number(formData.costo) * 60).toLocaleString()}
-                    </Text>
-                    <Text style={styles.exampleText}>
-                      • 90 min = $
-                      {(Number(formData.costo) * 90).toLocaleString()}
-                    </Text>
-                  </View>
-                )}
-              </>
-            )}
-
-            {configuracion.tipo_reserva === "por_horas" && (
-              <>
-                <Text style={styles.label}>Costo por Hora *</Text>
-                <TextInput
-                  style={[styles.input, errors.costo && styles.inputError]}
-                  value={formData.costo}
-                  onChangeText={(text) => {
-                    const cleaned = text.replace(/[^0-9]/g, "");
-                    setFormData({ ...formData, costo: cleaned });
-                  }}
-                  placeholder="15000"
-                  placeholderTextColor={THEME.colors.text.muted}
-                  keyboardType="number-pad"
-                />
-                <Text style={styles.hint}>
-                  Los usuarios pagarán ${formData.costo || "15,000"} por cada
-                  hora
-                </Text>
-                {formData.costo && (
-                  <View style={styles.examples}>
-                    <Text style={styles.exampleTitle}>Ejemplos:</Text>
-                    <Text style={styles.exampleText}>
-                      • 1 hora = ${Number(formData.costo).toLocaleString()}
-                    </Text>
-                    <Text style={styles.exampleText}>
-                      • 2 horas = $
-                      {(Number(formData.costo) * 2).toLocaleString()}
-                    </Text>
-                    <Text style={styles.exampleText}>
-                      • 2.5 horas = $
-                      {(Number(formData.costo) * 3).toLocaleString()} (3 horas)
-                    </Text>
-                  </View>
-                )}
-              </>
-            )}
-
-            {configuracion.tipo_reserva === "bloque_fijo" && (
-              <>
-                <Text style={styles.label}>Costo por Bloque *</Text>
-                <TextInput
-                  style={[styles.input, errors.costo && styles.inputError]}
-                  value={formData.costo}
-                  onChangeText={(text) => {
-                    const cleaned = text.replace(/[^0-9]/g, "");
-                    setFormData({ ...formData, costo: cleaned });
-                  }}
-                  placeholder="50000"
-                  placeholderTextColor={THEME.colors.text.muted}
-                  keyboardType="number-pad"
-                />
-                <Text style={styles.hint}>
-                  Los usuarios pagarán ${formData.costo || "50,000"} por cada
-                  bloque de {Math.floor(Number(formData.duracion_bloque) / 60)}{" "}
-                  horas
-                </Text>
-                {formData.costo && formData.duracion_bloque && (
-                  <View style={styles.examples}>
-                    <Text style={styles.exampleTitle}>Ejemplos:</Text>
-                    <Text style={styles.exampleText}>
-                      • 1 bloque (
-                      {Math.floor(Number(formData.duracion_bloque) / 60)}h) = $
-                      {Number(formData.costo).toLocaleString()}
-                    </Text>
-                    <Text style={styles.exampleText}>
-                      • 2 bloques = $
-                      {(Number(formData.costo) * 2).toLocaleString()}
-                    </Text>
-                  </View>
-                )}
-              </>
-            )}
-
-            {configuracion.tipo_reserva === "gratuito" && (
-              <>
-                <View style={styles.gratuitoContainer}>
-                  <Ionicons
-                    name="gift"
-                    size={24}
-                    color={THEME.colors.success}
-                  />
-                  <Text style={styles.gratuitoText}>
-                    Este espacio será gratuito
-                  </Text>
-                </View>
-                <Text style={styles.hint}>
-                  Los usuarios podrán reservar sin ningún costo
-                </Text>
-              </>
-            )}
-
-            {errors.costo && configuracion.tipo_reserva !== "gratuito" && (
-              <Text style={styles.errorText}>{errors.costo}</Text>
-            )}
-          </View>
-
-          {/* Imagen */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="image" size={20} color={THEME.colors.success} />
-              <Text style={styles.sectionTitle}>Imagen de la zona comun</Text>
-            </View>
-
-            {!imagen || (!imagen.uri && !imagenUrl) ? (
-              <TouchableOpacity
-                style={[
-                  styles.imageButton,
-                  uploadingFile && styles.imageButtonDisabled,
-                ]}
-                onPress={handleSelectImage}
-                disabled={uploadingFile}
-              >
-                {uploadingFile ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={THEME.colors.success}
-                  />
-                ) : (
-                  <Ionicons
-                    name="camera"
-                    size={24}
-                    color={THEME.colors.success}
-                  />
-                )}
-                <Text style={styles.imageButtonText}>
-                  {uploadingFile ? "Seleccionando..." : "Seleccionar Imagen"}
-                </Text>
-                <Text style={styles.imageHint}>
-                  Opcional - JPG, PNG (Max 5MB)
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.imagePreviewContainer}>
-                <Image
-                  source={
-                    imagen.uri ? { uri: imagen.uri } : { uri: imagenUrl || "" }
-                  }
-                  style={styles.imagePreview}
-                  contentFit="cover"
-                  transition={200}
-                />
-                <View style={styles.imageOverlay}>
-                  <TouchableOpacity
-                    style={styles.imageActionButton}
-                    onPress={handleSelectImage}
-                  >
-                    <Ionicons name="camera" size={20} color="white" />
-                    <Text style={styles.imageActionText}>Cambiar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.imageActionButton, styles.imageDeleteButton]}
                     onPress={() => {
-                      setImagenEliminada(true);
-                      setImagen(null);
-                      setImagenUrl(null);
+                      datePickerOpenRef.current = true;
+                      setShowDatePicker(true);
                     }}
                   >
-                    <>
-                      <Ionicons name="trash" size={20} color="white" />
-                      <Text style={styles.imageActionText}>Eliminar</Text>
-                    </>
+                    <Ionicons
+                      name="calendar-outline"
+                      size={20}
+                      color={THEME.colors.primary}
+                    />
+                    <Text style={styles.datePickerText}>
+                      {configuracion.fecha_mantenimiento
+                        ? toDisplayDate(configuracion.fecha_mantenimiento)
+                        : "Seleccionar fecha"}
+                    </Text>
                   </TouchableOpacity>
-                </View>
-              </View>
-            )}
-          </View>
-
-          {/* Time Picker Modal */}
-          {showTimePicker && (
-            <DateTimePicker
-              value={createTimeFromString(
-                showTimePicker.tipo === "inicio"
-                  ? horariosSemanales[showTimePicker.dia].hora_inicio
-                  : horariosSemanales[showTimePicker.dia].hora_fin
+                  {errors.fecha_mantenimiento && (
+                    <Text style={styles.errorText}>
+                      {errors.fecha_mantenimiento}
+                    </Text>
+                  )}
+                  <Text style={styles.hint}>
+                    Fecha requerida para indicar cuándo estará en mantenimiento.
+                  </Text>
+                </>
               )}
-              mode="time"
-              is24Hour={true}
-              display="spinner"
-              onChange={handleTimePickerChange}
-            />
-          )}
 
-          {/* Date Picker Modal */}
-          {showDatePicker && (
-            <DateTimePicker
-              value={datePickerValue}
-              mode="date"
-              display="default"
-              onChange={handleDatePickerChange}
-              minimumDate={new Date()} // No permitir fechas pasadas
-            />
-          )}
+              <Text style={styles.label}>Tipo de Reserva</Text>
+              <SelectField
+                label="Tipo de Reserva"
+                value={configuracion.tipo_reserva}
+                options={OPCIONES_TIPO_RESERVA}
+                onChange={(value) => {
+                  setConfiguracion({ ...configuracion, tipo_reserva: value });
+                  if (value === "por_horas") {
+                    setFormData({ ...formData, tiempo_minimo_reserva: "60" });
+                  }
+                }}
+              />
 
-          {/* Botón Crear */}
-          <View style={styles.createButtonContainer}>
-            <Button
-              isLoading={loading}
-              onPress={handleSubmit}
-              loadingText="Guardando..."
-              loadingTextColor="#fff"
-              backgroundColor={THEME.colors.success}
-              loadingTextBackgroundColor={THEME.colors.success}
-              height={56}
-              borderRadius={12}
-              fullWidth
-            >
-              <Text style={styles.createButtonText}>
-                {isEditMode ? "Guardar Cambios" : "Crear Zona Común"}
+              {configuracion.tipo_reserva === "bloque_fijo" && (
+                <>
+                  <Text style={styles.label}>
+                    Duración del Bloque (minutos)
+                  </Text>
+                  <TextInput
+                    style={styles.input}
+                    value={formData.duracion_bloque}
+                    onChangeText={(text) =>
+                      setFormData({ ...formData, duracion_bloque: text })
+                    }
+                    keyboardType="number-pad"
+                    placeholder="Ej: 240 (4 horas)"
+                  />
+                </>
+              )}
+
+              {/* Límites de Reserva - Solo para por_minutos y por_horas */}
+              {(configuracion.tipo_reserva === "por_minutos" ||
+                configuracion.tipo_reserva === "por_horas") && (
+                <>
+                  <Text style={styles.sectionSubtitle}>Límites de Reserva</Text>
+
+                  <View style={styles.timeRow}>
+                    <View style={styles.timeInput}>
+                      <Text style={styles.label}>Tiempo Mínimo (min)</Text>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          errors.tiempo_minimo && styles.inputError,
+                          configuracion.tipo_reserva === "por_horas" &&
+                            styles.inputDisabled,
+                        ]}
+                        value={formData.tiempo_minimo_reserva}
+                        onChangeText={(text) =>
+                          setFormData({
+                            ...formData,
+                            tiempo_minimo_reserva: text,
+                          })
+                        }
+                        keyboardType="number-pad"
+                        placeholder="60"
+                        placeholderTextColor={THEME.colors.text.muted}
+                        editable={configuracion.tipo_reserva !== "por_horas"}
+                      />
+                      <Text style={styles.hint}>
+                        {configuracion.tipo_reserva === "por_minutos"
+                          ? "Mín: 15 min"
+                          : "Fijo: 60 min (1 hora)"}
+                      </Text>
+                      {errors.tiempo_minimo && (
+                        <Text style={styles.errorText}>
+                          {errors.tiempo_minimo}
+                        </Text>
+                      )}
+                    </View>
+
+                    <View style={styles.timeInput}>
+                      <Text style={styles.label}>Tiempo Máximo (min)</Text>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          errors.tiempo_maximo && styles.inputError,
+                        ]}
+                        value={formData.tiempo_maximo_reserva}
+                        onChangeText={(text) =>
+                          setFormData({
+                            ...formData,
+                            tiempo_maximo_reserva: text,
+                          })
+                        }
+                        keyboardType="number-pad"
+                        placeholder="240"
+                        placeholderTextColor={THEME.colors.text.muted}
+                      />
+                      <Text style={styles.hint}>
+                        {configuracion.tipo_reserva === "por_minutos"
+                          ? "Máx: 120 min (2h)"
+                          : "Máx: 240 min (4h)"}
+                      </Text>
+                      {errors.tiempo_maximo && (
+                        <Text style={styles.errorText}>
+                          {errors.tiempo_maximo}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+
+                  <View style={styles.limitsPreview}>
+                    <Text style={styles.limitsPreviewTitle}>
+                      Resumen de Límites:
+                    </Text>
+                    <Text style={styles.limitsPreviewText}>
+                      • Reserva mínima: {formData.tiempo_minimo_reserva || "60"}{" "}
+                      minutos (
+                      {Math.floor(
+                        (parseInt(formData.tiempo_minimo_reserva) || 60) / 60
+                      )}
+                      h {(parseInt(formData.tiempo_minimo_reserva) || 60) % 60}
+                      min)
+                    </Text>
+                    <Text style={styles.limitsPreviewText}>
+                      • Reserva máxima:{" "}
+                      {formData.tiempo_maximo_reserva || "240"} minutos (
+                      {Math.floor(
+                        (parseInt(formData.tiempo_maximo_reserva) || 240) / 60
+                      )}
+                      h {(parseInt(formData.tiempo_maximo_reserva) || 240) % 60}
+                      min)
+                    </Text>
+                  </View>
+                </>
+              )}
+
+              <Text style={styles.label}>Tiempo Mínimo de Antelación</Text>
+              <SelectField
+                label="Tiempo Mínimo de Antelación"
+                value={formData.tiempo_reserva}
+                options={OPCIONES_ANTELACION}
+                onChange={(value) =>
+                  setFormData({ ...formData, tiempo_reserva: value })
+                }
+              />
+              <Text style={styles.hint}>
+                Los usuarios solo podrán reservar horarios disponibles después
+                de este tiempo. Ejemplo: Si seleccionas 24 horas, solo verán
+                horarios desde mañana en adelante.
               </Text>
-            </Button>
-          </View>
-        </ScrollView>
-      </LinearGradient>
+
+              <View style={styles.switchRow}>
+                <Text style={styles.label}>Requiere Aprobación del Admin</Text>
+                <Switch
+                  value={configuracion.requiere_aprobacion}
+                  onValueChange={(value) =>
+                    setConfiguracion({
+                      ...configuracion,
+                      requiere_aprobacion: value,
+                    })
+                  }
+                  trackColor={{
+                    false: THEME.colors.border,
+                    true: THEME.colors.success,
+                  }}
+                />
+              </View>
+            </View>
+
+            {/* Horarios por Día de la Semana */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="time" size={20} color={THEME.colors.success} />
+                <Text style={styles.sectionTitle}>Horarios por Día</Text>
+              </View>
+
+              <Text style={styles.sectionDescription}>
+                Configura horarios específicos para cada día de la semana.
+                Puedes tener horarios diferentes por día.
+              </Text>
+
+              {/* Vista rápida de días activos */}
+              <Text style={styles.label}>Días Activos:</Text>
+              <View style={styles.diasGrid}>
+                {Object.entries(horariosSemanales).map(
+                  ([diaSemana, horario]) => (
+                    <TouchableOpacity
+                      key={diaSemana}
+                      style={[
+                        styles.diaButton,
+                        horario.activo && styles.diaButtonActive,
+                      ]}
+                      onPress={() => toggleDiaActivo(parseInt(diaSemana))}
+                    >
+                      <Text
+                        style={[
+                          styles.diaText,
+                          horario.activo && styles.diaTextActive,
+                        ]}
+                      >
+                        {getDiaCorto(parseInt(diaSemana))}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                )}
+              </View>
+              {errors.dias && (
+                <Text style={styles.errorText}>{errors.dias}</Text>
+              )}
+
+              {/* Configuración detallada por día */}
+              <Text style={styles.label}>Configuración Detallada:</Text>
+              {Object.entries(horariosSemanales).map(([diaSemana, horario]) => (
+                <DiaHorarioItem
+                  key={diaSemana}
+                  diaSemana={parseInt(diaSemana)}
+                  horario={horario}
+                  onToggle={() => toggleDiaActivo(parseInt(diaSemana))}
+                  onUpdateHorario={(campo, valor) =>
+                    updateHorarioDia(parseInt(diaSemana), campo, valor)
+                  }
+                  onOpenTimePicker={(tipo) =>
+                    openTimePicker(parseInt(diaSemana), tipo)
+                  }
+                  error={errors[`horario_${diaSemana}`]}
+                  mostrarPrecio={configuracion.tipo_reserva !== "gratuito"}
+                />
+              ))}
+            </View>
+
+            {/* Costos */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="cash" size={20} color={THEME.colors.success} />
+                <Text style={styles.sectionTitle}>Configuración de Costos</Text>
+              </View>
+
+              {/* Costo según tipo de reserva */}
+              {configuracion.tipo_reserva === "por_minutos" && (
+                <>
+                  <Text style={styles.label}>Costo por Minuto *</Text>
+                  <TextInput
+                    style={[styles.input, errors.costo && styles.inputError]}
+                    value={formData.costo}
+                    onChangeText={(text) => {
+                      const cleaned = text.replace(/[^0-9]/g, "");
+                      setFormData({ ...formData, costo: cleaned });
+                    }}
+                    placeholder="250"
+                    placeholderTextColor={THEME.colors.text.muted}
+                    keyboardType="number-pad"
+                  />
+                  <Text style={styles.hint}>
+                    Los usuarios pagarán ${formData.costo || "250"} por cada
+                    minuto
+                  </Text>
+                  {formData.costo && (
+                    <View style={styles.examples}>
+                      <Text style={styles.exampleTitle}>Ejemplos:</Text>
+                      <Text style={styles.exampleText}>
+                        • 30 min = $
+                        {(Number(formData.costo) * 30).toLocaleString()}
+                      </Text>
+                      <Text style={styles.exampleText}>
+                        • 60 min = $
+                        {(Number(formData.costo) * 60).toLocaleString()}
+                      </Text>
+                      <Text style={styles.exampleText}>
+                        • 90 min = $
+                        {(Number(formData.costo) * 90).toLocaleString()}
+                      </Text>
+                    </View>
+                  )}
+                </>
+              )}
+
+              {configuracion.tipo_reserva === "por_horas" && (
+                <>
+                  <Text style={styles.label}>Costo por Hora *</Text>
+                  <TextInput
+                    style={[styles.input, errors.costo && styles.inputError]}
+                    value={formData.costo}
+                    onChangeText={(text) => {
+                      const cleaned = text.replace(/[^0-9]/g, "");
+                      setFormData({ ...formData, costo: cleaned });
+                    }}
+                    placeholder="15000"
+                    placeholderTextColor={THEME.colors.text.muted}
+                    keyboardType="number-pad"
+                  />
+                  <Text style={styles.hint}>
+                    Los usuarios pagarán ${formData.costo || "15,000"} por cada
+                    hora
+                  </Text>
+                  {formData.costo && (
+                    <View style={styles.examples}>
+                      <Text style={styles.exampleTitle}>Ejemplos:</Text>
+                      <Text style={styles.exampleText}>
+                        • 1 hora = ${Number(formData.costo).toLocaleString()}
+                      </Text>
+                      <Text style={styles.exampleText}>
+                        • 2 horas = $
+                        {(Number(formData.costo) * 2).toLocaleString()}
+                      </Text>
+                      <Text style={styles.exampleText}>
+                        • 2.5 horas = $
+                        {(Number(formData.costo) * 3).toLocaleString()} (3
+                        horas)
+                      </Text>
+                    </View>
+                  )}
+                </>
+              )}
+
+              {configuracion.tipo_reserva === "bloque_fijo" && (
+                <>
+                  <Text style={styles.label}>Costo por Bloque *</Text>
+                  <TextInput
+                    style={[styles.input, errors.costo && styles.inputError]}
+                    value={formData.costo}
+                    onChangeText={(text) => {
+                      const cleaned = text.replace(/[^0-9]/g, "");
+                      setFormData({ ...formData, costo: cleaned });
+                    }}
+                    placeholder="50000"
+                    placeholderTextColor={THEME.colors.text.muted}
+                    keyboardType="number-pad"
+                  />
+                  <Text style={styles.hint}>
+                    Los usuarios pagarán ${formData.costo || "50,000"} por cada
+                    bloque de{" "}
+                    {Math.floor(Number(formData.duracion_bloque) / 60)} horas
+                  </Text>
+                  {formData.costo && formData.duracion_bloque && (
+                    <View style={styles.examples}>
+                      <Text style={styles.exampleTitle}>Ejemplos:</Text>
+                      <Text style={styles.exampleText}>
+                        • 1 bloque (
+                        {Math.floor(Number(formData.duracion_bloque) / 60)}h) =
+                        ${Number(formData.costo).toLocaleString()}
+                      </Text>
+                      <Text style={styles.exampleText}>
+                        • 2 bloques = $
+                        {(Number(formData.costo) * 2).toLocaleString()}
+                      </Text>
+                    </View>
+                  )}
+                </>
+              )}
+
+              {configuracion.tipo_reserva === "gratuito" && (
+                <>
+                  <View style={styles.gratuitoContainer}>
+                    <Ionicons
+                      name="gift"
+                      size={24}
+                      color={THEME.colors.success}
+                    />
+                    <Text style={styles.gratuitoText}>
+                      Este espacio será gratuito
+                    </Text>
+                  </View>
+                  <Text style={styles.hint}>
+                    Los usuarios podrán reservar sin ningún costo
+                  </Text>
+                </>
+              )}
+
+              {errors.costo && configuracion.tipo_reserva !== "gratuito" && (
+                <Text style={styles.errorText}>{errors.costo}</Text>
+              )}
+            </View>
+
+            {/* Imagen */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="image" size={20} color={THEME.colors.success} />
+                <Text style={styles.sectionTitle}>Imagen de la zona comun</Text>
+              </View>
+
+              {!imagen || (!imagen.uri && !imagenUrl) ? (
+                <TouchableOpacity
+                  style={[
+                    styles.imageButton,
+                    uploadingFile && styles.imageButtonDisabled,
+                  ]}
+                  onPress={handleSelectImage}
+                  disabled={uploadingFile}
+                >
+                  {uploadingFile ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={THEME.colors.success}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="camera"
+                      size={24}
+                      color={THEME.colors.success}
+                    />
+                  )}
+                  <Text style={styles.imageButtonText}>
+                    {uploadingFile ? "Seleccionando..." : "Seleccionar Imagen"}
+                  </Text>
+                  <Text style={styles.imageHint}>
+                    Opcional - JPG, PNG (Max 5MB)
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.imagePreviewContainer}>
+                  <Image
+                    source={
+                      imagen.uri
+                        ? { uri: imagen.uri }
+                        : { uri: imagenUrl || "" }
+                    }
+                    style={styles.imagePreview}
+                    contentFit="cover"
+                    transition={200}
+                  />
+                  <View style={styles.imageOverlay}>
+                    <TouchableOpacity
+                      style={styles.imageActionButton}
+                      onPress={handleSelectImage}
+                    >
+                      <Ionicons name="camera" size={20} color="white" />
+                      <Text style={styles.imageActionText}>Cambiar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.imageActionButton,
+                        styles.imageDeleteButton,
+                      ]}
+                      onPress={() => {
+                        setImagenEliminada(true);
+                        setImagen(null);
+                        setImagenUrl(null);
+                      }}
+                    >
+                      <>
+                        <Ionicons name="trash" size={20} color="white" />
+                        <Text style={styles.imageActionText}>Eliminar</Text>
+                      </>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            </View>
+
+            {/* Time Picker Modal */}
+            {showTimePicker && (
+              <DateTimePicker
+                value={createTimeFromString(
+                  showTimePicker.tipo === "inicio"
+                    ? horariosSemanales[showTimePicker.dia].hora_inicio
+                    : horariosSemanales[showTimePicker.dia].hora_fin
+                )}
+                mode="time"
+                is24Hour={true}
+                display="spinner"
+                onChange={handleTimePickerChange}
+              />
+            )}
+
+            {/* Date Picker Modal */}
+            {showDatePicker && (
+              <DateTimePicker
+                value={datePickerValue}
+                mode="date"
+                display="default"
+                onChange={handleDatePickerChange}
+                minimumDate={new Date()} // No permitir fechas pasadas
+              />
+            )}
+
+            {/* Botón Crear */}
+            <View style={styles.createButtonContainer}>
+              <Button
+                isLoading={loading}
+                onPress={handleSubmit}
+                loadingText="Guardando..."
+                loadingTextColor="#fff"
+                backgroundColor={THEME.colors.success}
+                loadingTextBackgroundColor={THEME.colors.success}
+                height={56}
+                borderRadius={12}
+                fullWidth
+              >
+                <Text style={styles.createButtonText}>
+                  {isEditMode ? "Guardar Cambios" : "Crear Zona Común"}
+                </Text>
+              </Button>
+            </View>
+          </ScrollView>
+        </LinearGradient>
+      </KeyboardAvoidingView>
 
       <Toast
         visible={toast.visible}

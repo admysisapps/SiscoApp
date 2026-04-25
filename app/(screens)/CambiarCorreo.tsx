@@ -5,11 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
   ActivityIndicator,
-  ScrollView,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -145,152 +143,137 @@ export default function CambiarCorreoScreen() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={24}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={COLORS.text.primary}
-              />
-            </TouchableOpacity>
-            <View style={styles.headerContent}>
-              <Text style={styles.title}>Actualizar Correo</Text>
-            </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color={COLORS.text.primary} />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Actualizar Correo</Text>
           </View>
-          {/* Formulario */}
-          <View style={styles.form}>
-            {step === "input" ? (
-              <>
-                <View style={styles.infoContainer}>
-                  <MaterialCommunityIcons
-                    name="email-arrow-right"
-                    size={48}
-                    color={COLORS.primary}
-                    style={styles.icon}
-                  />
-                  <Text style={styles.infoText}>
-                    Por tu seguridad, necesitamos validar tu identidad. Te
-                    enviaremos un código de verificación a tu correo actual.
-                  </Text>
-                </View>
-                <View style={styles.currentEmailCard}>
-                  <Text style={styles.currentEmailLabel}>
-                    Correo actual: {user?.email || "No especificado"}
-                  </Text>
-                </View>
-
-                <View style={styles.inputContainer}>
-                  <Ionicons
-                    name="mail"
-                    size={20}
-                    color={COLORS.text.secondary}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={newEmail}
-                    onChangeText={setNewEmail}
-                    placeholder="nuevo@correo.com"
-                    placeholderTextColor={COLORS.text.muted}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    editable={!loading}
-                  />
-                </View>
-
-                <TouchableOpacity
-                  style={[
-                    styles.buttonWrapper,
-                    loading && styles.buttonDisabled,
-                  ]}
-                  onPress={handleSendCode}
-                  disabled={loading}
-                  activeOpacity={0.8}
-                >
-                  <LinearGradient
-                    colors={[COLORS.primary, COLORS.primaryDark || "#1e40af"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.gradientButton}
-                  >
-                    {loading ? (
-                      <ActivityIndicator color="white" />
-                    ) : (
-                      <Text style={styles.buttonText}>Enviar Código</Text>
-                    )}
-                  </LinearGradient>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <View style={styles.infoContainer}>
-                  <MaterialCommunityIcons
-                    name="email-check"
-                    size={48}
-                    color={COLORS.primary}
-                    style={styles.icon}
-                  />
-                  <Text style={styles.infoText}>
-                    Ingresa el código de 6 dígitos enviado a:
-                  </Text>
-                  <Text style={styles.emailHighlight}>{newEmail}</Text>
-                </View>
-
-                <OTPInput
-                  value={verificationCode}
-                  onChange={setVerificationCode}
-                  disabled={loading}
+        </View>
+        {/* Formulario */}
+        <View style={styles.form}>
+          {step === "input" ? (
+            <>
+              <View style={styles.infoContainer}>
+                <MaterialCommunityIcons
+                  name="email-arrow-right"
+                  size={48}
+                  color={COLORS.primary}
+                  style={styles.icon}
                 />
+                <Text style={styles.infoText}>
+                  Por tu seguridad, necesitamos validar tu identidad. Te
+                  enviaremos un código de verificación a tu correo actual.
+                </Text>
+              </View>
+              <View style={styles.currentEmailCard}>
+                <Text style={styles.currentEmailLabel}>
+                  Correo actual: {user?.email || "No especificado"}
+                </Text>
+              </View>
 
-                <TouchableOpacity
-                  style={[
-                    styles.buttonWrapper,
-                    loading && styles.buttonDisabled,
-                  ]}
-                  onPress={handleConfirm}
-                  disabled={loading}
-                  activeOpacity={0.8}
-                >
-                  <LinearGradient
-                    colors={[COLORS.primary, COLORS.primaryDark || "#1e40af"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.gradientButton}
-                  >
-                    {loading ? (
-                      <ActivityIndicator color="white" />
-                    ) : (
-                      <Text style={styles.buttonText}>Confirmar</Text>
-                    )}
-                  </LinearGradient>
-                </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="mail"
+                  size={20}
+                  color={COLORS.text.secondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  value={newEmail}
+                  onChangeText={setNewEmail}
+                  placeholder="nuevo@correo.com"
+                  placeholderTextColor={COLORS.text.muted}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  editable={!loading}
+                />
+              </View>
 
-                <TouchableOpacity
-                  style={styles.resendButton}
-                  onPress={() => setStep("input")}
-                  disabled={loading}
+              <TouchableOpacity
+                style={[styles.buttonWrapper, loading && styles.buttonDisabled]}
+                onPress={handleSendCode}
+                disabled={loading}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={[COLORS.primary, COLORS.primaryDark || "#1e40af"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.gradientButton}
                 >
-                  <Text style={styles.resendText}>Cambiar correo</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>Enviar Código</Text>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <View style={styles.infoContainer}>
+                <MaterialCommunityIcons
+                  name="email-check"
+                  size={48}
+                  color={COLORS.primary}
+                  style={styles.icon}
+                />
+                <Text style={styles.infoText}>
+                  Ingresa el código de 6 dígitos enviado a:
+                </Text>
+                <Text style={styles.emailHighlight}>{newEmail}</Text>
+              </View>
+
+              <OTPInput
+                value={verificationCode}
+                onChange={setVerificationCode}
+                disabled={loading}
+              />
+
+              <TouchableOpacity
+                style={[styles.buttonWrapper, loading && styles.buttonDisabled]}
+                onPress={handleConfirm}
+                disabled={loading}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={[COLORS.primary, COLORS.primaryDark || "#1e40af"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.gradientButton}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>Confirmar</Text>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.resendButton}
+                onPress={() => setStep("input")}
+                disabled={loading}
+              >
+                <Text style={styles.resendText}>Cambiar correo</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -370,9 +353,6 @@ const styles = StyleSheet.create({
     textAlign: "left",
     lineHeight: 20,
   },
-  keyboardContainer: {
-    flex: 1,
-  },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: THEME.spacing.lg,
@@ -423,7 +403,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: COLORS.surface,
     borderRadius: THEME.borderRadius.md,
-    marginBottom: THEME.spacing.md,
+    marginBottom: THEME.spacing.lg,
     paddingHorizontal: THEME.spacing.md,
     borderWidth: 1,
     borderColor: COLORS.border,

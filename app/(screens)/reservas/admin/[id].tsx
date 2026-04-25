@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
   Linking,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -369,7 +369,12 @@ export default function DetalleReservaAdminScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Información Principal */}
         <View style={styles.mainCard}>
           <View style={styles.cardTopRow}>
@@ -576,7 +581,7 @@ export default function DetalleReservaAdminScreen() {
             )}
           </View>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {/* Botones de acción */}
       {reserva.estado === "Pendiente" && (
@@ -864,9 +869,7 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.heading,
     lineHeight: 20,
   },
-  contactSection: {
-    marginBottom: 32,
-  },
+  contactSection: {},
   contactTitle: {
     fontSize: 16,
     fontWeight: "700",

@@ -11,10 +11,9 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
   Keyboard,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -46,29 +45,6 @@ export default function ConfirmarReservaScreen() {
     message: "",
     type: "success" as "success" | "error" | "warning",
   });
-  const [behavior, setBehavior] = useState<"padding" | "height" | undefined>(
-    Platform.OS === "ios" ? "padding" : "height"
-  );
-
-  useEffect(() => {
-    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setBehavior(Platform.OS === "ios" ? "padding" : "height");
-    });
-
-    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setBehavior(undefined);
-    });
-
-    return () => {
-      // CRÍTICO: Limpiar el timer para evitar closure leak
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-      keyboardShowListener.remove();
-      keyboardHideListener.remove();
-    };
-  }, []);
 
   // Memoizar organización de horarios para evitar recalcular en cada render
   const horariosOrganizados = useMemo(() => {
@@ -204,7 +180,7 @@ export default function ConfirmarReservaScreen() {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Confirmar Reserva" onBackPress={handleBackPress} />
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={behavior}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
           {/* Indicador de pasos */}
           <View style={styles.stepsIndicator}>

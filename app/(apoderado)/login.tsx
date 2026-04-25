@@ -5,13 +5,14 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
   Animated,
   Dimensions,
-  ScrollView,
   ActivityIndicator,
 } from "react-native";
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from "react-native-keyboard-controller";
 
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useApoderado } from "@/contexts/ApoderadoContext";
@@ -239,164 +240,158 @@ export default function ApoderadoLogin() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={24}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.content}>
-            {/* HEADER */}
-            <View style={styles.header}>
-              <Animated.View
-                style={[
-                  styles.iconContainer,
-                  { transform: [{ scale: pulseAnim }] },
-                ]}
-              >
-                <Ionicons name="person-add" size={50} color="white" />
-              </Animated.View>
-              <Text style={styles.title}>Acceso Apoderado</Text>
-              <Text style={styles.subtitle}>
-                Ingresa con tu código de acceso
-              </Text>
-            </View>
-
-            {/* FORMULARIO */}
-            <View style={styles.form}>
-              {/* Input Código Copropiedad */}
-              <View
-                style={[
-                  styles.inputContainer,
-                  errors.codigoCopropiedad && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="business-outline"
-                  size={20}
-                  color={
-                    errors.codigoCopropiedad ? "#ef4444" : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Código de copropiedad (ej: LP251234)"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={codigoCopropiedad}
-                  onChangeText={(text) => {
-                    setCodigoCopropiedad(text.toUpperCase());
-                    clearFieldError("codigoCopropiedad");
-                  }}
-                  autoCapitalize="characters"
-                  maxLength={8}
-                />
-              </View>
-
-              {/* Input Cédula */}
-              <View
-                style={[
-                  styles.inputContainer,
-                  errors.cedula && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="card-outline"
-                  size={20}
-                  color={errors.cedula ? "#ef4444" : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Número de cédula"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={cedula}
-                  onChangeText={(text) => {
-                    setCedula(text);
-                    clearFieldError("cedula");
-                  }}
-                  keyboardType="numeric"
-                  maxLength={11}
-                />
-              </View>
-
-              <View
-                style={[
-                  styles.inputContainer,
-                  errors.correo && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={errors.correo ? "#ef4444" : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Correo electrónico"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={correo}
-                  onChangeText={(text) => {
-                    setCorreo(text);
-                    clearFieldError("correo");
-                  }}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-
-              {/* Input Código OTP */}
-              <View
-                style={[
-                  styles.inputContainer,
-                  errors.codigoOtp && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="key-outline"
-                  size={20}
-                  color={errors.codigoOtp ? "#ef4444" : COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Código de acceso (6 dígitos)"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={codigoOtp}
-                  onChangeText={(text) => {
-                    setCodigoOtp(text);
-                    clearFieldError("codigoOtp");
-                  }}
-                  keyboardType="numeric"
-                  maxLength={6}
-                />
-              </View>
-
-              {/* Botón Login */}
-              <TouchableOpacity
-                style={[
-                  styles.loginButton,
-                  loading && styles.loginButtonDisabled,
-                ]}
-                onPress={handleLogin}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#013973" size="small" />
-                ) : (
-                  <Text style={styles.loginButtonText}>
-                    Ingresar a Asamblea
-                  </Text>
-                )}
-              </TouchableOpacity>
-            </View>
+        <View style={styles.content}>
+          {/* HEADER */}
+          <View style={styles.header}>
+            <Animated.View
+              style={[
+                styles.iconContainer,
+                { transform: [{ scale: pulseAnim }] },
+              ]}
+            >
+              <Ionicons name="person-add" size={50} color="white" />
+            </Animated.View>
+            <Text style={styles.title}>Acceso Apoderado</Text>
+            <Text style={styles.subtitle}>Ingresa con tu código de acceso</Text>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          {/* FORMULARIO */}
+          <View style={styles.form}>
+            {/* Input Código Copropiedad */}
+            <View
+              style={[
+                styles.inputContainer,
+                errors.codigoCopropiedad && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="business-outline"
+                size={20}
+                color={
+                  errors.codigoCopropiedad ? "#ef4444" : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Código de copropiedad (ej: LP251234)"
+                placeholderTextColor={COLORS.text.muted}
+                value={codigoCopropiedad}
+                onChangeText={(text) => {
+                  setCodigoCopropiedad(text.toUpperCase());
+                  clearFieldError("codigoCopropiedad");
+                }}
+                autoCapitalize="characters"
+                maxLength={8}
+              />
+            </View>
+
+            {/* Input Cédula */}
+            <View
+              style={[
+                styles.inputContainer,
+                errors.cedula && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="card-outline"
+                size={20}
+                color={errors.cedula ? "#ef4444" : COLORS.text.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Número de cédula"
+                placeholderTextColor={COLORS.text.muted}
+                value={cedula}
+                onChangeText={(text) => {
+                  setCedula(text);
+                  clearFieldError("cedula");
+                }}
+                keyboardType="numeric"
+                maxLength={11}
+              />
+            </View>
+
+            <View
+              style={[
+                styles.inputContainer,
+                errors.correo && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={errors.correo ? "#ef4444" : COLORS.text.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Correo electrónico"
+                placeholderTextColor={COLORS.text.muted}
+                value={correo}
+                onChangeText={(text) => {
+                  setCorreo(text);
+                  clearFieldError("correo");
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* Input Código OTP */}
+            <View
+              style={[
+                styles.inputContainer,
+                errors.codigoOtp && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="key-outline"
+                size={20}
+                color={errors.codigoOtp ? "#ef4444" : COLORS.text.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Código de acceso (6 dígitos)"
+                placeholderTextColor={COLORS.text.muted}
+                value={codigoOtp}
+                onChangeText={(text) => {
+                  setCodigoOtp(text);
+                  clearFieldError("codigoOtp");
+                }}
+                keyboardType="numeric"
+                maxLength={6}
+              />
+            </View>
+
+            {/* Botón Login */}
+            <TouchableOpacity
+              style={[
+                styles.loginButton,
+                loading && styles.loginButtonDisabled,
+              ]}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#013973" size="small" />
+              ) : (
+                <Text style={styles.loginButtonText}>Ingresar a Asamblea</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
+
+      <KeyboardToolbar doneText="Listo" />
 
       {/* Toast */}
       <Toast
@@ -413,9 +408,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8fafc",
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
