@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -18,6 +18,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { userCacheService } from "@/services/cache/userCacheService";
 import { profileService } from "@/services/auth/profileService";
 import Toast from "@/components/Toast";
+import SuccessModal from "@/components/auth/SuccessModal";
 import { THEME, COLORS } from "@/constants/theme";
 
 export default function CambiarCorreoScreen() {
@@ -34,6 +35,17 @@ export default function CambiarCorreoScreen() {
     "",
   ]);
   const [loading, setLoading] = useState(false);
+  const [successModal, setSuccessModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
   const [toast, setToast] = useState({
     visible: false,
     message: "",
@@ -50,6 +62,11 @@ export default function CambiarCorreoScreen() {
   const handleSendCode = async () => {
     if (!newEmail.trim()) {
       showToast("Ingresa el nuevo correo", "error");
+      return;
+    }
+
+    if (newEmail.toLowerCase() === user?.email?.toLowerCase()) {
+      showToast("El nuevo correo debe ser diferente al actual", "error");
       return;
     }
 
@@ -80,8 +97,15 @@ export default function CambiarCorreoScreen() {
           updateUserInfo({ ...user, email: newEmail });
         }
 
-        showToast("Correo actualizado correctamente", "success");
-        setTimeout(() => router.back(), 1500);
+        setSuccessModal({
+          visible: true,
+          title: "¡Correo actualizado!",
+          message: "Tu correo ha sido actualizado correctamente.",
+          onConfirm: () => {
+            setSuccessModal((s) => ({ ...s, visible: false }));
+            router.back();
+          },
+        });
       }
     } catch (error: any) {
       let errorMessage = "Error al enviar código";
@@ -98,8 +122,8 @@ export default function CambiarCorreoScreen() {
     }
   };
 
-  const handleConfirm = async () => {
-    const code = verificationCode.join("").trim();
+  const handleConfirm = async (codeOverride?: string) => {
+    const code = (codeOverride ?? verificationCode.join("")).trim();
     if (!code || code.length !== 6) {
       showToast("Ingresa el código de verificación completo", "error");
       return;
@@ -121,11 +145,22 @@ export default function CambiarCorreoScreen() {
         updateUserInfo({ ...user, email: newEmail });
       }
 
-      showToast("Correo actualizado correctamente", "success");
-      setTimeout(() => router.back(), 1500);
+      setSuccessModal({
+        visible: true,
+        title: "¡Correo actualizado!",
+        message: "Tu correo ha sido actualizado correctamente.",
+        onConfirm: () => {
+          setSuccessModal((s) => ({ ...s, visible: false }));
+          router.back();
+        },
+      });
     } catch (error: any) {
       let errorMessage = "Código inválido o expirado";
-      if (error.message) {
+      if (error.name === "CodeMismatchException") {
+        errorMessage = "El código ingresado es incorrecto";
+      } else if (error.name === "ExpiredCodeException") {
+        errorMessage = "El código ha expirado, solicita uno nuevo";
+      } else if (error.message) {
         errorMessage = error.message;
       }
       showToast(errorMessage, "error");
@@ -135,7 +170,10 @@ export default function CambiarCorreoScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={styles.container}
+      edges={["top", "bottom", "left", "right"]}
+    >
       {/* Background decorativo */}
       <View style={styles.backgroundDecoration}>
         <View style={[styles.circle, styles.circle1]} />
@@ -143,12 +181,7 @@ export default function CambiarCorreoScreen() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        bottomOffset={24}
-      >
+      <KeyboardAvoidingView behavior="padding" style={styles.keyboardView}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
@@ -198,6 +231,11 @@ export default function CambiarCorreoScreen() {
                   placeholderTextColor={COLORS.text.muted}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  returnKeyType="send"
+                  onSubmitEditing={handleSendCode}
                   editable={!loading}
                 />
               </View>
@@ -240,12 +278,17 @@ export default function CambiarCorreoScreen() {
               <OTPInput
                 value={verificationCode}
                 onChange={setVerificationCode}
+                onComplete={handleConfirm}
                 disabled={loading}
               />
 
               <TouchableOpacity
-                style={[styles.buttonWrapper, loading && styles.buttonDisabled]}
-                onPress={handleConfirm}
+                style={[
+                  styles.buttonWrapper,
+                  styles.otpButtonMargin,
+                  loading && styles.buttonDisabled,
+                ]}
+                onPress={() => handleConfirm()}
                 disabled={loading}
                 activeOpacity={0.8}
               >
@@ -262,24 +305,23 @@ export default function CambiarCorreoScreen() {
                   )}
                 </LinearGradient>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.resendButton}
-                onPress={() => setStep("input")}
-                disabled={loading}
-              >
-                <Text style={styles.resendText}>Cambiar correo</Text>
-              </TouchableOpacity>
             </>
           )}
         </View>
-      </KeyboardAwareScrollView>
+      </KeyboardAvoidingView>
 
       <Toast
         visible={toast.visible}
         message={toast.message}
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
+      />
+
+      <SuccessModal
+        visible={successModal.visible}
+        title={successModal.title}
+        message={successModal.message}
+        onConfirm={successModal.onConfirm}
       />
     </SafeAreaView>
   );
@@ -288,7 +330,7 @@ export default function CambiarCorreoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: COLORS.background,
   },
   backgroundDecoration: {
     position: "absolute",
@@ -353,11 +395,11 @@ const styles = StyleSheet.create({
     textAlign: "left",
     lineHeight: 20,
   },
-  scrollContent: {
-    flexGrow: 1,
+  keyboardView: {
+    flex: 1,
     paddingHorizontal: THEME.spacing.lg,
-    paddingTop: THEME.spacing.xl,
-    paddingBottom: THEME.spacing.xl,
+    paddingVertical: THEME.spacing.xl,
+    justifyContent: "center",
   },
   form: {
     width: "100%",
@@ -451,6 +493,9 @@ const styles = StyleSheet.create({
   resendButton: {
     alignItems: "center",
     paddingVertical: THEME.spacing.sm,
+  },
+  otpButtonMargin: {
+    marginTop: THEME.spacing.xl,
   },
   resendText: {
     fontSize: THEME.fontSize.sm,

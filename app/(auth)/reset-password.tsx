@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { THEME, COLORS } from "@/constants/theme";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import Toast from "@/components/Toast";
+import SuccessModal from "@/components/auth/SuccessModal";
 import OTPInput from "@/components/auth/OTPInput";
 
 export default function ResetPassword() {
@@ -23,6 +24,7 @@ export default function ResetPassword() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [successModal, setSuccessModal] = useState(false);
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -37,6 +39,8 @@ export default function ResetPassword() {
   const { resetPasswordSubmit } = useAuth();
   const router = useRouter();
   const { username } = useLocalSearchParams<{ username: string }>();
+
+  const codeComplete = code.join("").length === 6;
 
   const showToast = (
     message: string,
@@ -160,10 +164,7 @@ export default function ResetPassword() {
     setLoading(true);
     try {
       await resetPasswordSubmit(username, cleanCode, cleanNewPassword);
-      showToast("¡Contraseña restablecida exitosamente!", "success");
-      setTimeout(() => {
-        router.push("/(auth)/login");
-      }, 2000);
+      setSuccessModal(true);
     } catch (error: any) {
       const errorMessage = getCognitoErrorMessage(error);
       showToast(errorMessage, "error");
@@ -216,6 +217,7 @@ export default function ResetPassword() {
                 setCode(newCode);
                 if (fieldErrors.code) clearFieldError("code");
               }}
+              onComplete={() => {}}
               error={fieldErrors.code}
               disabled={loading}
             />
@@ -227,7 +229,7 @@ export default function ResetPassword() {
               style={[
                 styles.inputContainer,
                 fieldErrors.newPassword && styles.inputError,
-                code.join("").length !== 6 && styles.inputContainerDisabled,
+                !codeComplete && styles.inputContainerDisabled,
               ]}
             >
               <Ionicons
@@ -239,10 +241,7 @@ export default function ResetPassword() {
                 style={styles.inputIcon}
               />
               <TextInput
-                style={[
-                  styles.input,
-                  code.join("").length !== 6 && styles.inputDisabled,
-                ]}
+                style={[styles.input, !codeComplete && styles.inputDisabled]}
                 placeholder="Nueva contraseña"
                 placeholderTextColor={COLORS.text.muted}
                 value={newPassword}
@@ -251,12 +250,12 @@ export default function ResetPassword() {
                   if (fieldErrors.newPassword) clearFieldError("newPassword");
                 }}
                 secureTextEntry={!showNewPassword}
-                editable={code.join("").length === 6}
+                editable={codeComplete}
               />
               <TouchableOpacity
                 onPress={() => setShowNewPassword(!showNewPassword)}
                 style={styles.eyeButton}
-                disabled={code.join("").length !== 6}
+                disabled={!codeComplete}
               >
                 <Entypo
                   name={showNewPassword ? "lock-open" : "lock"}
@@ -276,7 +275,7 @@ export default function ResetPassword() {
               style={[
                 styles.inputContainer,
                 fieldErrors.confirmPassword && styles.inputError,
-                code.join("").length !== 6 && styles.inputContainerDisabled,
+                !codeComplete && styles.inputContainerDisabled,
               ]}
             >
               <Ionicons
@@ -290,10 +289,7 @@ export default function ResetPassword() {
                 style={styles.inputIcon}
               />
               <TextInput
-                style={[
-                  styles.input,
-                  code.join("").length !== 6 && styles.inputDisabled,
-                ]}
+                style={[styles.input, !codeComplete && styles.inputDisabled]}
                 placeholder="Confirmar nueva contraseña"
                 placeholderTextColor={COLORS.text.muted}
                 value={confirmPassword}
@@ -303,12 +299,12 @@ export default function ResetPassword() {
                     clearFieldError("confirmPassword");
                 }}
                 secureTextEntry={!showConfirmPassword}
-                editable={code.join("").length === 6}
+                editable={codeComplete}
               />
               <TouchableOpacity
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 style={styles.eyeButton}
-                disabled={code.join("").length !== 6}
+                disabled={!codeComplete}
               >
                 <Entypo
                   name={showConfirmPassword ? "lock-open" : "lock"}
@@ -348,6 +344,16 @@ export default function ResetPassword() {
         type={toast.type}
         onHide={hideToast}
       />
+
+      <SuccessModal
+        visible={successModal}
+        title="¡Contraseña restablecida!"
+        message="Tu contraseña ha sido actualizada correctamente. Ya puedes iniciar sesión."
+        onConfirm={() => {
+          setSuccessModal(false);
+          router.push("/(auth)/login");
+        }}
+      />
     </View>
   );
 }
@@ -355,7 +361,7 @@ export default function ResetPassword() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: COLORS.background,
   },
   backgroundDecoration: {
     position: "absolute",
