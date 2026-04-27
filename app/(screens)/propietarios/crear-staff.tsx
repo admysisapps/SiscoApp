@@ -157,11 +157,11 @@ export default function CrearStaffScreen() {
       <ScreenHeader title="Crear Staff" onBackPress={() => router.back()} />
 
       <KeyboardAwareScrollView
+        mode="layout"
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-        bottomOffset={24}
       >
         {/* Selector de rol */}
         <View style={styles.card}>

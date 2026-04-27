@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Keyboard,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -173,7 +173,7 @@ export default function CrearAsambleaScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -189,13 +189,16 @@ export default function CrearAsambleaScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
+      <LinearGradient
+        colors={[THEME.colors.background, THEME.colors.surfaceLight]}
+        style={styles.gradient}
+      >
         <KeyboardAwareScrollView
+          mode="layout"
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          bottomOffset={24}
         >
           {/* Título */}
           <View style={styles.fieldContainer}>
@@ -486,26 +489,24 @@ export default function CrearAsambleaScreen() {
               </View>
             </View>
           </View>
-
-          <View style={styles.buttonContainer}>
-            <Button
-              isLoading={loading}
-              onPress={handleSubmit}
-              loadingText="Creando..."
-              loadingTextColor="#fff"
-              backgroundColor={THEME.colors.primary}
-              loadingTextBackgroundColor={THEME.colors.primary}
-              height={56}
-              borderRadius={12}
-              fullWidth
-            >
-              <Text style={styles.submitText}>Crear Asamblea</Text>
-            </Button>
-          </View>
-
-          <View style={{ height: 40 }} />
         </KeyboardAwareScrollView>
       </LinearGradient>
+
+      <View style={styles.fixedBottom}>
+        <Button
+          isLoading={loading}
+          onPress={handleSubmit}
+          loadingText="Creando..."
+          loadingTextColor="#fff"
+          backgroundColor={THEME.colors.primary}
+          loadingTextBackgroundColor={THEME.colors.primary}
+          height={56}
+          borderRadius={12}
+          fullWidth
+        >
+          <Text style={styles.submitText}>Crear Asamblea</Text>
+        </Button>
+      </View>
 
       {showDatePicker && (
         <DateTimePicker
@@ -539,14 +540,14 @@ export default function CrearAsambleaScreen() {
         type={toast.type}
         onHide={hideToast}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: THEME.colors.background,
   },
   header: {
     flexDirection: "row",
@@ -554,7 +555,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: THEME.colors.background,
     borderBottomWidth: 1,
     borderBottomColor: THEME.colors.border,
   },
@@ -567,7 +568,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingVertical: 16,
-    paddingBottom: 40,
+    paddingBottom: THEME.spacing.xl,
   },
 
   backButton: {
@@ -602,7 +603,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: 16,
     color: THEME.colors.text.heading,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.surface,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -616,7 +617,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: 16,
     color: THEME.colors.text.heading,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.surface,
     minHeight: 100,
     textAlignVertical: "top",
     shadowColor: "#000",
@@ -683,12 +684,11 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.inverse,
     fontWeight: "600",
   },
-  createButton: {
-    marginTop: 32,
-  },
-  buttonContainer: {
-    marginTop: 24,
-    alignItems: "center",
+  fixedBottom: {
+    backgroundColor: THEME.colors.surface,
+    padding: THEME.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: THEME.colors.border,
   },
   pickerButton: {
     flexDirection: "row",
@@ -697,13 +697,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.surface,
     gap: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
+  },
+  submitText: {
+    color: "white",
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
   },
   pickerText: {
     fontSize: THEME.fontSize.md,
@@ -715,7 +720,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 0,
     borderRadius: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: THEME.colors.surface,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -735,10 +740,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: THEME.colors.text.secondary,
-  },
-  submitText: {
-    color: "white",
-    fontSize: THEME.fontSize.md,
-    fontWeight: "600",
   },
 });

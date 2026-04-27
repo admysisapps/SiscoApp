@@ -267,6 +267,7 @@ export default function PersonalInfo() {
       <ScreenHeader title="Información Personal" />
 
       <KeyboardAwareScrollView
+        mode="layout"
         style={styles.content}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

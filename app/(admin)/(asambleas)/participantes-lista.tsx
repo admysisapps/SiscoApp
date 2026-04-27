@@ -74,7 +74,7 @@ const ParticipantesListaScreen: React.FC = () => {
 
   const renderScrollComponent = useCallback(
     (props: ScrollViewProps) => (
-      <KeyboardAwareScrollView {...props} bottomOffset={24} />
+      <KeyboardAwareScrollView mode="layout" {...props} />
     ),
     []
   );

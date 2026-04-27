@@ -188,9 +188,9 @@ export default function ResetPassword() {
       </View>
 
       <KeyboardAwareScrollView
+        mode="layout"
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-        bottomOffset={24}
       >
         {/* Header */}
         <View style={styles.header}>

@@ -244,10 +244,10 @@ export default function Confirm() {
       </View>
 
       <KeyboardAwareScrollView
+        mode="layout"
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        bottomOffset={24}
       >
         {/* Header animado  */}
         <View style={styles.header}>

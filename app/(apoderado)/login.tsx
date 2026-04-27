@@ -241,10 +241,10 @@ export default function ApoderadoLogin() {
       </View>
 
       <KeyboardAwareScrollView
+        mode="layout"
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        bottomOffset={24}
       >
         <View style={styles.content}>
           {/* HEADER */}

@@ -370,6 +370,7 @@ export default function DetalleReservaAdminScreen() {
       </View>
 
       <KeyboardAwareScrollView
+        mode="layout"
         style={{ flex: 1 }}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
