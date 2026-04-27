@@ -109,7 +109,11 @@ const ProjectCard = React.memo(
               <Text style={styles.projectName} numberOfLines={1}>
                 {item.nombre}
               </Text>
-              <Text style={styles.nitText}>NIT: {item.nit}</Text>
+              {item.descripcion && (
+                <Text style={styles.addressText} numberOfLines={2}>
+                  {item.descripcion}
+                </Text>
+              )}
             </View>
           </View>
         </LinearGradient>
@@ -306,9 +310,10 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 4,
   },
-  nitText: {
+  addressText: {
     fontSize: THEME.fontSize.sm,
     color: "rgba(255, 255, 255, 0.8)",
     marginBottom: THEME.spacing.sm,
+    lineHeight: 18,
   },
 });
