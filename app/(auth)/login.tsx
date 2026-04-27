@@ -307,6 +307,7 @@ const Login = React.memo(function Login() {
       </View>
 
       <KeyboardAwareScrollView
+        mode="layout"
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         bottomOffset={24}

@@ -12,7 +12,11 @@ import { Proyecto } from "@/types/Proyecto";
 export default function ProjectSelectorScreen() {
   const router = useRouter();
 
-  const { proyectos: proyectosTyped, setSelectedProject } = useProject();
+  const {
+    proyectos: proyectosTyped,
+    setSelectedProject,
+    projectsError,
+  } = useProject();
   const { loadApartments } = useApartment();
 
   const [isReady, setIsReady] = useState(false);
@@ -54,12 +58,16 @@ export default function ProjectSelectorScreen() {
     [loadingKey, setSelectedProject, loadApartments, router]
   );
 
-  if (!isReady) {
+  if (!isReady && !projectsError) {
     return <LoadingScreen />;
   }
 
-  if (proyectosTyped.length === 0) {
-    return <AccessDenied />;
+  if (projectsError === "projects_inactive") {
+    return <AccessDenied reason="projects_inactive" />;
+  }
+
+  if (projectsError === "no_projects" || proyectosTyped.length === 0) {
+    return <AccessDenied reason="no_projects" />;
   }
 
   return (

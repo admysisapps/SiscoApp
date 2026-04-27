@@ -22,6 +22,7 @@ export interface NavigationState {
   isAuthenticated: boolean;
   userLoading: boolean;
   isLoadingProjects: boolean;
+  projectsError: "no_projects" | "projects_inactive" | null;
   userHasError: boolean;
   userHasAccessError: boolean;
   userInitialized: boolean;
@@ -72,7 +73,16 @@ export function resolveDestination(s: NavigationState): AppDestination {
 
   if (s.user) {
     if (s.proyectos.length === 0 && !s.isLoadingProjects) {
-      return { type: "redirect", href: "/(screens)/AccessDenied" };
+      if (s.projectsError === "projects_inactive") {
+        return {
+          type: "redirect",
+          href: "/(screens)/AccessDenied?reason=projects_inactive",
+        };
+      }
+      return {
+        type: "redirect",
+        href: "/(screens)/AccessDenied?reason=no_projects",
+      };
     }
     if (s.proyectos.length > 1) {
       return { type: "redirect", href: "/project-selector" };
@@ -96,7 +106,8 @@ export function useAppNavigation(): AppDestination {
   // const mountTime = useRef(Date.now());
   // const elapsed = () => fmt(Date.now() - mountTime.current);
 
-  const { selectedProject, proyectos, isLoadingProjects } = useProject();
+  const { selectedProject, proyectos, isLoadingProjects, projectsError } =
+    useProject();
   const {
     user,
     isLoading: userLoading,
@@ -213,6 +224,7 @@ export function useAppNavigation(): AppDestination {
     isAuthenticated,
     userLoading,
     isLoadingProjects,
+    projectsError,
     userHasError,
     userHasAccessError,
     userInitialized,

@@ -13,6 +13,7 @@ import { useUser } from "./UserContext";
 import { useAuth } from "./AuthContext";
 import { apiService } from "@/services/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { userCacheService } from "@/services/cache/userCacheService";
 import NetInfo from "@react-native-community/netinfo";
 
 // Interfaz del Context
@@ -20,6 +21,7 @@ interface ProjectContextType {
   selectedProject: Proyecto | null;
   proyectos: Proyecto[];
   isLoadingProjects: boolean;
+  projectsError: "no_projects" | "projects_inactive" | null;
   setSelectedProject: (project: Proyecto | null) => void;
   switchProject: () => void;
   clearProject: () => void;
@@ -31,6 +33,15 @@ interface ProjectContextType {
 // Crear el Context
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
+function sanitizeUserData(
+  data: string | number | null | undefined
+): string | number | null | undefined {
+  if (typeof data === "string") {
+    return data.replace(/[<>"'&]/g, "").substring(0, 255);
+  }
+  return data;
+}
+
 // Provider
 export function ProjectProvider({ children }: { children: ReactNode }) {
   // Estados de proyectos
@@ -39,23 +50,16 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [isChangingProject, setIsChangingProject] = useState<boolean>(false);
   const [hasTriedLoading, setHasTriedLoading] = useState(false);
+  const [projectsError, setProjectsError] = useState<
+    "no_projects" | "projects_inactive" | null
+  >(null);
 
   const { user } = useUser();
   const { isAuthenticated, currentUsername } = useAuth();
   const loadingRef = useRef(false);
 
-  // Helper para sanitizar datos de usuario
-  const sanitizeUserData = (
-    data: string | number | null | undefined
-  ): string | number | null | undefined => {
-    if (typeof data === "string") {
-      return data.replace(/[<>"'&]/g, "").substring(0, 255);
-    }
-    return data;
-  };
-
-  // Helper para guardar contexto SIN navegación (para updates internos)
-  const saveProjectContextSilent = useCallback(
+  // Persiste el contexto del proyecto en AsyncStorage
+  const persistProjectContext = useCallback(
     async (
       project: Proyecto,
       user: {
@@ -83,8 +87,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         };
 
         await AsyncStorage.setItem("user_context", JSON.stringify(context));
-
-        //  BUENA PRÁCTICA: No sobrescribir el rol que ya es correcto
       } catch (error) {
         console.error("Error guardando contexto:", error);
       }
@@ -92,8 +94,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  // Helper para guardar contexto CON navegación (para selección de proyecto)
-  const saveProjectContextWithNavigation = useCallback(
+  // Aplica la selección de proyecto: actualiza estado y persiste en AsyncStorage
+  const applyProjectSelection = useCallback(
     async (
       project: Proyecto,
       user: {
@@ -105,18 +107,13 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       apartment?: { codigo_apt?: string } | null
     ) => {
       try {
-        // IMPORTANTE: Actualizar selectedProject
         setSelectedProject(project);
-
-        // Guardar contexto silenciosamente
-        await saveProjectContextSilent(project, user, apartment);
-
-        // NO navegar automáticamente - dejar que index.tsx maneje la navegación
+        await persistProjectContext(project, user, apartment);
       } catch (error) {
-        console.error("Error guardando contexto con navegación:", error);
+        console.error("Error aplicando selección de proyecto:", error);
       }
     },
-    [saveProjectContextSilent]
+    [persistProjectContext]
   );
 
   // Efecto para limpiar en logout
@@ -127,11 +124,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setIsLoadingProjects(false);
       setHasTriedLoading(false);
       loadingRef.current = false;
-      try {
-        AsyncStorage.removeItem("user_context");
-      } catch (error) {
-        console.error("Error limpiando caches en logout:", error);
-      }
+      userCacheService.clearProjectContext();
     }
   }, [isAuthenticated]);
 
@@ -147,6 +140,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         const response = await apiService.getProyectosUsuario(username);
 
         if (response.success && Array.isArray(response.data)) {
+          setProjectsError(null);
           const userProjects = response.data;
           setProyectos(userProjects);
 
@@ -154,8 +148,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
             const project = userProjects[0];
             setSelectedProject(project);
             const userData = user || { documento: username, nombre: username };
-            await saveProjectContextWithNavigation(project, userData, null);
+            await applyProjectSelection(project, userData, null);
           }
+        } else if (response.statusCode === 403) {
+          setProjectsError("projects_inactive");
+        } else if (response.statusCode === 404) {
+          setProjectsError("no_projects");
         }
       } catch (error) {
         console.error("Error cargando proyectos:", error);
@@ -181,7 +179,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     hasTriedLoading,
     proyectos.length,
     user,
-    saveProjectContextWithNavigation,
+    applyProjectSelection,
   ]);
 
   // Reintentar cargar cuando se recupera la conexión
@@ -206,25 +204,17 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   // que se recreen en cada render
 
   // Función para seleccionar proyecto y guardar contexto
-  const setSelectedProjectWithLog = useCallback(
+  const handleSetSelectedProject = useCallback(
     async (project: Proyecto | null) => {
       setSelectedProject(project);
 
-      // Guardar contexto cuando se selecciona proyecto
       if (project && user) {
-        await saveProjectContextWithNavigation(project, user, null);
+        await applyProjectSelection(project, user, null);
       } else {
-        try {
-          await AsyncStorage.removeItem("user_context");
-        } catch (error) {
-          console.error(
-            "Error limpiando contexto al seleccionar proyecto:",
-            error
-          );
-        }
+        await userCacheService.clearProjectContext();
       }
     },
-    [user, saveProjectContextWithNavigation]
+    [user, applyProjectSelection]
   );
 
   // Función para cambiar de proyecto
@@ -232,40 +222,22 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setIsChangingProject(true);
     setSelectedProject(null);
 
-    // Limpiar contexto al cambiar proyecto
-    try {
-      await AsyncStorage.removeItem("user_context");
-    } catch (error) {
-      console.error("Error limpiando contexto al cambiar proyecto:", error);
-    }
+    await userCacheService.clearProjectContext();
   }, []);
 
   // Función para limpiar proyecto seleccionado
   const clearProject = useCallback(async () => {
     setSelectedProject(null);
     setIsChangingProject(false);
-    // Limpiar contexto
-    try {
-      await AsyncStorage.removeItem("user_context");
-    } catch (error) {
-      console.error("Error limpiando contexto al limpiar proyecto:", error);
-    }
+    await userCacheService.clearProjectContext();
   }, []);
 
   // Función para recargar proyectos (después de unirse a uno nuevo)
   const reloadProjects = useCallback(async () => {
-    if (!user) return;
+    if (!currentUsername) return;
 
-    const userDoc = user.documento || user.usuario;
-    if (!userDoc) return;
-
-    // Limpiar proyecto actual y contexto
     setSelectedProject(null);
-    try {
-      await AsyncStorage.removeItem("user_context");
-    } catch (error) {
-      console.error("Error limpiando contexto:", error);
-    }
+    await userCacheService.clearProjectContext();
 
     // Recargar proyectos directamente sin usar loadProjects
     if (loadingRef.current) return;
@@ -274,7 +246,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setIsLoadingProjects(true);
 
     try {
-      const response = await apiService.getProyectosUsuario(userDoc);
+      const response = await apiService.getProyectosUsuario(currentUsername);
 
       if (response.success && Array.isArray(response.data)) {
         const userProjects = response.data;
@@ -287,7 +259,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setIsLoadingProjects(false);
       loadingRef.current = false;
     }
-  }, [user]);
+  }, [currentUsername]);
 
   // VALOR DEL CONTEXTO MEMOIZADO
   // useMemo previene que el objeto de contexto se recree en cada render
@@ -297,8 +269,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       selectedProject,
       proyectos,
       isLoadingProjects,
+      projectsError,
       isChangingProject,
-      setSelectedProject: setSelectedProjectWithLog,
+      setSelectedProject: handleSetSelectedProject,
       switchProject,
       clearProject,
       setIsChangingProject,
@@ -308,8 +281,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       selectedProject,
       proyectos,
       isLoadingProjects,
+      projectsError,
       isChangingProject,
-      setSelectedProjectWithLog,
+      handleSetSelectedProject,
       switchProject,
       clearProject,
       reloadProjects,

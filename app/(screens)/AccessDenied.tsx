@@ -7,7 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { THEME, COLORS } from "@/constants/theme";
 import LottieView from "lottie-react-native";
@@ -20,8 +20,11 @@ interface AccessDeniedProps {
 }
 
 export default function AccessDenied({
-  reason = "no_projects",
+  reason: reasonProp,
 }: AccessDeniedProps = {}) {
+  const { reason: reasonParam } = useLocalSearchParams<{ reason?: string }>();
+  const reason =
+    reasonProp ?? (reasonParam as AccessDeniedProps["reason"]) ?? "no_projects";
   const { logout } = useAuth();
   const router = useRouter();
   const animationRef = useRef<LottieView>(null);
@@ -29,7 +32,9 @@ export default function AccessDenied({
   const getMessage = () => {
     switch (reason) {
       case "projects_inactive":
-        return "El proyecto asociado a tu cuenta no se encuentra activo actualmente.";
+        return "Las copropiedades a las que perteneces ya no están activas en SiscoApp. Comunícate con tu administrador para más información.";
+      case "no_projects":
+        return "No encontramos copropiedades asociadas a tu cuenta. Contacta al administrador de tu copropiedad.";
       default:
         return "Tu acceso a la app presenta una restricción\nPor favor, contacta al soporte.";
     }

@@ -79,6 +79,14 @@ export const userCacheService = {
     }
   },
 
+  async clearProjectContext(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem("user_context");
+    } catch (error) {
+      console.warn("Error limpiando contexto de proyecto:", error);
+    }
+  },
+
   async clearAllCache(): Promise<void> {
     try {
       // Usar operación batch para mejor rendimiento
