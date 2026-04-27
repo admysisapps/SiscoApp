@@ -62,11 +62,11 @@ export default function ProjectSelectorScreen() {
     return <LoadingScreen />;
   }
 
-  if (projectsError === "projects_inactive") {
+  if (projectsError?.type === "projects_inactive") {
     return <AccessDenied reason="projects_inactive" />;
   }
 
-  if (projectsError === "no_projects" || proyectosTyped.length === 0) {
+  if (projectsError?.type === "no_projects" || proyectosTyped.length === 0) {
     return <AccessDenied reason="no_projects" />;
   }
 

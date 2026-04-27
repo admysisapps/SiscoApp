@@ -5,6 +5,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useProject } from "@/contexts/ProjectContext";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { AppError } from "@/types/AppError";
 
 // const LOG_TAG = "[Index]";
 // const fmt = (ms: number) => `+${ms}ms`;
@@ -22,9 +23,8 @@ export interface NavigationState {
   isAuthenticated: boolean;
   userLoading: boolean;
   isLoadingProjects: boolean;
-  projectsError: "no_projects" | "projects_inactive" | null;
-  userHasError: boolean;
-  userHasAccessError: boolean;
+  userError: AppError | null;
+  projectsError: AppError | null;
   userInitialized: boolean;
   user: { usuario?: string } | null;
   selectedProject: { nombre?: string; rolUsuario: string } | null;
@@ -56,12 +56,29 @@ export function resolveDestination(s: NavigationState): AppDestination {
     return { type: "loading" };
   }
 
-  if (s.userHasError) {
-    return { type: "redirect", href: "/(screens)/ConnectionErrorScreen" };
-  }
+  // Ambas cargas terminaron — resolver error con prioridad
+  const appError = s.projectsError ?? s.userError;
 
-  if (s.userHasAccessError) {
-    return { type: "redirect", href: "/(screens)/AccessDenied" };
+  if (appError) {
+    switch (appError.type) {
+      case "server_error":
+        return { type: "redirect", href: "/(screens)/ConnectionErrorScreen" };
+      case "projects_inactive":
+        return {
+          type: "redirect",
+          href: "/(screens)/AccessDenied?reason=projects_inactive",
+        };
+      case "no_projects":
+        return {
+          type: "redirect",
+          href: "/(screens)/AccessDenied?reason=no_projects",
+        };
+      case "user_not_found":
+        return {
+          type: "redirect",
+          href: "/(screens)/AccessDenied?reason=no_projects",
+        };
+    }
   }
 
   if (s.selectedProject) {
@@ -72,18 +89,6 @@ export function resolveDestination(s: NavigationState): AppDestination {
   }
 
   if (s.user) {
-    if (s.proyectos.length === 0 && !s.isLoadingProjects) {
-      if (s.projectsError === "projects_inactive") {
-        return {
-          type: "redirect",
-          href: "/(screens)/AccessDenied?reason=projects_inactive",
-        };
-      }
-      return {
-        type: "redirect",
-        href: "/(screens)/AccessDenied?reason=no_projects",
-      };
-    }
     if (s.proyectos.length > 1) {
       return { type: "redirect", href: "/project-selector" };
     }
@@ -112,8 +117,7 @@ export function useAppNavigation(): AppDestination {
     user,
     isLoading: userLoading,
     hasInitialized: userInitialized,
-    hasError: userHasError,
-    hasAccessError: userHasAccessError,
+    userError,
   } = useUser();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -224,22 +228,13 @@ export function useAppNavigation(): AppDestination {
     isAuthenticated,
     userLoading,
     isLoadingProjects,
+    userError,
     projectsError,
-    userHasError,
-    userHasAccessError,
     userInitialized,
     user,
     selectedProject,
     proyectos,
   });
-
-  // if (destination.type === "splash") {
-  //   console.log(`${LOG_TAG} -> null (splash visible) ${elapsed()} | appReady=${appReady} authLoading=${authLoading} onboardingSeen=${onboardingSeen} isConnected=${isConnected}`);
-  // } else if (destination.type === "loading") {
-  //   console.log(`${LOG_TAG} -> LoadingScreen ${elapsed()} | userLoading=${userLoading} isLoadingProjects=${isLoadingProjects}`);
-  // } else {
-  //   console.log(`${LOG_TAG} -> Redirect ${destination.href} ${elapsed()}`);
-  // }
 
   return destination;
 }

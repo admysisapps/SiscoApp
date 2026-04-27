@@ -20,7 +20,7 @@ const { width, height } = Dimensions.get("window");
 export default function NoConnection() {
   const [isChecking, setIsChecking] = useState(false);
   const router = useRouter();
-  const { retry } = useUser();
+  const { retryUser } = useUser();
   const { isAuthenticated } = useAuth();
 
   const checkConnection = async () => {
@@ -42,14 +42,14 @@ export default function NoConnection() {
     const unsubscribe = NetInfo.addEventListener((state) => {
       if (state.isConnected) {
         if (isAuthenticated) {
-          retry();
+          retryUser();
         }
         router.replace("/");
       }
     });
 
     return () => unsubscribe();
-  }, [router, isAuthenticated, retry]);
+  }, [router, isAuthenticated, retryUser]);
 
   return (
     <View style={styles.container}>

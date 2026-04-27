@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import type { ReactNode } from "react";
 import { Proyecto } from "@/types/Proyecto";
+import { AppError } from "@/types/AppError";
 import { useUser } from "./UserContext";
 import { useAuth } from "./AuthContext";
 import { apiService } from "@/services/apiService";
@@ -21,12 +22,9 @@ interface ProjectContextType {
   selectedProject: Proyecto | null;
   proyectos: Proyecto[];
   isLoadingProjects: boolean;
-  projectsError: "no_projects" | "projects_inactive" | null;
+  projectsError: AppError | null;
   setSelectedProject: (project: Proyecto | null) => void;
   switchProject: () => void;
-  clearProject: () => void;
-  isChangingProject: boolean;
-  setIsChangingProject: (isChanging: boolean) => void;
   reloadProjects: () => Promise<void>;
 }
 
@@ -48,13 +46,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [selectedProject, setSelectedProject] = useState<Proyecto | null>(null);
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
-  const [isChangingProject, setIsChangingProject] = useState<boolean>(false);
   const [hasTriedLoading, setHasTriedLoading] = useState(false);
-  const [projectsError, setProjectsError] = useState<
-    "no_projects" | "projects_inactive" | null
-  >(null);
+  const [projectsError, setProjectsError] = useState<AppError | null>(null);
 
-  const { user } = useUser();
+  const { user, hasInitialized: userInitialized } = useUser();
   const { isAuthenticated, currentUsername } = useAuth();
   const loadingRef = useRef(false);
 
@@ -95,26 +90,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   );
 
   // Aplica la selección de proyecto: actualiza estado y persiste en AsyncStorage
-  const applyProjectSelection = useCallback(
-    async (
-      project: Proyecto,
-      user: {
-        documento?: string;
-        nombre?: string;
-        rol?: string;
-        email?: string;
-      },
-      apartment?: { codigo_apt?: string } | null
-    ) => {
-      try {
-        setSelectedProject(project);
-        await persistProjectContext(project, user, apartment);
-      } catch (error) {
-        console.error("Error aplicando selección de proyecto:", error);
-      }
-    },
-    [persistProjectContext]
-  );
 
   // Efecto para limpiar en logout
   useEffect(() => {
@@ -148,15 +123,18 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
             const project = userProjects[0];
             setSelectedProject(project);
             const userData = user || { documento: username, nombre: username };
-            await applyProjectSelection(project, userData, null);
+            await persistProjectContext(project, userData, null);
           }
         } else if (response.statusCode === 403) {
-          setProjectsError("projects_inactive");
+          setProjectsError({ type: "projects_inactive" });
         } else if (response.statusCode === 404) {
-          setProjectsError("no_projects");
+          setProjectsError({ type: "no_projects" });
+        } else {
+          setProjectsError({ type: "server_error", retryable: true });
         }
       } catch (error) {
         console.error("Error cargando proyectos:", error);
+        setProjectsError({ type: "server_error", retryable: true });
       } finally {
         setIsLoadingProjects(false);
         loadingRef.current = false;
@@ -166,6 +144,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     if (
       isAuthenticated &&
       currentUsername &&
+      userInitialized &&
       !hasTriedLoading &&
       proyectos.length === 0 &&
       !loadingRef.current
@@ -176,10 +155,11 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   }, [
     isAuthenticated,
     currentUsername,
+    userInitialized,
     hasTriedLoading,
     proyectos.length,
     user,
-    applyProjectSelection,
+    persistProjectContext,
   ]);
 
   // Reintentar cargar cuando se recupera la conexión
@@ -209,26 +189,17 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setSelectedProject(project);
 
       if (project && user) {
-        await applyProjectSelection(project, user, null);
+        await persistProjectContext(project, user, null);
       } else {
         await userCacheService.clearProjectContext();
       }
     },
-    [user, applyProjectSelection]
+    [user, persistProjectContext]
   );
 
   // Función para cambiar de proyecto
   const switchProject = useCallback(async () => {
-    setIsChangingProject(true);
     setSelectedProject(null);
-
-    await userCacheService.clearProjectContext();
-  }, []);
-
-  // Función para limpiar proyecto seleccionado
-  const clearProject = useCallback(async () => {
-    setSelectedProject(null);
-    setIsChangingProject(false);
     await userCacheService.clearProjectContext();
   }, []);
 
@@ -270,11 +241,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       proyectos,
       isLoadingProjects,
       projectsError,
-      isChangingProject,
       setSelectedProject: handleSetSelectedProject,
       switchProject,
-      clearProject,
-      setIsChangingProject,
       reloadProjects,
     }),
     [
@@ -282,10 +250,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       proyectos,
       isLoadingProjects,
       projectsError,
-      isChangingProject,
       handleSetSelectedProject,
       switchProject,
-      clearProject,
       reloadProjects,
     ]
   );
