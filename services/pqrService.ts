@@ -201,12 +201,13 @@ export const pqrService = {
   },
 
   // Obtener mensajes de seguimiento de una PQR
-  async obtenerMensajes(idPqr: number) {
+  async obtenerMensajes(idPqr: number, desdeId?: number) {
     try {
       const response = await apiService.makeRequestWithContextType(
         "/pqr/listar-mensajes",
         {
           id_pqr: idPqr,
+          ...(desdeId ? { desde_id: desdeId } : {}),
         },
         "PQR_MESSAGES"
       );

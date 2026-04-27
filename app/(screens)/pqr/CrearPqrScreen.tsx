@@ -1,16 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import { LinearGradient } from "expo-linear-gradient";
@@ -20,10 +11,11 @@ import { TipoPeticion } from "@/types/Pqr";
 import { THEME } from "@/constants/theme";
 import Toast from "@/components/Toast";
 import { useProject } from "@/contexts/ProjectContext";
-import { ImageGallery } from "@/components/shared/ImageGallery";
 import ConfirmModal from "@/components/asambleas/ConfirmModal";
 import ScreenHeader from "@/components/shared/ScreenHeader";
 import { Button } from "@/components/reacticx/button";
+import PqrTipoSelector from "@/components/pqr/PqrTipoSelector";
+import PqrFileUpload from "@/components/pqr/PqrFileUpload";
 
 export default function CreatePQRScreen() {
   const { selectedProject } = useProject();
@@ -296,136 +288,18 @@ export default function CreatePQRScreen() {
             )}
 
             <Text style={styles.label}>Tipo de PQR *</Text>
-            <View style={styles.typeButtons}>
-              {(["Petición", "Queja", "Reclamo"] as TipoPeticion[]).map(
-                (tipo) => (
-                  <TouchableOpacity
-                    key={tipo}
-                    style={[
-                      styles.typeButton,
-                      formData.tipo_peticion === tipo &&
-                        styles.typeButtonActive,
-                    ]}
-                    onPress={() => handleTipoPeticionPress(tipo)}
-                  >
-                    <Text
-                      style={[
-                        styles.typeButtonText,
-                        formData.tipo_peticion === tipo &&
-                          styles.typeButtonTextActive,
-                      ]}
-                    >
-                      {tipo}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              )}
-            </View>
+            <PqrTipoSelector
+              selected={formData.tipo_peticion}
+              onSelect={handleTipoPeticionPress}
+            />
 
             <Text style={styles.label}>Adjuntar Archivo (Opcional)</Text>
-            <TouchableOpacity
-              style={[
-                styles.uploadButton,
-                uploadingFile && styles.uploadButtonDisabled,
-              ]}
-              onPress={handleSelectFile}
-              disabled={uploadingFile}
-            >
-              <View style={styles.uploadIconContainer}>
-                {uploadingFile ? (
-                  <ActivityIndicator size="small" color={THEME.colors.indigo} />
-                ) : (
-                  <Ionicons
-                    name="cloud-upload-outline"
-                    size={32}
-                    color={THEME.colors.indigo}
-                  />
-                )}
-              </View>
-              <View style={styles.uploadTextContainer}>
-                <Text style={styles.uploadText}>
-                  {uploadingFile
-                    ? "Subiendo archivo..."
-                    : "Seleccionar archivo"}
-                </Text>
-                <Text style={styles.uploadHint}>
-                  PDF, Imágenes, Documentos (Máx 10MB)
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            {archivo && (
-              <View
-                style={[
-                  styles.selectedFileCard,
-                  archivo.uploaded && styles.selectedFileCardUploaded,
-                ]}
-              >
-                {/* Icono grande a la izquierda */}
-                <View
-                  style={[
-                    styles.fileIconContainer,
-                    archivo.uploaded && styles.fileIconContainerUploaded,
-                  ]}
-                >
-                  <Ionicons
-                    name={
-                      archivo.uploaded
-                        ? "checkmark-circle"
-                        : archivo.mimeType?.startsWith("image/")
-                          ? "image-outline"
-                          : "document-text-outline"
-                    }
-                    size={28}
-                    color={
-                      archivo.uploaded
-                        ? THEME.colors.success
-                        : THEME.colors.indigo
-                    }
-                  />
-                </View>
-
-                {/* Info del archivo */}
-                <View style={styles.fileInfoContainer}>
-                  <Text style={styles.fileNameText} numberOfLines={1}>
-                    {archivo.name}
-                  </Text>
-                  <View style={styles.fileMetadata}>
-                    {archivo.uploaded ? (
-                      <View style={styles.uploadedBadge}>
-                        <Ionicons
-                          name="checkmark"
-                          size={12}
-                          color={THEME.colors.success}
-                        />
-                        <Text style={styles.uploadedBadgeText}>Subido</Text>
-                      </View>
-                    ) : (
-                      <Text style={styles.fileMetadataText}>
-                        Listo para enviar
-                      </Text>
-                    )}
-                  </View>
-                </View>
-
-                {/* Botón eliminar */}
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={handleRemoveFile}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons
-                    name="trash-outline"
-                    size={20}
-                    color={THEME.colors.error}
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {archivo && archivo.mimeType?.startsWith("image/") && (
-              <ImageGallery images={[archivo.uri]} />
-            )}
+            <PqrFileUpload
+              archivo={archivo}
+              uploading={uploadingFile}
+              onSelect={handleSelectFile}
+              onRemove={handleRemoveFile}
+            />
           </ScrollView>
 
           {/* Botón submit fijo abajo */}

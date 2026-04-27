@@ -17,19 +17,14 @@ import { PqrCard } from "@/components/pqr/PQRCard";
 import { pqrService } from "@/services/pqrService";
 import { useRole } from "@/hooks/useRole";
 import ScreenHeader from "@/components/shared/ScreenHeader";
+import PqrFilters, { FilterType } from "@/components/pqr/PqrFilters";
 import { THEME } from "@/constants/theme";
-
-type FilterType =
-  | "Todos"
-  | "Pendientes"
-  | "En Proceso"
-  | "Resueltas"
-  | "Anuladas";
+import { PQR, EstadoPQR } from "@/types/Pqr";
 
 export default function PQRListScreen() {
   const { isAdmin } = useRole();
   const [activeFilter, setActiveFilter] = useState<FilterType>("Todos");
-  const [pqrs, setPqrs] = useState<any[]>([]);
+  const [pqrs, setPqrs] = useState<PQR[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
@@ -40,14 +35,9 @@ export default function PQRListScreen() {
   });
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const loadPQRsCallback = useCallback(() => {
+  useEffect(() => {
     loadPQRs();
   }, []);
-
-  // Cargar PQRs al montar el componente
-  useEffect(() => {
-    loadPQRsCallback();
-  }, [loadPQRsCallback]);
 
   const loadPQRs = async (pagina: number = 1, append: boolean = false) => {
     try {
@@ -114,7 +104,7 @@ export default function PQRListScreen() {
 
   // Escuchar eventos de actualización de PQR
   useEffect(() => {
-    const handlePqrUpdate = (data: { id: number; estado: string }) => {
+    const handlePqrUpdate = (data: { id: number; estado: EstadoPQR }) => {
       setPqrs((prev) =>
         prev.map((p) =>
           p.id_pqr === data.id ? { ...p, estado_pqr: data.estado } : p
@@ -129,7 +119,7 @@ export default function PQRListScreen() {
     };
   }, []);
 
-  const handlePQRPress = useCallback((item: any) => {
+  const handlePQRPress = useCallback((item: PQR) => {
     router.push(`/(screens)/pqr/${item.id_pqr}`);
   }, []);
 
@@ -148,33 +138,11 @@ export default function PQRListScreen() {
         onBackPress={handleBackPress}
       />
 
-      {/* Filtros */}
-      <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {(isAdmin
-            ? ["Todos", "Pendientes", "En Proceso", "Resueltas", "Anuladas"]
-            : ["Todos", "Pendientes", "En Proceso", "Resueltas"]
-          ).map((filter) => (
-            <TouchableOpacity
-              key={filter}
-              style={[
-                styles.filterButton,
-                activeFilter === filter && styles.activeFilterButton,
-              ]}
-              onPress={() => handleFilterPress(filter as FilterType)}
-            >
-              <Text
-                style={[
-                  styles.filterText,
-                  activeFilter === filter && styles.activeFilterText,
-                ]}
-              >
-                {filter}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      <PqrFilters
+        active={activeFilter}
+        isAdmin={isAdmin}
+        onSelect={handleFilterPress}
+      />
 
       {/* Lista */}
       <ScrollView
@@ -250,31 +218,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
-  },
-  filtersContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#F1F5F9",
-    borderRadius: 20,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-  activeFilterButton: {
-    backgroundColor: "#7C3AED",
-    borderColor: "#7C3AED",
-  },
-  filterText: {
-    fontSize: 14,
-    color: "#64748B",
-    fontWeight: "500",
-  },
-  activeFilterText: {
-    color: "white",
   },
   listContainer: {
     flex: 1,

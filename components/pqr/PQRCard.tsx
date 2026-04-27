@@ -1,27 +1,8 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-interface PQR {
-  id_pqr: number;
-  asunto: string;
-  tipo_peticion: "Petición" | "Queja" | "Reclamo";
-  estado_pqr:
-    | "Pendiente"
-    | "En Proceso"
-    | "Resuelto"
-    | "Cerrado Sin Solución"
-    | "Anulado";
-  fecha_creacion: string;
-  descripcion: string;
-  apartamento?: {
-    numero: string;
-    bloque: string;
-  };
-  creador?: {
-    nombre: string;
-    apellido: string;
-  };
-}
+import { PQR } from "@/types/Pqr";
+import { THEME } from "@/constants/theme";
 
 interface PqrCardProps {
   item: PQR;
@@ -30,22 +11,21 @@ interface PqrCardProps {
 
 const getTypeColor = (type: PQR["tipo_peticion"]): string => {
   const colorMap = {
-    Petición: "#4F46E5",
-    Queja: "#F59E0B",
-    Reclamo: "#EF4444",
+    Petición: THEME.colors.indigo,
+    Queja: THEME.colors.warning,
+    Reclamo: THEME.colors.error,
   };
   return colorMap[type];
 };
 
 const getStatusColor = (status: PQR["estado_pqr"]): string => {
   const colorMap = {
-    Pendiente: "#F59E0B",
-    "En Proceso": "#3B82F6",
-    Resuelto: "#10B981",
-    "Cerrado Sin Solución": "#EF4444",
-    Anulado: "#6B7280",
+    Pendiente: THEME.colors.warning,
+    "En Proceso": THEME.colors.info,
+    Resuelto: THEME.colors.success,
+    Anulado: THEME.colors.text.secondary,
   };
-  return colorMap[status] || "#6B7280";
+  return colorMap[status] ?? THEME.colors.text.secondary;
 };
 
 const formatDate = (dateString: string): string => {
@@ -62,8 +42,6 @@ const PqrCardComponent: React.FC<PqrCardProps> = ({ item, onPress }) => (
     onPress={() => onPress(item)}
     activeOpacity={0.7}
   >
-    <View style={styles.leftSection}></View>
-
     <View style={styles.pqrContent}>
       <View style={styles.headerRow}>
         <Text style={styles.pqrTitle} numberOfLines={2}>
@@ -119,7 +97,7 @@ const PqrCardComponent: React.FC<PqrCardProps> = ({ item, onPress }) => (
             <MaterialCommunityIcons
               name="home-circle"
               size={22}
-              color="#94a3b8"
+              color={THEME.colors.text.muted}
             />
             <Text style={styles.infoText}>
               {item.apartamento.bloque
@@ -141,7 +119,7 @@ const styles = StyleSheet.create({
   pqrItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: THEME.colors.surface,
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
@@ -151,17 +129,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     borderWidth: 1,
-    borderColor: "#F1F5F9",
-  },
-  leftSection: {
-    marginRight: 12,
-  },
-  pqrIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
+    borderColor: THEME.colors.surfaceLight,
   },
   pqrContent: {
     flex: 1,
@@ -174,7 +142,7 @@ const styles = StyleSheet.create({
   pqrTitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1E293B",
+    color: THEME.colors.text.heading,
     lineHeight: 20,
     flex: 1,
   },
@@ -223,6 +191,6 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
-    color: "#64748B",
+    color: THEME.colors.text.secondary,
   },
 });
