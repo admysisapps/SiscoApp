@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import LottieView from "lottie-react-native";
-import { THEME } from "@/constants/theme";
+import { THEME, COLORS } from "@/constants/theme";
 import { useUser } from "@/contexts/UserContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { useRouter } from "expo-router";
@@ -71,7 +71,7 @@ export default function ConnectionErrorScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 32,

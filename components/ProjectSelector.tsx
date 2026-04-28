@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   Text,
@@ -129,22 +129,19 @@ export default function ProjectSelector({
 }: ProjectSelectorProps) {
   const { proyectos } = useProject();
 
-  const renderProyecto = ({
-    item,
-    index,
-  }: {
-    item: Proyecto;
-    index: number;
-  }) => (
-    <ProjectCard
-      item={item}
-      index={index}
-      onProjectSelected={onProjectSelected}
-      isLoading={loadingKey === `${item.nit}-${item.rolUsuario}`}
-      isDisabled={
-        loadingKey !== null && loadingKey !== `${item.nit}-${item.rolUsuario}`
-      }
-    />
+  const renderProyecto = useCallback(
+    ({ item, index }: { item: Proyecto; index: number }) => (
+      <ProjectCard
+        item={item}
+        index={index}
+        onProjectSelected={onProjectSelected}
+        isLoading={loadingKey === `${item.nit}-${item.rolUsuario}`}
+        isDisabled={
+          loadingKey !== null && loadingKey !== `${item.nit}-${item.rolUsuario}`
+        }
+      />
+    ),
+    [onProjectSelected, loadingKey]
   );
 
   return (
