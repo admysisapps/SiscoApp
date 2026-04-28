@@ -1,14 +1,38 @@
-import React from "react";
-import { Tabs } from "expo-router";
+import React, { useEffect } from "react";
+import { Tabs, useRouter } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRole } from "@/hooks/useRole";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProject } from "@/contexts/ProjectContext";
+import { ROLES } from "@/types/Roles";
 import { THEME } from "@/constants/theme";
-// import CustomTabBar from "@/components/CustomTabBar";
 
 export default function TabLayout() {
+  const { isAuthenticated } = useAuth();
+  const { selectedProject } = useProject();
   const { isAdmin } = useRole();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/(auth)/login");
+    } else if (
+      !selectedProject ||
+      selectedProject.rolUsuario !== ROLES.PROPIETARIO
+    ) {
+      router.replace("/project-selector");
+    }
+  }, [isAuthenticated, selectedProject, router]);
+
+  if (
+    !isAuthenticated ||
+    !selectedProject ||
+    selectedProject.rolUsuario !== ROLES.PROPIETARIO
+  ) {
+    return null;
+  }
 
   return (
     <SafeAreaView

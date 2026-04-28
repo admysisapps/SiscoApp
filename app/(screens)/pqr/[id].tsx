@@ -30,14 +30,15 @@ import PqrInfoGrid from "@/components/pqr/PqrInfoGrid";
 import PqrAttachment from "@/components/pqr/PqrAttachment";
 import PqrChatMessages from "@/components/pqr/PqrChatMessages";
 import Toast from "@/components/Toast";
-import { MensajeRol } from "@/components/pqr/PqrChatMessage";
+import { UserRole, ROLES } from "@/types/Roles";
 
 export default function PQRDetailScreen() {
   const { id } = useLocalSearchParams();
   const pqrId = Array.isArray(id) ? id[0] : id;
   const router = useRouter();
   const { selectedProject } = useProject();
-  const { isAdmin, isUser, role } = useRole();
+  const { isAdmin, isUser, isContador, role } = useRole();
+  const canManage = isAdmin || isContador;
   const { bottom } = useSafeAreaInsets();
   const MARGIN = 8;
 
@@ -59,7 +60,7 @@ export default function PQRDetailScreen() {
   const [showResolverModal, setShowResolverModal] = useState(false);
   const [showAnularModal, setShowAnularModal] = useState(false);
 
-  const rolActual: MensajeRol = (role as MensajeRol) ?? "propietario";
+  const rolActual: UserRole = role ?? ROLES.PROPIETARIO;
 
   const handleEnviar = async () => {
     if (!nuevoMensaje.trim()) return;
@@ -146,7 +147,7 @@ export default function PQRDetailScreen() {
               <>
                 <PqrHeroCard
                   pqr={pqr}
-                  canManagePQR={isAdmin}
+                  canManagePQR={canManage}
                   isUser={isUser}
                   onResolver={() => setShowResolverModal(true)}
                   onAnular={() => setShowAnularModal(true)}

@@ -17,6 +17,8 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import outputs from "@/amplify_outputs.json";
 
+import { ROLES } from "@/types/Roles";
+
 Amplify.configure(outputs);
 fcmService.initialize();
 
@@ -40,7 +42,8 @@ const queryClient = new QueryClient({
 function RootNavigator() {
   const { selectedProject } = useProject();
   const { isAuthenticated } = useAuth();
-  const isAdmin = selectedProject?.rolUsuario === "admin";
+  const isAdmin = selectedProject?.rolUsuario === ROLES.ADMIN;
+  const isContador = selectedProject?.rolUsuario === ROLES.CONTADOR;
 
   return (
     <Stack
@@ -77,10 +80,21 @@ function RootNavigator() {
         />
       </Stack.Protected>
 
-      {/* Rutas protegidas por rol ADMIN - estilo modal */}
+      {/* Rutas protegidas por rol ADMIN */}
       <Stack.Protected guard={isAdmin}>
         <Stack.Screen
           name="(admin)"
+          options={{
+            animation: "slide_from_right",
+            gestureDirection: "vertical",
+          }}
+        />
+      </Stack.Protected>
+
+      {/* Rutas protegidas por rol CONTADOR */}
+      <Stack.Protected guard={isContador}>
+        <Stack.Screen
+          name="(contador)"
           options={{
             animation: "slide_from_right",
             gestureDirection: "vertical",

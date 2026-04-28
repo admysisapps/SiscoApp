@@ -22,7 +22,8 @@ import { THEME } from "@/constants/theme";
 import { PQR, EstadoPQR } from "@/types/Pqr";
 
 export default function PQRListScreen() {
-  const { isAdmin } = useRole();
+  const { isAdmin, isContador } = useRole();
+  const canManage = isAdmin || isContador;
   const [activeFilter, setActiveFilter] = useState<FilterType>("Todos");
   const [pqrs, setPqrs] = useState<PQR[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,13 +135,13 @@ export default function PQRListScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader
-        title={isAdmin ? "Gestión de PQRs" : "Mis PQRs"}
+        title={canManage ? "Gestión de PQRs" : "Mis PQRs"}
         onBackPress={handleBackPress}
       />
 
       <PqrFilters
         active={activeFilter}
-        isAdmin={isAdmin}
+        isAdmin={canManage}
         onSelect={handleFilterPress}
       />
 
@@ -180,7 +181,7 @@ export default function PQRListScreen() {
             <Text style={styles.emptyText}>No hay solicitudes</Text>
             <Text style={styles.emptySubtext}>
               {activeFilter === "Todos"
-                ? isAdmin
+                ? canManage
                   ? "No hay solicitudes en el sistema"
                   : "Aún no has enviado ninguna solicitud. ¡Crea tu primera PQR!"
                 : `No tienes solicitudes ${activeFilter.toLowerCase()}`}

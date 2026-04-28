@@ -8,6 +8,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useApartment } from "@/contexts/ApartmentContext";
 
 import { Proyecto } from "@/types/Proyecto";
+import { ROLES } from "@/types/Roles";
 
 export default function ProjectSelectorScreen() {
   const router = useRouter();
@@ -43,11 +44,13 @@ export default function ProjectSelectorScreen() {
       setSelectedProject(proyecto);
 
       try {
-        if (proyecto.rolUsuario !== "admin") {
+        if (proyecto.rolUsuario === ROLES.ADMIN) {
+          router.replace("/(admin)");
+        } else if (proyecto.rolUsuario === ROLES.CONTADOR) {
+          router.replace("/(contador)");
+        } else {
           await loadApartments(proyecto);
           router.replace("/(tabs)");
-        } else {
-          router.replace("/(admin)");
         }
       } catch (error) {
         console.error("[ProjectSelector] Error al cargar apartamentos:", error);

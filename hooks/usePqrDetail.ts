@@ -28,7 +28,8 @@ const ESTADOS_ACTIVOS: EstadoPQR[] = ["Pendiente", "En Proceso"];
 const POLLING_INTERVAL = 5000;
 
 export function usePqrDetail(pqrId: string | undefined): UsePqrDetailReturn {
-  const { isAdmin } = useRole();
+  const { isAdmin, isContador } = useRole();
+  const canManage = isAdmin || isContador;
 
   const [pqr, setPqr] = useState<PQR | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,7 +147,7 @@ export function usePqrDetail(pqrId: string | undefined): UsePqrDetailReturn {
           setMensajes((prev) => [...prev, response.data]);
           ultimoIdRef.current = response.data.id;
 
-          if (isAdmin && estadoAnterior === "Pendiente") {
+          if (canManage && estadoAnterior === "Pendiente") {
             setPqr((prev) =>
               prev ? { ...prev, estado_pqr: "En Proceso" } : null
             );
@@ -170,7 +171,7 @@ export function usePqrDetail(pqrId: string | undefined): UsePqrDetailReturn {
         setEnviando(false);
       }
     },
-    [pqrId, pqr?.estado_pqr, isAdmin]
+    [pqrId, pqr?.estado_pqr, canManage]
   );
 
   const cambiarEstado = useCallback(

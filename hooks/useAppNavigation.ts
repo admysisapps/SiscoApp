@@ -6,6 +6,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppError } from "@/types/AppError";
+import { ROLES, UserRole } from "@/types/Roles";
 
 // const LOG_TAG = "[Index]";
 // const fmt = (ms: number) => `+${ms}ms`;
@@ -27,9 +28,15 @@ export interface NavigationState {
   projectsError: AppError | null;
   userInitialized: boolean;
   user: { usuario?: string } | null;
-  selectedProject: { nombre?: string; rolUsuario: string } | null;
-  proyectos: { rolUsuario: string }[];
+  selectedProject: { nombre?: string; rolUsuario: UserRole } | null;
+  proyectos: { rolUsuario: UserRole }[];
 }
+
+const getRoleHref = (rol: UserRole): string => {
+  if (rol === ROLES.ADMIN) return "/(admin)";
+  if (rol === ROLES.CONTADOR) return "/(contador)";
+  return "/(tabs)";
+};
 
 export function resolveDestination(s: NavigationState): AppDestination {
   if (
@@ -84,7 +91,7 @@ export function resolveDestination(s: NavigationState): AppDestination {
   if (s.selectedProject) {
     return {
       type: "redirect",
-      href: s.selectedProject.rolUsuario === "admin" ? "/(admin)" : "/(tabs)",
+      href: getRoleHref(s.selectedProject.rolUsuario),
     };
   }
 
@@ -95,7 +102,7 @@ export function resolveDestination(s: NavigationState): AppDestination {
     if (s.proyectos.length === 1) {
       return {
         type: "redirect",
-        href: s.proyectos[0].rolUsuario === "admin" ? "/(admin)" : "/(tabs)",
+        href: getRoleHref(s.proyectos[0].rolUsuario),
       };
     }
   }

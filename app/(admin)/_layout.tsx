@@ -5,41 +5,28 @@ import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { THEME } from "@/constants/theme";
-import LoadingOverlay from "@/components/LoadingOverlay";
-// import CustomTabBar from "@/components/CustomTabBar";
+import { ROLES } from "@/types/Roles";
 
 export default function AdminLayout() {
-  const { isLoading: userLoading } = useUser();
   const { isAuthenticated } = useAuth();
-  const { selectedProject, isLoadingProjects } = useProject();
-  const isLoading = userLoading || isLoadingProjects;
+  const { selectedProject } = useProject();
   const router = useRouter();
 
-  // Protección: verificar autenticación y rol admin
   useEffect(() => {
-    if (!isLoading) {
-      if (!isAuthenticated) {
-        router.replace("/(auth)/login");
-      } else if (!selectedProject || selectedProject.rolUsuario !== "admin") {
-        router.replace("/project-selector");
-      }
+    if (!isAuthenticated) {
+      router.replace("/(auth)/login");
+    } else if (!selectedProject || selectedProject.rolUsuario !== ROLES.ADMIN) {
+      router.replace("/project-selector");
     }
-  }, [isAuthenticated, selectedProject, isLoading, router]);
+  }, [isAuthenticated, selectedProject, router]);
 
-  // Mostrar loading
-  if (isLoading) {
-    return <LoadingOverlay visible={true} />;
-  }
-
-  // Si no está autenticado o no es admin, no mostrar nada mientras redirige
   if (
     !isAuthenticated ||
     !selectedProject ||
-    selectedProject.rolUsuario !== "admin"
+    selectedProject.rolUsuario !== ROLES.ADMIN
   ) {
     return null;
   }
