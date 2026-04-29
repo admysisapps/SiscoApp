@@ -36,14 +36,14 @@ const AccionesRapidas = React.memo(function AccionesRapidas() {
       color: "#3B82F6",
       onPress: () => router.push("/(screens)/pqr/CrearPqrScreen"),
     },
-    {
-      id: "2",
-      title: "Zonas Comunes",
-      subtitle: "Disfruta de tu copropiedad",
-      icon: "calendar",
-      color: "#8B5CF6",
-      onPress: () => router.push("/(screens)/reservas/zona-disponibles"),
-    },
+    // {
+    //   id: "2",
+    //   title: "Zonas Comunes",
+    //   subtitle: "Disfruta de tu copropiedad",
+    //   icon: "calendar",
+    //   color: "#8B5CF6",
+    //   onPress: () => router.push("/(screens)/reservas/zona-disponibles"),
+    // },
     {
       id: "3",
       title: "Comunicados",

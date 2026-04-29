@@ -75,7 +75,11 @@ const MenuItem = memo(
           {item.title}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={THEME.colors.text.muted} />
+      <Ionicons
+        name="chevron-forward"
+        size={20}
+        color={THEME.colors.text.muted}
+      />
     </TouchableOpacity>
   )
 );
@@ -111,51 +115,60 @@ export default function ContadorPerfil() {
     } catch (error) {
       console.error("Error cerrando sesión:", error);
       setIsLoggingOut(false);
-      setToast({ visible: true, message: "Error al cerrar sesión", type: "error" });
+      setToast({
+        visible: true,
+        message: "Error al cerrar sesión",
+        type: "error",
+      });
     }
   }, [logout, currentUsername, isLoggingOut]);
 
-  const menuItems = useMemo((): MenuItemType[] => [
-    {
-      id: "personal",
-      title: "Información Personal",
-      icon: "id-card-outline",
-      onPress: () => router.push("/(screens)/Info_personal"),
-    },
-    {
-      id: "password",
-      title: "Cambiar Contraseña",
-      icon: "lock-closed-outline",
-      onPress: () => router.push("/(auth)/changePassword"),
-    },
-    {
-      id: "notifications",
-      title: "Notificaciones",
-      icon: "notifications-outline",
-      onPress: () => setShowNotificationModal(true),
-    },
-    {
-      id: "support",
-      title: "Ayuda y Soporte",
-      icon: "help-circle-outline",
-      onPress: () => router.push("/(screens)/soporte/support"),
-    },
-    ...(proyectos.length > 1
-      ? [{
-          id: "change-project",
-          title: "Cambiar de Proyecto",
-          icon: "swap-horizontal-outline",
-          onPress: handleChangeProject,
-        }]
-      : []),
-    {
-      id: "logout",
-      title: "Cerrar Sesión",
-      icon: "log-out-outline",
-      onPress: handleSignOut,
-      isDestructive: true,
-    },
-  ], [handleSignOut, handleChangeProject, proyectos.length]);
+  const menuItems = useMemo(
+    (): MenuItemType[] => [
+      {
+        id: "personal",
+        title: "Información Personal",
+        icon: "id-card-outline",
+        onPress: () => router.push("/(screens)/Info_personal"),
+      },
+      {
+        id: "password",
+        title: "Cambiar Contraseña",
+        icon: "lock-closed-outline",
+        onPress: () => router.push("/(auth)/changePassword"),
+      },
+      {
+        id: "notifications",
+        title: "Notificaciones",
+        icon: "notifications-outline",
+        onPress: () => setShowNotificationModal(true),
+      },
+      {
+        id: "support",
+        title: "Ayuda y Soporte",
+        icon: "help-circle-outline",
+        onPress: () => router.push("/(screens)/soporte/support"),
+      },
+      ...(proyectos.length > 1
+        ? [
+            {
+              id: "change-project",
+              title: "Cambiar de Proyecto",
+              icon: "swap-horizontal-outline",
+              onPress: handleChangeProject,
+            },
+          ]
+        : []),
+      {
+        id: "logout",
+        title: "Cerrar Sesión",
+        icon: "log-out-outline",
+        onPress: handleSignOut,
+        isDestructive: true,
+      },
+    ],
+    [handleSignOut, handleChangeProject, proyectos.length]
+  );
 
   return (
     <View style={styles.container}>
@@ -175,11 +188,10 @@ export default function ContadorPerfil() {
             <Text style={styles.projectName}>{selectedProject?.nombre}</Text>
             <Text style={styles.projectNit}>NIT: {selectedProject?.nit}</Text>
             {selectedProject?.descripcion && (
-              <Text style={styles.projectDesc}>{selectedProject.descripcion}</Text>
+              <Text style={styles.projectDesc}>
+                {selectedProject.descripcion}
+              </Text>
             )}
-          </View>
-          <View style={styles.projectDecoration}>
-            <Ionicons name="calculator" size={100} color="rgba(5,150,105,0.07)" />
           </View>
         </View>
 
@@ -189,7 +201,9 @@ export default function ContadorPerfil() {
               key={item.id}
               item={item}
               isLast={index === menuItems.length - 1}
-              onPress={item.id === "logout" && isLoggingOut ? () => {} : item.onPress}
+              onPress={
+                item.id === "logout" && isLoggingOut ? () => {} : item.onPress
+              }
               isLoggingOut={item.id === "logout" && isLoggingOut}
             />
           ))}
@@ -200,14 +214,18 @@ export default function ContadorPerfil() {
         visible={showNotificationModal}
         onClose={() => setShowNotificationModal(false)}
         userDocument={currentUsername || ""}
-        onError={(message) => setToast({ visible: true, message, type: "error" })}
+        onError={(message) =>
+          setToast({ visible: true, message, type: "error" })
+        }
       />
 
       <Toast
         visible={toast.visible}
         message={toast.message}
         type={toast.type}
-        onHide={() => setToast({ visible: false, message: "", type: "success" })}
+        onHide={() =>
+          setToast({ visible: false, message: "", type: "success" })
+        }
       />
     </View>
   );
@@ -275,11 +293,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     lineHeight: 18,
   },
-  projectDecoration: {
-    position: "absolute",
-    right: -20,
-    top: -10,
-  },
+
   menuContainer: {
     backgroundColor: THEME.colors.surface,
     marginHorizontal: THEME.spacing.md,
