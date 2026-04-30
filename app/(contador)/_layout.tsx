@@ -3,16 +3,14 @@ import { Tabs, useRouter } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useRole } from "@/hooks/useRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { ROLES } from "@/types/Roles";
 import { THEME } from "@/constants/theme";
 
-export default function TabLayout() {
+export default function ContadorLayout() {
   const { isAuthenticated } = useAuth();
   const { selectedProject } = useProject();
-  const { isAdmin } = useRole();
   const router = useRouter();
 
   useEffect(() => {
@@ -20,7 +18,7 @@ export default function TabLayout() {
       router.replace("/(auth)/login");
     } else if (
       !selectedProject ||
-      selectedProject.rolUsuario !== ROLES.PROPIETARIO
+      selectedProject.rolUsuario !== ROLES.CONTADOR
     ) {
       router.replace("/project-selector");
     }
@@ -29,7 +27,7 @@ export default function TabLayout() {
   if (
     !isAuthenticated ||
     !selectedProject ||
-    selectedProject.rolUsuario !== ROLES.PROPIETARIO
+    selectedProject.rolUsuario !== ROLES.CONTADOR
   ) {
     return null;
   }
@@ -39,22 +37,17 @@ export default function TabLayout() {
       style={[styles.container, { backgroundColor: THEME.colors.background }]}
       edges={["top"]}
     >
-      {/* Indicador de Rol */}
-      {isAdmin && (
-        <View style={styles.roleIndicator}>
-          <Ionicons name="shield-checkmark" size={16} color="white" />
-          <Text style={styles.roleText}>ADMINISTRADOR</Text>
+      <View style={styles.roleIndicator}>
+        <View style={styles.roleContent}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="calculator" size={14} color="white" />
+          </View>
+          <Text style={styles.roleText}>CONTADOR</Text>
         </View>
-      )}
+      </View>
 
-      <Tabs
-        tabBar={() => null}
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
+      <Tabs tabBar={() => null} screenOptions={{ headerShown: false }}>
         <Tabs.Screen name="index" />
-        <Tabs.Screen name="(asambleas)" />
         <Tabs.Screen name="perfil" />
       </Tabs>
     </SafeAreaView>
@@ -64,20 +57,30 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
   roleIndicator: {
+    backgroundColor: "#059669",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  roleContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#dc2626",
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+  },
+  iconContainer: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 6,
   },
   roleText: {
     color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-    marginLeft: 4,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
 });

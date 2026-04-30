@@ -8,11 +8,16 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useApartment } from "@/contexts/ApartmentContext";
 
 import { Proyecto } from "@/types/Proyecto";
+import { ROLES } from "@/types/Roles";
 
 export default function ProjectSelectorScreen() {
   const router = useRouter();
 
-  const { proyectos: proyectosTyped, setSelectedProject } = useProject();
+  const {
+    proyectos: proyectosTyped,
+    setSelectedProject,
+    projectsError,
+  } = useProject();
   const { loadApartments } = useApartment();
 
   const [isReady, setIsReady] = useState(false);
@@ -39,11 +44,13 @@ export default function ProjectSelectorScreen() {
       setSelectedProject(proyecto);
 
       try {
-        if (proyecto.rolUsuario !== "admin") {
+        if (proyecto.rolUsuario === ROLES.ADMIN) {
+          router.replace("/(admin)");
+        } else if (proyecto.rolUsuario === ROLES.CONTADOR) {
+          router.replace("/(contador)");
+        } else {
           await loadApartments(proyecto);
           router.replace("/(tabs)");
-        } else {
-          router.replace("/(admin)");
         }
       } catch (error) {
         console.error("[ProjectSelector] Error al cargar apartamentos:", error);
@@ -54,12 +61,16 @@ export default function ProjectSelectorScreen() {
     [loadingKey, setSelectedProject, loadApartments, router]
   );
 
-  if (!isReady) {
+  if (!isReady && !projectsError) {
     return <LoadingScreen />;
   }
 
-  if (proyectosTyped.length === 0) {
-    return <AccessDenied />;
+  if (projectsError?.type === "projects_inactive") {
+    return <AccessDenied reason="projects_inactive" />;
+  }
+
+  if (projectsError?.type === "no_projects" || proyectosTyped.length === 0) {
+    return <AccessDenied reason="no_projects" />;
   }
 
   return (

@@ -137,7 +137,8 @@ export const apiService = {
           recordError(crashlytics, error);
         }
 
-        return response.json();
+        const body = await response.json();
+        return { ...body, statusCode: response.status };
       } finally {
         clearTimeout(timeoutId);
       }

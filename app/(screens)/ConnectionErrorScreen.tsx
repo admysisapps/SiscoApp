@@ -8,21 +8,24 @@ import {
   ActivityIndicator,
 } from "react-native";
 import LottieView from "lottie-react-native";
-import { THEME } from "@/constants/theme";
+import { THEME, COLORS } from "@/constants/theme";
 import { useUser } from "@/contexts/UserContext";
+import { useProject } from "@/contexts/ProjectContext";
 import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
 export default function ConnectionErrorScreen() {
-  const { retry } = useUser();
+  const { retryUser } = useUser();
+  const { reloadProjects } = useProject();
   const router = useRouter();
   const [isRetrying, setIsRetrying] = useState(false);
 
   const handleRetry = async () => {
     setIsRetrying(true);
     try {
-      retry();
+      retryUser();
+      await reloadProjects();
       router.replace("/");
     } finally {
       setIsRetrying(false);
@@ -68,7 +71,7 @@ export default function ConnectionErrorScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 32,

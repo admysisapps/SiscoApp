@@ -1,5 +1,6 @@
 import { apiService } from "@/services/apiService";
 import { User } from "@/types/User";
+import { AppError } from "@/types/AppError";
 import React, {
   createContext,
   ReactNode,
@@ -13,19 +14,12 @@ import React, {
 import { useAuth } from "./AuthContext";
 
 interface UserContextType {
-  // Estado del usuario
   user: User | null;
   setUser: (user: User | null) => void;
   isLoading: boolean;
   hasInitialized: boolean;
-
-  // Estados de error
-  error: string | null;
-  hasError: boolean;
-  hasAccessError: boolean;
-  retry: () => void;
-
-  // Funciones de usuario
+  userError: AppError | null;
+  retryUser: () => void;
   loadUserInfo: (username: string, useContext?: boolean) => Promise<void>;
   updateUserInfo: (data: Partial<User>) => Promise<boolean>;
   updateUserRole: () => Promise<void>;
@@ -39,9 +33,7 @@ const ACCESS_ERROR_CODES = [400, 401, 403, 404, 422];
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasError, setHasError] = useState(false);
-  const [hasAccessError, setHasAccessError] = useState(false);
+  const [userError, setUserError] = useState<AppError | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const updatingRoleRef = useRef(false);
   const hasLoadedRef = useRef(false);
@@ -56,9 +48,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       loadingRef.current = true;
       try {
         setIsLoading(true);
-        setError(null);
-        setHasError(false);
-        setHasAccessError(false);
+        setUserError(null);
 
         const response = await apiService.getUserInfo(username, useContext);
 
@@ -66,25 +56,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
           setUser(response.data);
         } else {
           const statusCode = response.statusCode || response.status;
-          const errorMsg =
-            response.message || "Error cargando información del usuario";
-
-          // Errores de acceso (400, 401, 403, 404, 422) → AccessDenied
+          setUser(null);
           if (ACCESS_ERROR_CODES.includes(statusCode)) {
-            setHasAccessError(true);
-            setUser(null);
-            // NO setear hasError - dejar que vaya a AccessDenied
+            setUserError({ type: "user_not_found" });
           } else {
-            // Errores de servidor (500, timeout, etc.) → ConnectionError
-            setError(errorMsg);
-            setHasError(true);
-            setUser(null);
+            setUserError({ type: "server_error", retryable: true });
           }
         }
       } catch {
-        setError("Error de conexión");
-        setHasError(true);
         setUser(null);
+        setUserError({ type: "server_error", retryable: true });
       } finally {
         setIsLoading(false);
         loadingRef.current = false;
@@ -106,9 +87,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       loadUserInfo(currentUsername);
     } else if (!isAuthenticated) {
       setUser(null);
-      setError(null);
-      setHasError(false);
-      setHasAccessError(false);
+      setUserError(null);
       setHasInitialized(false);
       hasLoadedRef.current = false;
       loadingRef.current = false;
@@ -140,12 +119,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   );
 
   // Función para reintentar cargar datos del usuario
-  const retry = useCallback(() => {
+  const retryUser = useCallback(() => {
     if (!currentUsername) return;
-
-    setError(null);
-    setHasError(false);
-    setHasAccessError(false);
+    setUserError(null);
     hasLoadedRef.current = false;
     loadUserInfo(currentUsername);
   }, [currentUsername, loadUserInfo]);
@@ -172,10 +148,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setUser,
       isLoading,
       hasInitialized,
-      error,
-      hasError,
-      hasAccessError,
-      retry,
+      userError,
+      retryUser,
       loadUserInfo,
       updateUserInfo,
       updateUserRole,
@@ -184,10 +158,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       user,
       isLoading,
       hasInitialized,
-      error,
-      hasError,
-      hasAccessError,
-      retry,
+      userError,
+      retryUser,
       loadUserInfo,
       updateUserInfo,
       updateUserRole,

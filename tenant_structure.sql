@@ -279,11 +279,11 @@ CREATE TABLE `pqr` (
 DROP TABLE IF EXISTS `pqr_mensajes`;
 
 CREATE TABLE `pqr_mensajes` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `id_pqr` int NOT NULL,
   `documento_usuario` varchar(20) NOT NULL,
   `mensaje` text NOT NULL,
-  `es_admin` tinyint(1) DEFAULT '0',
+  `rol` varchar(20) NOT NULL DEFAULT 'propietario',
   `fecha_creacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_pqr_fecha` (`id_pqr`,`fecha_creacion`),
@@ -418,6 +418,7 @@ CREATE TABLE `usuarios` (
   `email` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `estado` enum('activo','inactivo') NOT NULL DEFAULT 'activo',
+  `rol` varchar(20) NOT NULL DEFAULT 'propietario',
   `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_documento` (`documento`),

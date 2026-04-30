@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,8 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -49,24 +47,6 @@ export default function CrearCuentaPagosScreen() {
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
-  const [behavior, setBehavior] = useState<"padding" | "height" | undefined>(
-    Platform.OS === "ios" ? "padding" : "height"
-  );
-
-  useEffect(() => {
-    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setBehavior(Platform.OS === "ios" ? "padding" : "height");
-    });
-
-    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setBehavior(undefined);
-    });
-
-    return () => {
-      keyboardShowListener.remove();
-      keyboardHideListener.remove();
-    };
-  }, []);
 
   const handleFieldChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -179,7 +159,7 @@ export default function CrearCuentaPagosScreen() {
         title={isEditMode ? "Editar Método de Pago" : "Nuevo Método de Pago"}
         onBackPress={handleClose}
       />
-      <KeyboardAvoidingView behavior={behavior} style={styles.flex}>
+      <KeyboardAvoidingView behavior="padding" style={styles.flex}>
         <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.flex}>
           <ScrollView
             style={styles.flex}

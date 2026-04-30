@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   Text,
@@ -109,7 +109,11 @@ const ProjectCard = React.memo(
               <Text style={styles.projectName} numberOfLines={1}>
                 {item.nombre}
               </Text>
-              <Text style={styles.nitText}>NIT: {item.nit}</Text>
+              {item.descripcion && (
+                <Text style={styles.addressText} numberOfLines={2}>
+                  {item.descripcion}
+                </Text>
+              )}
             </View>
           </View>
         </LinearGradient>
@@ -125,22 +129,19 @@ export default function ProjectSelector({
 }: ProjectSelectorProps) {
   const { proyectos } = useProject();
 
-  const renderProyecto = ({
-    item,
-    index,
-  }: {
-    item: Proyecto;
-    index: number;
-  }) => (
-    <ProjectCard
-      item={item}
-      index={index}
-      onProjectSelected={onProjectSelected}
-      isLoading={loadingKey === `${item.nit}-${item.rolUsuario}`}
-      isDisabled={
-        loadingKey !== null && loadingKey !== `${item.nit}-${item.rolUsuario}`
-      }
-    />
+  const renderProyecto = useCallback(
+    ({ item, index }: { item: Proyecto; index: number }) => (
+      <ProjectCard
+        item={item}
+        index={index}
+        onProjectSelected={onProjectSelected}
+        isLoading={loadingKey === `${item.nit}-${item.rolUsuario}`}
+        isDisabled={
+          loadingKey !== null && loadingKey !== `${item.nit}-${item.rolUsuario}`
+        }
+      />
+    ),
+    [onProjectSelected, loadingKey]
   );
 
   return (
@@ -306,9 +307,10 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 4,
   },
-  nitText: {
+  addressText: {
     fontSize: THEME.fontSize.sm,
     color: "rgba(255, 255, 255, 0.8)",
     marginBottom: THEME.spacing.sm,
+    lineHeight: 18,
   },
 });

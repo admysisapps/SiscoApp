@@ -29,6 +29,8 @@ export default function OTPInput({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput | null>(null);
 
+  const filledCount = value.filter((v) => v !== "").length;
+
   const handleChangeText = (text: string) => {
     const cleanText = text.replace(/[^0-9]/g, "").slice(0, 6);
     const newOtp = cleanText.split("");
@@ -60,7 +62,7 @@ export default function OTPInput({
                   styles.codeBox,
                   value[index] && styles.codeBoxFilled,
                   error && styles.codeBoxError,
-                  index === 0 && isFocused && styles.codeBoxFocused,
+                  isFocused && index === filledCount && styles.codeBoxFocused,
                 ]}
               >
                 <Text style={styles.codeDigit} allowFontScaling={true}>
@@ -79,6 +81,8 @@ export default function OTPInput({
             keyboardType="numeric"
             maxLength={6}
             autoFocus
+            textContentType="oneTimeCode"
+            autoComplete="one-time-code"
             placeholder="Código de verificación"
             placeholderTextColor={COLORS.text.muted}
             editable={!disabled}

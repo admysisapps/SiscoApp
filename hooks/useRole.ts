@@ -1,19 +1,24 @@
 import { useUser } from "@/contexts/UserContext";
 import { useProject } from "@/contexts/ProjectContext";
+import { ROLES, UserRole } from "@/types/Roles";
 
 export const useRole = () => {
   const { user } = useUser();
   const { selectedProject } = useProject();
 
   // PRIORIDAD: rol del proyecto seleccionado, luego rol del usuario
-  const currentRole = selectedProject?.rolUsuario || user?.rol || "propietario";
+  const currentRole: UserRole = (selectedProject?.rolUsuario ||
+    user?.rol ||
+    ROLES.PROPIETARIO) as UserRole;
 
-  const isAdmin = currentRole === "admin";
-  const isUser = currentRole === "propietario";
+  const isAdmin = currentRole === ROLES.ADMIN;
+  const isUser = currentRole === ROLES.PROPIETARIO;
+  const isContador = currentRole === ROLES.CONTADOR;
 
   return {
     isAdmin,
     isUser,
+    isContador,
     role: currentRole,
   };
 };

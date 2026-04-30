@@ -4,11 +4,9 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Dimensions,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
@@ -245,136 +243,132 @@ export default function Confirm() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        mode="layout"
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header animado  */}
-          <View style={styles.header}>
-            <View style={styles.headerContent}>
-              <Text style={styles.title} allowFontScaling={true}>
-                Verificar Cuenta
+        {/* Header animado  */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.title} allowFontScaling={true}>
+              Verificar Cuenta
+            </Text>
+            <Text style={styles.subtitle} allowFontScaling={true}>
+              Ingresa el código que enviamos a tu correo
+            </Text>
+          </View>
+        </View>
+
+        {/* Formulario con estilo consistente */}
+        <View style={styles.form}>
+          {/* Información del correo con estilo de input */}
+          <View>
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={COLORS.text.secondary}
+                style={styles.inputIcon}
+              />
+              <Text style={styles.emailDisplayText} allowFontScaling={true}>
+                {emailDisplay}
               </Text>
-              <Text style={styles.subtitle} allowFontScaling={true}>
-                Ingresa el código que enviamos a tu correo
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => setShowChangeEmailModal(true)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.editButtonText}>Cambiar</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.emailLabel} allowFontScaling={true}>
+              Código enviado a este correo
+            </Text>
+          </View>
+
+          {/* Información del usuario con estilo de input */}
+          <View>
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color={COLORS.text.secondary}
+                style={styles.inputIcon}
+              />
+              <Text style={styles.userDisplayText} allowFontScaling={true}>
+                {username}
               </Text>
             </View>
           </View>
 
-          {/* Formulario con estilo consistente */}
-          <View style={styles.form}>
-            {/* Información del correo con estilo de input */}
-            <View>
-              <View style={styles.inputContainer}>
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <Text style={styles.emailDisplayText} allowFontScaling={true}>
-                  {emailDisplay}
-                </Text>
-                <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => setShowChangeEmailModal(true)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.editButtonText}>Cambiar</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.emailLabel} allowFontScaling={true}>
-                Código enviado a este correo
-              </Text>
-            </View>
+          {/* Input del código con componente reutilizable */}
+          <OTPInput
+            value={otp}
+            onChange={setOtp}
+            error={fieldError}
+            onComplete={() => {
+              if (fieldError) setFieldError("");
+            }}
+          />
 
-            {/* Información del usuario con estilo de input */}
-            <View>
-              <View style={styles.inputContainer}>
-                <Ionicons
-                  name="person-outline"
-                  size={20}
-                  color={COLORS.text.secondary}
-                  style={styles.inputIcon}
-                />
-                <Text style={styles.userDisplayText} allowFontScaling={true}>
-                  {username}
-                </Text>
-              </View>
-            </View>
+          {/* Botón principal con estilo consistente */}
+          <TouchableOpacity
+            style={[
+              styles.confirmButton,
+              otp.join("").length !== 6 && styles.confirmButtonDisabled,
+            ]}
+            onPress={handleConfirm}
+            disabled={otp.join("").length !== 6}
+          >
+            <Text style={styles.confirmButtonText} allowFontScaling={true}>
+              Verificar Cuenta
+            </Text>
+          </TouchableOpacity>
 
-            {/* Input del código con componente reutilizable */}
-            <OTPInput
-              value={otp}
-              onChange={setOtp}
-              error={fieldError}
-              onComplete={() => {
-                if (fieldError) setFieldError("");
-              }}
-            />
-
-            {/* Botón principal con estilo consistente */}
+          {/* Opciones adicionales */}
+          <View style={styles.helpSection}>
             <TouchableOpacity
               style={[
-                styles.confirmButton,
-                otp.join("").length !== 6 && styles.confirmButtonDisabled,
+                styles.resendButton,
+                !canResend && styles.resendButtonDisabled,
               ]}
-              onPress={handleConfirm}
-              disabled={otp.join("").length !== 6}
+              onPress={handleResendCode}
+              disabled={!canResend}
             >
-              <Text style={styles.confirmButtonText} allowFontScaling={true}>
-                Verificar Cuenta
+              <Ionicons
+                name="refresh-outline"
+                size={16}
+                color={canResend ? COLORS.primary : COLORS.text.muted}
+              />
+              <Text
+                style={[
+                  styles.resendButtonText,
+                  !canResend && styles.resendButtonTextDisabled,
+                ]}
+                allowFontScaling={true}
+              >
+                {!canResend ? "Reenviar código " : "Reenviar código"}
               </Text>
             </TouchableOpacity>
 
-            {/* Opciones adicionales */}
-            <View style={styles.helpSection}>
-              <TouchableOpacity
-                style={[
-                  styles.resendButton,
-                  !canResend && styles.resendButtonDisabled,
-                ]}
-                onPress={handleResendCode}
-                disabled={!canResend}
-              >
-                <Ionicons
-                  name="refresh-outline"
-                  size={16}
-                  color={canResend ? COLORS.primary : COLORS.text.muted}
-                />
-                <Text
-                  style={[
-                    styles.resendButtonText,
-                    !canResend && styles.resendButtonTextDisabled,
-                  ]}
-                  allowFontScaling={true}
-                >
-                  {!canResend ? "Reenviar código " : "Reenviar código"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.loginLink}
-                onPress={() => router.push("/(auth)/login")}
-              >
-                <Ionicons
-                  name="arrow-back-outline"
-                  size={16}
-                  color={COLORS.text.secondary}
-                />
-                <Text style={styles.loginLinkText} allowFontScaling={true}>
-                  Volver al login
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.loginLink}
+              onPress={() => router.push("/(auth)/login")}
+            >
+              <Ionicons
+                name="arrow-back-outline"
+                size={16}
+                color={COLORS.text.secondary}
+              />
+              <Text style={styles.loginLinkText} allowFontScaling={true}>
+                Volver al login
+              </Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -432,9 +426,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     top: height * 0.25,
     right: -width * 0.15,
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     paddingTop: width < 360 ? 80 : 120,

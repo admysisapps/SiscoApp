@@ -9,15 +9,13 @@ import { AuthError } from "@/services/auth/authService";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignUp() {
@@ -281,302 +279,290 @@ export default function SignUp() {
         <View style={[styles.circle, styles.circle3]} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        mode="layout"
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Header animado igual al login */}
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
+        {/* Header animado igual al login */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color={COLORS.text.primary} />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Crear Cuenta</Text>
+            <Text style={styles.subtitle}>Regístrate como propietario</Text>
+          </View>
+        </View>
+
+        {/* Formulario con estilo consistente */}
+        <View style={styles.form}>
+          {/* Cédula */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.cedula && styles.inputError,
+              ]}
             >
               <Ionicons
-                name="arrow-back"
-                size={24}
-                color={COLORS.text.primary}
+                name="card-outline"
+                size={20}
+                color={
+                  fieldErrors.cedula ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
               />
-            </TouchableOpacity>
-            <View style={styles.headerContent}>
-              <Text style={styles.title}>Crear Cuenta</Text>
-              <Text style={styles.subtitle}>Regístrate como propietario</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese su número de cédula"
+                placeholderTextColor={COLORS.text.muted}
+                value={cedula}
+                maxLength={11}
+                onChangeText={(text) => {
+                  setCedula(text);
+                  if (fieldErrors.cedula) clearFieldError("cedula");
+                }}
+                keyboardType="numeric"
+              />
             </View>
+            {fieldErrors.cedula && (
+              <Text style={styles.errorText}>{fieldErrors.cedula}</Text>
+            )}
           </View>
 
-          {/* Formulario con estilo consistente */}
-          <View style={styles.form}>
-            {/* Cédula */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.cedula && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="card-outline"
-                  size={20}
-                  color={
-                    fieldErrors.cedula ? COLORS.error : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ingrese su número de cédula"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={cedula}
-                  maxLength={11}
-                  onChangeText={(text) => {
-                    setCedula(text);
-                    if (fieldErrors.cedula) clearFieldError("cedula");
-                  }}
-                  keyboardType="numeric"
-                />
-              </View>
-              {fieldErrors.cedula && (
-                <Text style={styles.errorText}>{fieldErrors.cedula}</Text>
-              )}
-            </View>
-
-            {/* Email */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.email && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={
-                    fieldErrors.email ? COLORS.error : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="correo@ejemplo.com"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={email}
-                  onChangeText={(text) => {
-                    setEmail(text);
-                    if (fieldErrors.email) clearFieldError("email");
-                  }}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-              </View>
-              {fieldErrors.email && (
-                <Text style={styles.errorText}>{fieldErrors.email}</Text>
-              )}
-            </View>
-
-            {/* Código de Invitación */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.codigoInvitacion && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="key-outline"
-                  size={20}
-                  color={
-                    fieldErrors.codigoInvitacion
-                      ? COLORS.error
-                      : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Código de la copropiedad"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={codigoInvitacion}
-                  onChangeText={(text) => {
-                    setCodigoInvitacion(text.toUpperCase());
-                    if (fieldErrors.codigoInvitacion)
-                      clearFieldError("codigoInvitacion");
-                  }}
-                  autoCapitalize="characters"
-                  maxLength={8}
-                />
-              </View>
-              {fieldErrors.codigoInvitacion && (
-                <Text style={styles.errorText}>
-                  {fieldErrors.codigoInvitacion}
-                </Text>
-              )}
-            </View>
-
-            {/* Contraseña */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.password && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={
-                    fieldErrors.password ? COLORS.error : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Mínimo 8 caracteres"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    if (fieldErrors.password) clearFieldError("password");
-                  }}
-                  secureTextEntry={!showPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeButton}
-                >
-                  <Entypo
-                    name={showPassword ? "lock-open" : "lock"}
-                    size={18}
-                    color={COLORS.text.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {fieldErrors.password && (
-                <Text style={styles.errorText}>{fieldErrors.password}</Text>
-              )}
-            </View>
-
-            {/* Confirmar Contraseña */}
-            <View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  fieldErrors.confirmPassword && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="checkmark-circle-outline"
-                  size={20}
-                  color={
-                    fieldErrors.confirmPassword
-                      ? COLORS.error
-                      : COLORS.text.secondary
-                  }
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Repita su contraseña"
-                  placeholderTextColor={COLORS.text.muted}
-                  value={confirmPassword}
-                  onChangeText={(text) => {
-                    setConfirmPassword(text);
-                    if (fieldErrors.confirmPassword)
-                      clearFieldError("confirmPassword");
-                  }}
-                  secureTextEntry={!showConfirmPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={styles.eyeButton}
-                >
-                  <Entypo
-                    name={showConfirmPassword ? "lock-open" : "lock"}
-                    size={18}
-                    color={COLORS.text.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {fieldErrors.confirmPassword && (
-                <Text style={styles.errorText}>
-                  {fieldErrors.confirmPassword}
-                </Text>
-              )}
-            </View>
-
-            {/* Términos y Condiciones */}
-            <View style={styles.terminosContainer}>
-              <TouchableOpacity
-                onPress={() => {
-                  setAceptaTerminos(!aceptaTerminos);
-                  if (fieldErrors.terminos) clearFieldError("terminos");
+          {/* Email */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.email && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={fieldErrors.email ? COLORS.error : COLORS.text.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="correo@ejemplo.com"
+                placeholderTextColor={COLORS.text.muted}
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (fieldErrors.email) clearFieldError("email");
                 }}
-                style={styles.terminosCheckbox}
-                activeOpacity={0.7}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </View>
+            {fieldErrors.email && (
+              <Text style={styles.errorText}>{fieldErrors.email}</Text>
+            )}
+          </View>
+
+          {/* Código de Invitación */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.codigoInvitacion && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="key-outline"
+                size={20}
+                color={
+                  fieldErrors.codigoInvitacion
+                    ? COLORS.error
+                    : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Código de la copropiedad"
+                placeholderTextColor={COLORS.text.muted}
+                value={codigoInvitacion}
+                onChangeText={(text) => {
+                  setCodigoInvitacion(text.toUpperCase());
+                  if (fieldErrors.codigoInvitacion)
+                    clearFieldError("codigoInvitacion");
+                }}
+                autoCapitalize="characters"
+                maxLength={8}
+              />
+            </View>
+            {fieldErrors.codigoInvitacion && (
+              <Text style={styles.errorText}>
+                {fieldErrors.codigoInvitacion}
+              </Text>
+            )}
+          </View>
+
+          {/* Contraseña */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.password && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={
+                  fieldErrors.password ? COLORS.error : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Mínimo 8 caracteres"
+                placeholderTextColor={COLORS.text.muted}
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (fieldErrors.password) clearFieldError("password");
+                }}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
               >
-                <Ionicons
-                  name={aceptaTerminos ? "checkbox" : "square-outline"}
-                  size={22}
-                  color={fieldErrors.terminos ? COLORS.error : COLORS.primary}
+                <Entypo
+                  name={showPassword ? "lock-open" : "lock"}
+                  size={18}
+                  color={COLORS.text.secondary}
                 />
               </TouchableOpacity>
-              <View style={styles.terminosTextoContainer}>
-                <Text style={styles.terminosTexto}>
-                  He leído y acepto los{" "}
-                  <Text
-                    style={styles.terminosLink}
-                    onPress={() =>
-                      openURL("https://admysis.com/home", (msg) =>
-                        showToast(msg, "error")
-                      )
-                    }
-                  >
-                    Términos y Condiciones
-                  </Text>{" "}
-                  y la{" "}
-                  <Text
-                    style={styles.terminosLink}
-                    onPress={() =>
-                      openURL("https://admysis.com/home", (msg) =>
-                        showToast(msg, "error")
-                      )
-                    }
-                  >
-                    Política de Privacidad
-                  </Text>
-                </Text>
-                {fieldErrors.terminos && (
-                  <Text style={styles.terminosError}>
-                    {fieldErrors.terminos}
-                  </Text>
-                )}
-              </View>
             </View>
-
-            {/* Botón de registro */}
-            <TouchableOpacity
-              style={styles.registerButton}
-              onPress={handleSignUp}
-              disabled={isLoading}
-            >
-              <Text style={styles.registerButtonText}>Crear Cuenta</Text>
-            </TouchableOpacity>
-
-            {/* Link a login */}
-            <TouchableOpacity
-              style={styles.loginLink}
-              onPress={() => router.push("/(auth)/login")}
-            >
-              <Text style={styles.loginLinkText}>
-                ¿Ya tienes cuenta? Inicia sesión
-              </Text>
-            </TouchableOpacity>
+            {fieldErrors.password && (
+              <Text style={styles.errorText}>{fieldErrors.password}</Text>
+            )}
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          {/* Confirmar Contraseña */}
+          <View>
+            <View
+              style={[
+                styles.inputContainer,
+                fieldErrors.confirmPassword && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={20}
+                color={
+                  fieldErrors.confirmPassword
+                    ? COLORS.error
+                    : COLORS.text.secondary
+                }
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Repita su contraseña"
+                placeholderTextColor={COLORS.text.muted}
+                value={confirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  if (fieldErrors.confirmPassword)
+                    clearFieldError("confirmPassword");
+                }}
+                secureTextEntry={!showConfirmPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={styles.eyeButton}
+              >
+                <Entypo
+                  name={showConfirmPassword ? "lock-open" : "lock"}
+                  size={18}
+                  color={COLORS.text.secondary}
+                />
+              </TouchableOpacity>
+            </View>
+            {fieldErrors.confirmPassword && (
+              <Text style={styles.errorText}>
+                {fieldErrors.confirmPassword}
+              </Text>
+            )}
+          </View>
+
+          {/* Términos y Condiciones */}
+          <View style={styles.terminosContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                setAceptaTerminos(!aceptaTerminos);
+                if (fieldErrors.terminos) clearFieldError("terminos");
+              }}
+              style={styles.terminosCheckbox}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={aceptaTerminos ? "checkbox" : "square-outline"}
+                size={22}
+                color={fieldErrors.terminos ? COLORS.error : COLORS.primary}
+              />
+            </TouchableOpacity>
+            <View style={styles.terminosTextoContainer}>
+              <Text style={styles.terminosTexto}>
+                He leído y acepto los{" "}
+                <Text
+                  style={styles.terminosLink}
+                  onPress={() =>
+                    openURL("https://admysis.com/home", (msg) =>
+                      showToast(msg, "error")
+                    )
+                  }
+                >
+                  Términos y Condiciones
+                </Text>{" "}
+                y la{" "}
+                <Text
+                  style={styles.terminosLink}
+                  onPress={() =>
+                    openURL("https://admysis.com/home", (msg) =>
+                      showToast(msg, "error")
+                    )
+                  }
+                >
+                  Política de Privacidad
+                </Text>
+              </Text>
+              {fieldErrors.terminos && (
+                <Text style={styles.terminosError}>{fieldErrors.terminos}</Text>
+              )}
+            </View>
+          </View>
+
+          {/* Botón de registro */}
+          <TouchableOpacity
+            style={styles.registerButton}
+            onPress={handleSignUp}
+            disabled={isLoading}
+          >
+            <Text style={styles.registerButtonText}>Crear Cuenta</Text>
+          </TouchableOpacity>
+
+          {/* Link a login */}
+          <TouchableOpacity
+            style={styles.loginLink}
+            onPress={() => router.push("/(auth)/login")}
+          >
+            <Text style={styles.loginLinkText}>
+              ¿Ya tienes cuenta? Inicia sesión
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
@@ -654,9 +640,6 @@ const styles = StyleSheet.create({
     fontSize: THEME.fontSize.sm,
     color: COLORS.text.secondary,
     textAlign: "left",
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

@@ -5,6 +5,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { useProject } from "@/contexts/ProjectContext";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { AppError } from "@/types/AppError";
+import { ROLES, UserRole } from "@/types/Roles";
 
 // const LOG_TAG = "[Index]";
 // const fmt = (ms: number) => `+${ms}ms`;
@@ -22,13 +24,19 @@ export interface NavigationState {
   isAuthenticated: boolean;
   userLoading: boolean;
   isLoadingProjects: boolean;
-  userHasError: boolean;
-  userHasAccessError: boolean;
+  userError: AppError | null;
+  projectsError: AppError | null;
   userInitialized: boolean;
   user: { usuario?: string } | null;
-  selectedProject: { nombre?: string; rolUsuario: string } | null;
-  proyectos: { rolUsuario: string }[];
+  selectedProject: { nombre?: string; rolUsuario: UserRole } | null;
+  proyectos: { rolUsuario: UserRole }[];
 }
+
+const getRoleHref = (rol: UserRole): string => {
+  if (rol === ROLES.ADMIN) return "/(admin)";
+  if (rol === ROLES.CONTADOR) return "/(contador)";
+  return "/(tabs)";
+};
 
 export function resolveDestination(s: NavigationState): AppDestination {
   if (
@@ -55,32 +63,46 @@ export function resolveDestination(s: NavigationState): AppDestination {
     return { type: "loading" };
   }
 
-  if (s.userHasError) {
-    return { type: "redirect", href: "/(screens)/ConnectionErrorScreen" };
-  }
+  // Ambas cargas terminaron — resolver error con prioridad
+  const appError = s.projectsError ?? s.userError;
 
-  if (s.userHasAccessError) {
-    return { type: "redirect", href: "/(screens)/AccessDenied" };
+  if (appError) {
+    switch (appError.type) {
+      case "server_error":
+        return { type: "redirect", href: "/(screens)/ConnectionErrorScreen" };
+      case "projects_inactive":
+        return {
+          type: "redirect",
+          href: "/(screens)/AccessDenied?reason=projects_inactive",
+        };
+      case "no_projects":
+        return {
+          type: "redirect",
+          href: "/(screens)/AccessDenied?reason=no_projects",
+        };
+      case "user_not_found":
+        return {
+          type: "redirect",
+          href: "/(screens)/AccessDenied?reason=no_projects",
+        };
+    }
   }
 
   if (s.selectedProject) {
     return {
       type: "redirect",
-      href: s.selectedProject.rolUsuario === "admin" ? "/(admin)" : "/(tabs)",
+      href: getRoleHref(s.selectedProject.rolUsuario),
     };
   }
 
   if (s.user) {
-    if (s.proyectos.length === 0 && !s.isLoadingProjects) {
-      return { type: "redirect", href: "/(screens)/AccessDenied" };
-    }
     if (s.proyectos.length > 1) {
       return { type: "redirect", href: "/project-selector" };
     }
     if (s.proyectos.length === 1) {
       return {
         type: "redirect",
-        href: s.proyectos[0].rolUsuario === "admin" ? "/(admin)" : "/(tabs)",
+        href: getRoleHref(s.proyectos[0].rolUsuario),
       };
     }
   }
@@ -96,13 +118,13 @@ export function useAppNavigation(): AppDestination {
   // const mountTime = useRef(Date.now());
   // const elapsed = () => fmt(Date.now() - mountTime.current);
 
-  const { selectedProject, proyectos, isLoadingProjects } = useProject();
+  const { selectedProject, proyectos, isLoadingProjects, projectsError } =
+    useProject();
   const {
     user,
     isLoading: userLoading,
     hasInitialized: userInitialized,
-    hasError: userHasError,
-    hasAccessError: userHasAccessError,
+    userError,
   } = useUser();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -213,21 +235,13 @@ export function useAppNavigation(): AppDestination {
     isAuthenticated,
     userLoading,
     isLoadingProjects,
-    userHasError,
-    userHasAccessError,
+    userError,
+    projectsError,
     userInitialized,
     user,
     selectedProject,
     proyectos,
   });
-
-  // if (destination.type === "splash") {
-  //   console.log(`${LOG_TAG} -> null (splash visible) ${elapsed()} | appReady=${appReady} authLoading=${authLoading} onboardingSeen=${onboardingSeen} isConnected=${isConnected}`);
-  // } else if (destination.type === "loading") {
-  //   console.log(`${LOG_TAG} -> LoadingScreen ${elapsed()} | userLoading=${userLoading} isLoadingProjects=${isLoadingProjects}`);
-  // } else {
-  //   console.log(`${LOG_TAG} -> Redirect ${destination.href} ${elapsed()}`);
-  // }
 
   return destination;
 }

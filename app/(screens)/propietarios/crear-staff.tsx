@@ -6,62 +6,81 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { THEME, COLORS } from "@/constants/theme";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { propietarioService } from "@/services/propietarioService";
+import { useRouter } from "expo-router";
 import { useLoading } from "@/contexts/LoadingContext";
+import ScreenHeader from "@/components/shared/ScreenHeader";
 import Toast from "@/components/Toast";
 
-export default function CrearUsuarioScreen() {
-  const router = useRouter();
-  const { cedula } = useLocalSearchParams<{ cedula: string }>();
-  const { showLoading, hideLoading, isLoading } = useLoading();
+// Mock — reemplazar con llamada real a siscoapp_staff_crear
+const ROLES_STAFF = [
+  {
+    key: "contador",
+    label: "Contador",
+    descripcion: "Ver indicadores de la copropiedad y responder PQRs.",
+    icon: "calculator-outline" as const,
+  },
+];
 
-  const [formData, setFormData] = useState({
-    documento: cedula || "",
+interface FormData {
+  documento: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  rol: string;
+}
+
+interface FieldErrors {
+  documento?: string;
+  nombre?: string;
+  apellido?: string;
+  email?: string;
+  telefono?: string;
+  rol?: string;
+}
+
+export default function CrearStaffScreen() {
+  const router = useRouter();
+  const { showLoading, hideLoading } = useLoading();
+
+  const [formData, setFormData] = useState<FormData>({
+    documento: "",
     nombre: "",
     apellido: "",
     email: "",
     telefono: "",
+    rol: "",
   });
-  const [fieldErrors, setFieldErrors] = useState<{
-    documento?: string;
-    nombre?: string;
-    apellido?: string;
-    email?: string;
-    telefono?: string;
-  }>({});
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
     type: "success" | "error" | "warning";
   }>({ visible: false, message: "", type: "success" });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (fieldErrors[field as keyof typeof fieldErrors]) {
+    if (fieldErrors[field]) {
       setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field as keyof typeof newErrors];
-        return newErrors;
+        const next = { ...prev };
+        delete next[field];
+        return next;
       });
     }
   };
 
-  const setFieldError = (field: string, message: string) => {
+  const setFieldError = (field: keyof FieldErrors, message: string) => {
     setFieldErrors((prev) => ({ ...prev, [field]: message }));
   };
 
-  const crearUsuario = async () => {
-    // Limpiar errores previos
+  const crearStaff = async () => {
     setFieldErrors({});
     let hasErrors = false;
 
-    // Validar campos con errores en línea
     if (!formData.documento) {
       setFieldError("documento", "Ingresa la cédula");
       hasErrors = true;
@@ -74,7 +93,7 @@ export default function CrearUsuarioScreen() {
       setFieldError("nombre", "El nombre es obligatorio");
       hasErrors = true;
     } else if (formData.nombre.length < 2) {
-      setFieldError("nombre", "El nombre debe tener al menos 2 caracteres");
+      setFieldError("nombre", "Mínimo 2 caracteres");
       hasErrors = true;
     }
 
@@ -82,7 +101,7 @@ export default function CrearUsuarioScreen() {
       setFieldError("apellido", "El apellido es obligatorio");
       hasErrors = true;
     } else if (formData.apellido.length < 2) {
-      setFieldError("apellido", "El apellido debe tener al menos 2 caracteres");
+      setFieldError("apellido", "Mínimo 2 caracteres");
       hasErrors = true;
     }
 
@@ -97,50 +116,35 @@ export default function CrearUsuarioScreen() {
     }
 
     if (formData.telefono) {
-      const cleanTelefono = formData.telefono.trim();
-      if (!/^3[0-9]{9}$/.test(cleanTelefono)) {
-        setFieldError(
-          "telefono",
-          "El teléfono debe empezar con 3 y tener 10 dígitos"
-        );
+      if (!/^3[0-9]{9}$/.test(formData.telefono.trim())) {
+        setFieldError("telefono", "Debe empezar con 3 y tener 10 dígitos");
         hasErrors = true;
       }
     }
 
-    if (hasErrors) {
-      return;
+    if (!formData.rol) {
+      setFieldError("rol", "Selecciona un rol");
+      hasErrors = true;
     }
+
+    if (hasErrors) return;
 
     showLoading("Creando usuario...");
     try {
-      const resultado = await propietarioService.crearUsuario(formData);
+      // TODO: reemplazar con staffService.crearStaff(formData)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      if (resultado.success) {
-        // Navegar automáticamente a seleccionar apartamento
-        router.push({
-          pathname: "/(screens)/propietarios/seleccionar-apartamento",
-          params: {
-            usuario: JSON.stringify({
-              documento: formData.documento,
-              nombre: formData.nombre,
-              apellido: formData.apellido,
-              email: formData.email,
-              telefono: formData.telefono,
-            }),
-            esUsuarioNuevo: "true",
-          },
-        });
-      } else {
-        setToast({
-          visible: true,
-          message: resultado.error || "No se pudo crear el usuario",
-          type: "error",
-        });
-      }
+      setToast({
+        visible: true,
+        message: "Staff creado exitosamente",
+        type: "success",
+      });
+
+      setTimeout(() => router.back(), 1500);
     } catch {
       setToast({
         visible: true,
-        message: "Error al crear usuario",
+        message: "Error al crear el usuario",
         type: "error",
       });
     } finally {
@@ -150,36 +154,77 @@ export default function CrearUsuarioScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      {/* Background decorativo */}
-      <View style={styles.backgroundDecoration}>
-        <View style={[styles.circle, styles.circle1]} />
-        <View style={[styles.circle, styles.circle2]} />
-        <View style={[styles.circle, styles.circle3]} />
-      </View>
+      <ScreenHeader title="Crear Staff" onBackPress={() => router.back()} />
 
       <KeyboardAwareScrollView
         mode="layout"
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color={COLORS.text.primary} />
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>Crear Usuario</Text>
-            <Text style={styles.subtitle}>
-              Complete los datos del nuevo propietario
-            </Text>
+        {/* Selector de rol */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <AntDesign name="usergroup-add" size={20} color={COLORS.primary} />
+            <Text style={styles.cardTitle}>Tipo de usuario</Text>
           </View>
+
+          {fieldErrors.rol && (
+            <Text style={styles.errorText}>{fieldErrors.rol}</Text>
+          )}
+
+          {ROLES_STAFF.map((rol) => (
+            <TouchableOpacity
+              key={rol.key}
+              style={[
+                styles.rolCard,
+                formData.rol === rol.key && styles.rolCardActive,
+              ]}
+              onPress={() => handleInputChange("rol", rol.key)}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.rolIconContainer,
+                  formData.rol === rol.key && styles.rolIconContainerActive,
+                ]}
+              >
+                <Ionicons
+                  name={rol.icon}
+                  size={22}
+                  color={formData.rol === rol.key ? "white" : COLORS.primary}
+                />
+              </View>
+              <View style={styles.rolInfo}>
+                <Text
+                  style={[
+                    styles.rolLabel,
+                    formData.rol === rol.key && styles.rolLabelActive,
+                  ]}
+                >
+                  {rol.label}
+                </Text>
+                <Text style={styles.rolDescripcion}>{rol.descripcion}</Text>
+              </View>
+              {formData.rol === rol.key && (
+                <Ionicons
+                  name="checkmark-circle"
+                  size={22}
+                  color={COLORS.primary}
+                />
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* Formulario */}
-        <View style={styles.form}>
+        {/* Datos personales */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="person-outline" size={20} color={COLORS.primary} />
+            <Text style={styles.cardTitle}>Datos personales</Text>
+          </View>
+
           {/* Documento */}
           <View>
             <View
@@ -201,10 +246,9 @@ export default function CrearUsuarioScreen() {
                 placeholder="Número de cédula"
                 placeholderTextColor={COLORS.text.muted}
                 value={formData.documento}
-                onChangeText={(value) => handleInputChange("documento", value)}
+                onChangeText={(v) => handleInputChange("documento", v)}
                 keyboardType="numeric"
                 maxLength={11}
-                editable={!cedula}
               />
             </View>
             {fieldErrors.documento && (
@@ -233,7 +277,7 @@ export default function CrearUsuarioScreen() {
                 placeholder="Nombre"
                 placeholderTextColor={COLORS.text.muted}
                 value={formData.nombre}
-                onChangeText={(value) => handleInputChange("nombre", value)}
+                onChangeText={(v) => handleInputChange("nombre", v)}
                 autoCapitalize="words"
               />
             </View>
@@ -263,7 +307,7 @@ export default function CrearUsuarioScreen() {
                 placeholder="Apellido"
                 placeholderTextColor={COLORS.text.muted}
                 value={formData.apellido}
-                onChangeText={(value) => handleInputChange("apellido", value)}
+                onChangeText={(v) => handleInputChange("apellido", v)}
                 autoCapitalize="words"
               />
             </View>
@@ -291,7 +335,7 @@ export default function CrearUsuarioScreen() {
                 placeholder="correo@ejemplo.com"
                 placeholderTextColor={COLORS.text.muted}
                 value={formData.email}
-                onChangeText={(value) => handleInputChange("email", value)}
+                onChangeText={(v) => handleInputChange("email", v)}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -319,10 +363,10 @@ export default function CrearUsuarioScreen() {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Teléfono"
+                placeholder="Teléfono (opcional)"
                 placeholderTextColor={COLORS.text.muted}
                 value={formData.telefono}
-                onChangeText={(value) => handleInputChange("telefono", value)}
+                onChangeText={(v) => handleInputChange("telefono", v)}
                 keyboardType="phone-pad"
                 maxLength={10}
               />
@@ -331,25 +375,40 @@ export default function CrearUsuarioScreen() {
               <Text style={styles.errorText}>{fieldErrors.telefono}</Text>
             )}
           </View>
-
-          {/* Botón crear */}
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={crearUsuario}
-            disabled={isLoading}
-          >
-            <Text style={styles.createButtonText}>
-              {isLoading ? "Creando Usuario..." : "Crear Usuario"}
-            </Text>
-          </TouchableOpacity>
         </View>
+
+        {/* Info */}
+        <View style={styles.infoCard}>
+          <Ionicons
+            name="information-circle-outline"
+            size={18}
+            color={COLORS.primary}
+          />
+          <Text style={styles.infoText}>
+            El usuario recibirá sus credenciales de acceso al correo registrado.
+          </Text>
+        </View>
+
+        {/* Botón */}
+        <TouchableOpacity
+          style={[
+            styles.createButton,
+            (!formData.rol || !formData.documento) &&
+              styles.createButtonDisabled,
+          ]}
+          onPress={crearStaff}
+          disabled={!formData.rol || !formData.documento}
+        >
+          <AntDesign name="usergroup-add" size={20} color="white" />
+          <Text style={styles.createButtonText}>Crear Usuario</Text>
+        </TouchableOpacity>
       </KeyboardAwareScrollView>
 
       <Toast
         visible={toast.visible}
         message={toast.message}
         type={toast.type}
-        onHide={() => setToast({ ...toast, visible: false })}
+        onHide={() => setToast((prev) => ({ ...prev, visible: false }))}
       />
     </SafeAreaView>
   );
@@ -358,101 +417,102 @@ export default function CrearUsuarioScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: THEME.colors.background,
   },
-  backgroundDecoration: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  circle: {
-    position: "absolute",
-    borderRadius: 1000,
-    opacity: 0.08,
-  },
-  circle1: {
-    width: 250,
-    height: 250,
-    backgroundColor: COLORS.primary,
-    top: -125,
-    right: -125,
-  },
-  circle2: {
-    width: 180,
-    height: 180,
-    backgroundColor: COLORS.primaryLight,
-    bottom: -90,
-    left: -90,
-  },
-  circle3: {
-    width: 120,
-    height: 120,
-    backgroundColor: COLORS.primary,
-    top: 200,
-    right: -60,
+  content: {
+    flex: 1,
+    paddingHorizontal: THEME.spacing.md,
   },
   scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: THEME.spacing.lg,
-    paddingTop: THEME.spacing.xl * 2,
-    paddingBottom: THEME.spacing.xl,
-    justifyContent: "center",
+    paddingTop: THEME.spacing.lg,
+    paddingBottom: THEME.spacing.xl * 2,
   },
-  header: {
+  card: {
+    backgroundColor: COLORS.surface,
+    borderRadius: THEME.borderRadius.lg,
+    padding: THEME.spacing.lg,
+    marginBottom: THEME.spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: THEME.spacing.xl,
-    paddingHorizontal: THEME.spacing.lg,
+    marginBottom: THEME.spacing.lg,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
+  cardTitle: {
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
+    color: COLORS.text.primary,
+    marginLeft: THEME.spacing.sm,
+  },
+  rolCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: THEME.spacing.md,
+    borderRadius: THEME.borderRadius.md,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    marginBottom: THEME.spacing.sm,
+    backgroundColor: THEME.colors.background,
+  },
+  rolCardActive: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primary + "08",
+  },
+  rolIconContainer: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: COLORS.primary + "15",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
+    marginRight: THEME.spacing.md,
   },
-  headerContent: {
+  rolIconContainerActive: {
+    backgroundColor: COLORS.primary,
+  },
+  rolInfo: {
     flex: 1,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
+  rolLabel: {
+    fontSize: THEME.fontSize.md,
+    fontWeight: "600",
     color: COLORS.text.primary,
-    marginBottom: THEME.spacing.xs,
+    marginBottom: 2,
   },
-  subtitle: {
-    fontSize: THEME.fontSize.sm,
+  rolLabelActive: {
+    color: COLORS.primary,
+  },
+  rolDescripcion: {
+    fontSize: THEME.fontSize.xs,
     color: COLORS.text.secondary,
-    textAlign: "left",
-  },
-  form: {
-    width: "100%",
+    lineHeight: 16,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.surface,
+    backgroundColor: THEME.colors.background,
     borderRadius: THEME.borderRadius.md,
-    marginBottom: THEME.spacing.md,
     paddingHorizontal: THEME.spacing.md,
+    marginBottom: THEME.spacing.md,
     borderWidth: 1,
     borderColor: COLORS.border,
+    height: 50,
+  },
+  inputError: {
+    borderColor: COLORS.error,
   },
   inputIcon: {
     marginRight: THEME.spacing.sm,
   },
   input: {
     flex: 1,
-    height: 50,
     color: COLORS.text.primary,
-  },
-  inputError: {
-    borderColor: COLORS.error,
-    borderWidth: 1,
+    fontSize: THEME.fontSize.md,
   },
   errorText: {
     color: COLORS.error,
@@ -461,16 +521,39 @@ const styles = StyleSheet.create({
     marginBottom: THEME.spacing.sm,
     marginLeft: THEME.spacing.sm,
   },
+  infoCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: COLORS.primary + "10",
+    borderRadius: THEME.borderRadius.md,
+    padding: THEME.spacing.md,
+    marginBottom: THEME.spacing.lg,
+    borderWidth: 1,
+    borderColor: COLORS.primary + "25",
+  },
+  infoText: {
+    flex: 1,
+    fontSize: THEME.fontSize.sm,
+    color: COLORS.primary,
+    marginLeft: THEME.spacing.sm,
+    lineHeight: 18,
+  },
   createButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: COLORS.primary,
     borderRadius: THEME.borderRadius.md,
     paddingVertical: THEME.spacing.md,
-    alignItems: "center",
-    marginTop: THEME.spacing.lg,
+    gap: 8,
+  },
+  createButtonDisabled: {
+    backgroundColor: COLORS.text.muted,
   },
   createButtonText: {
     color: "white",
     fontWeight: "bold",
     fontSize: THEME.fontSize.md,
+    marginLeft: THEME.spacing.sm,
   },
 });

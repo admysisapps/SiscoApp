@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
-  Keyboard,
+  Platform,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Image } from "expo-image";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -82,24 +81,6 @@ export default function CrearAvisoScreen() {
     message: "",
     type: "success" as "success" | "error" | "warning",
   });
-  const [behavior, setBehavior] = useState<"padding" | "height" | undefined>(
-    Platform.OS === "ios" ? "padding" : "height"
-  );
-
-  useEffect(() => {
-    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setBehavior(Platform.OS === "ios" ? "padding" : "height");
-    });
-
-    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setBehavior(undefined);
-    });
-
-    return () => {
-      keyboardShowListener.remove();
-      keyboardHideListener.remove();
-    };
-  }, []);
 
   const showToast = (
     message: string,
@@ -344,7 +325,7 @@ export default function CrearAvisoScreen() {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Crear Comunicado" />
 
-      <KeyboardAvoidingView style={styles.flex} behavior={behavior}>
+      <KeyboardAvoidingView behavior="padding" style={styles.flex}>
         <LinearGradient colors={["#FAFAFA", "#F5F5F5"]} style={styles.gradient}>
           <ScrollView
             style={styles.content}
@@ -582,23 +563,20 @@ export default function CrearAvisoScreen() {
             </View>
           </ScrollView>
 
-          {/* Botón submit fijo abajo */}
           <View style={styles.fixedBottom}>
-            <View style={{ width: "100%" }}>
-              <Button
-                isLoading={loading}
-                onPress={handleSave}
-                loadingText="Enviando..."
-                loadingTextColor="#fff"
-                backgroundColor={getAvisoColor(formData.prioridad)}
-                loadingTextBackgroundColor={getAvisoColor(formData.prioridad)}
-                height={56}
-                borderRadius={12}
-                fullWidth
-              >
-                <Text style={styles.submitText}>Enviar Comunicado</Text>
-              </Button>
-            </View>
+            <Button
+              isLoading={loading}
+              onPress={handleSave}
+              loadingText="Enviando..."
+              loadingTextColor="#fff"
+              backgroundColor={getAvisoColor(formData.prioridad)}
+              loadingTextBackgroundColor={getAvisoColor(formData.prioridad)}
+              height={56}
+              borderRadius={12}
+              fullWidth
+            >
+              <Text style={styles.submitText}>Enviar Comunicado</Text>
+            </Button>
           </View>
         </LinearGradient>
       </KeyboardAvoidingView>
@@ -620,7 +598,6 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
-    backgroundColor: "transparent",
   },
   gradient: {
     flex: 1,
