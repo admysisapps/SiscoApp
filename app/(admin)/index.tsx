@@ -11,7 +11,6 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { PqrMainCards } from "@/components/pqr/PQRMainCards";
 import { ReservaAdminCards } from "@/components/reservas/ReservaAdminCards";
 import { CambiarPropietarioCard } from "@/components/propietarios/CambiarPropietarioCard";
-import { CrearStaffCard } from "@/components/propietarios/CrearStaffCard";
 import { useRouter } from "expo-router";
 import DashboardAdmin from "@/components/dashboard/admin/DashboardAdmin";
 import AnuncioSistema from "@/components/dashboard/admin/AnuncioSistema";
@@ -116,9 +115,6 @@ const AdminPropietariosSection = React.memo(() => {
         onPress={() =>
           router.push("/(screens)/propietarios/cambiar-propietario")
         }
-      />
-      <CrearStaffCard
-        onPress={() => router.push("/(screens)/propietarios/crear-staff")}
       />
     </View>
   );
