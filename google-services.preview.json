@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "520037254851",
+    "project_id": "siscoapp-57776",
+    "storage_bucket": "siscoapp-57776.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520037254851:android:2be4193dc74fff4d0b8476",
+        "android_client_info": {
+          "package_name": "com.Admysis.SiscoApp.preview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYvNkbinBsmWw6-C1Cglxz6aoZwIsArg4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

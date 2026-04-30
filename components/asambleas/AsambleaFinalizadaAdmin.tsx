@@ -70,7 +70,7 @@ const AsambleaFinalizadaAdmin: React.FC<AsambleaFinalizadaAdminProps> = ({
         // Si el reporte se generó correctamente (no existía antes), navegar a Documentos
         if (!response.mensaje.includes("ya existe")) {
           setTimeout(() => {
-            router.push("/(admin)/(financiero-admin)/Documentos");
+            router.push("/(admin)/documentosAdmin");
           }, 1500); // Esperar 1.5s para que el usuario vea el toast
         }
       } else {
